@@ -389,30 +389,6 @@
             margin-bottom: 20px;
         }
 
-        .code-drawer-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            cursor: pointer;
-            text-decoration: underline;
-            margin-top: 8px;
-        }
-
-        .code-drawer {
-            display: none;
-            background: rgba(0,0,0,0.8);
-            border: 1px solid var(--border-glow);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            max-height: 160px;
-            overflow-y: auto;
-        }
-
         .clause-box {
             font-size: 0.8rem;
             color: var(--text-muted);
@@ -445,21 +421,12 @@
         <!-- 1. CLIENT 6CODE VERIFICATION -->
         <div class="scifi-panel">
             <div class="panel-header">CLIENT 6CODE AUTHORIZATION</div>
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">Enter your client authorization code or Master Code to unlock custom discounts and pricing.</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">Enter your client authorization code to unlock custom discounts and pricing.</p>
             <div class="code-box">
-                <input type="text" id="client-code-input" maxlength="20" placeholder="ENTER 6CODE OR MASTER CODE">
+                <input type="text" id="client-code-input" maxlength="20" placeholder="ENTER YOUR AUTHORIZATION CODE">
                 <button class="btn btn-cyan" style="width: 120px;" onclick="verifyCode()">VERIFY</button>
             </div>
             <div id="code-badge" class="badge-verified"></div>
-            
-            <button class="code-drawer-btn" onclick="toggleCodeDrawer()">View Available Client 6Codes</button>
-            <div id="code-drawer" class="code-drawer">
-                <strong style="color: var(--gold-primary);">Available Customer Codes:</strong><br>
-                • 10% OFF: CL10A1, CL10B2, CL10C3, CL10D4, CL10E5, CL10F6, CL10G7, CL10H8, CL10K9, CL10M0<br>
-                • 3% OFF: VIP3X1, VIP3Y2, VIP3Z3, VIP3A4, VIP3B5<br>
-                • 5% OFF: STAR5A, STAR5B, STAR5C, STAR5D, STAR5E<br>
-                • ⚡ MASTER CODE: <code>CELESTIAL-MASTER</code> (Custom Discount / Override)
-            </div>
         </div>
 
         <!-- 2. MENU SELECTION -->
@@ -517,7 +484,7 @@
                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Scan InstaPay QR Code below or use Bank Details:</p>
                 <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000007082.jpg" alt="InstaPay QR Code" class="qr-img" onerror="this.src='1000007082.jpg'">
                 <div>
-                    <a href="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000007082.jpg" download="Celestial_Lobby_QR.jpg" class="code-drawer-btn" style="font-size: 0.9rem;">Download QR Code Image</a>
+                    <a href="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000007082.jpg" download="Celestial_Lobby_QR.jpg" style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; text-decoration: underline;">Download QR Code Image</a>
                 </div>
             </div>
 
@@ -673,11 +640,6 @@
         updateCalculations();
     }
 
-    function toggleCodeDrawer() {
-        const drawer = document.getElementById('code-drawer');
-        drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
-    }
-
     function resetSelections() {
         if (confirm('Are you sure you want to reset all selected items and codes?')) {
             Object.keys(cart).forEach(k => cart[k] = 0);
@@ -770,13 +732,11 @@
             return;
         }
 
-        // Logistics hours: 1 to 6 hrs max based on speed
-        let logisticsHours = 2; // Standard
+        let logisticsHours = 2;
         if (gorushOption === 'send_now') logisticsHours = 1;
         if (gorushOption === 'immediately') logisticsHours = 2;
         if (gorushOption === 'asap') logisticsHours = 3;
 
-        // Total ETA = 1.5h confirmation/packaging average + logistics hours
         const totalMinutes = Math.round((1.5 + logisticsHours) * 60);
         const etaTime = new Date(now.getTime() + totalMinutes * 60000);
         const timeString = etaTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
