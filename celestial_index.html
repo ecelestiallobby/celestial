@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>Celestial Lobby | Checkout</title>
+<style>
+  :root{color-scheme:dark;--bg:#080c18;--panel:#11182b;--panel2:#172139;--line:#2b3857;--text:#f3f5fb;--muted:#aeb9d1;--silver:#dce5f4;--accent:#9bb8ef;--gold:#d8c28b;--ok:#a6e3c2}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(ellipse at top,#172344 0,#080c18 55%);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+  .wrap{width:min(760px,100%);margin:auto;padding:20px 14px 48px}
+  header{text-align:center;padding:22px 10px 20px}
+  .orbit{width:58px;height:58px;margin:0 auto 12px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;box-shadow:0 0 26px #7b91ca25}
+  .orbit span{font-size:26px}
+  .eyebrow{font-size:.76rem;letter-spacing:.22em;color:var(--gold);font-weight:700}
+  h1{font-size:clamp(1.8rem,7vw,2.7rem);line-height:1.12;letter-spacing:.05em;margin:8px 0}
+  header p{color:var(--muted);margin:0}
+  .card{background:linear-gradient(160deg,#141d33f5,#0e1527f5);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 12px 34px #0002}
+  h2{font-size:1.05rem;margin:0 0 14px;letter-spacing:.03em}
+  label{display:block;font-weight:650;margin:12px 0 6px}
+  select,input,textarea{width:100%;border:1px solid #3b4a6b;border-radius:11px;background:#0a1121;color:var(--text);font:inherit;padding:12px}
+  select:focus,input:focus,textarea:focus,button:focus,a:focus{outline:2px solid var(--accent);outline-offset:2px}
+  .hint,.muted{font-size:.88rem;color:var(--muted)}
+  .product{display:flex;align-items:center;gap:12px}
+  .planet{flex:0 0 44px;height:44px;border:1px solid #63749c;border-radius:50%;display:grid;place-items:center;font-size:20px;background:#202d49}
+  .product-main{flex:1;min-width:0}
+  .product-name{font-weight:750}
+  .price{color:var(--silver);font-weight:750;white-space:nowrap}
+  .qty{display:flex;align-items:center;gap:10px}
+  .qty button{width:42px;height:42px;padding:0;font-size:1.4rem}
+  .qty input{width:72px;text-align:center}
+  .addon{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid #27334e}
+  .addon:last-child{border-bottom:0;padding-bottom:0}
+  .addon input{width:19px;height:19px;margin-top:4px;accent-color:#a9bee9}
+  .addon label{margin:0;flex:1;font-weight:550}
+  .addon .price{font-size:.9rem}
+  .btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;width:100%;border:0;border-radius:12px;padding:14px 16px;font:inherit;font-weight:800;cursor:pointer;text-decoration:none;text-align:center}
+  .primary{background:linear-gradient(100deg,#e4eaf5,#b6c8e8);color:#10172a}
+  .secondary{background:#202c46;border:1px solid #405174;color:var(--text)}
+  .telegram{background:#1f88c9;color:white}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .totals{display:grid;gap:9px}
+  .line{display:flex;justify-content:space-between;gap:16px;color:var(--muted)}
+  .line strong{color:var(--text);text-align:right}
+  .grand{border-top:1px solid var(--line);padding-top:13px;margin-top:4px;align-items:center}
+  .grand span{font-weight:800;color:var(--text)}
+  .grand strong{font-size:1.55rem;color:var(--gold)}
+  .notice{border:1px dashed #8c7a4c;background:#29241455;border-radius:12px;padding:12px;color:#e8d9ad;font-size:.9rem}
+  #paymentSection[hidden]{display:none}
+  .qr-placeholder{min-height:220px;border:2px dashed #64769b;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:#0a1121}
+  .qr-placeholder .qr-icon{font-size:3rem}
+  .qr-placeholder strong{margin:8px 0}
+  .qr-placeholder code{font-size:.8rem;color:var(--gold);overflow-wrap:anywhere}
+  .summary-box{background:#0a1121;border:1px solid var(--line);border-radius:12px;padding:14px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.92rem}
+  .actions{display:grid;gap:10px;margin-top:14px}
+  footer{text-align:center;color:var(--muted);font-size:.82rem;padding:12px 10px}
+  .pill{display:inline-block;border:1px solid #3c4c6d;border-radius:99px;padding:3px 9px;color:var(--muted);font-size:.78rem;margin-top:10px}
+  @media(min-width:600px){.wrap{padding-top:28px}.card{padding:22px}.actions{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="orbit" aria-hidden="true"><span>✦</span></div>
+    <div class="eyebrow">ENTER THE ORBIT</div>
+    <h1>CELESTIAL LOBBY</h1>
+    <p>Choose your fantasy. Build your order.</p>
+    <span class="pill">SECURE YOUR ORDER · REVIEW BEFORE PAYING</span>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="serverHeading">
+      <h2 id="serverHeading">01 / SELECT YOUR SERVER</h2>
+      <label for="server">Server</label>
+      <select id="server">
+        <option value="cloud">☁️ Cloud9 — New Spawn's Area</option>
+        <option value="mars">🔴 Mars — Mid-Game Rush</option>
+        <option value="venus">💜 Venus — Incubus' Favorite</option>
+        <option value="saturn">🪐 Saturn — Empress Build</option>
+        <option value="nibiru">🌌 Nibiru — Celestial Inverted Realm</option>
+      </select>
+      <div class="product" style="margin-top:16px">
+        <div class="planet" id="planetIcon" aria-hidden="true">☁️</div>
+        <div class="product-main">
+          <div class="product-name" id="serverName">Cloud9</div>
+          <div class="hint" id="serverDesc">New Spawn's Area</div>
+        </div>
+        <div class="price" id="unitPrice">₱700 / unit</div>
+      </div>
+      <label for="qty">Quantity</label>
+      <div class="qty">
+        <button type="button" class="secondary" id="minus" aria-label="Decrease quantity">−</button>
+        <input id="qty" type="number" inputmode="numeric" min="1" max="99" value="1" aria-label="Quantity">
+        <button type="button" class="secondary" id="plus" aria-label="Increase quantity">+</button>
+      </div>
+      <p class="hint">Choose between 1 and 99 units.</p>
+    </section>
+
+    <section class="card" aria-labelledby="addonHeading">
+      <h2 id="addonHeading">02 / CUSTOMIZE WITH ADD-ONS</h2>
+      <p class="hint">Sample add-ons below are editable in the HTML file. Replace them with your actual approved offers and prices.</p>
+      <div class="addon">
+        <input type="checkbox" id="addonPriority" data-addon="priority">
+        <label for="addonPriority">Priority handling <div class="hint">Per unit</div></label>
+        <span class="price">₱100</span>
+      </div>
+      <div class="addon">
+        <input type="checkbox" id="addonPremium" data-addon="premium">
+        <label for="addonPremium">Premium add-on <div class="hint">Per unit</div></label>
+        <span class="price">₱250</span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="totalHeading">
+      <h2 id="totalHeading">03 / ORDER TOTAL</h2>
+      <div class="totals" aria-live="polite" aria-atomic="true">
+        <div class="line"><span id="subtotalLabel">Cloud9 × 1</span><strong id="subtotal">₱700</strong></div>
+        <div class="line"><span>Add-ons</span><strong id="addonTotal">₱0</strong></div>
+        <div class="line grand"><span>TOTAL TO PAY</span><strong id="grandTotal">₱700</strong></div>
+      </div>
+      <p class="hint">This page calculates your order locally. It does not take payment or verify transactions.</p>
+      <button type="button" class="btn primary" id="proceed" style="margin-top:10px">Proceed to Payment →</button>
+    </section>
+
+    <section class="card" id="paymentSection" aria-labelledby="paymentHeading" hidden>
+      <h2 id="paymentHeading">04 / PAYMENT</h2>
+      <p>Review your order summary. Then scan the merchant QR code supplied by Celestial Lobby.</p>
+      <div class="notice"><strong>QR PLACEHOLDER:</strong> This demo does not contain a real payment QR. Replace the placeholder with your own valid QR image before publishing. Make sure the displayed payment amount and recipient are correct.</div>
+      <div class="qr-placeholder" id="qrArea" style="margin-top:14px">
+        <div class="qr-icon" aria-hidden="true">▦</div>
+        <strong>YOUR PAYMENT QR GOES HERE</strong>
+        <span class="hint">Placeholder only — no payment can be made from this box.</span>
+        <code>Replace with your own QR image</code>
+      </div>
+      <h2 style="margin-top:20px">Order summary</h2>
+      <div class="summary-box" id="orderSummary"></div>
+      <div class="actions">
+        <button type="button" class="btn secondary" id="copySummary">Copy order summary</button>
+        <a class="btn telegram" id="telegramLink" href="https://t.me/" target="_blank" rel="noopener noreferrer">Contact us on Telegram ↗</a>
+      </div>
+      <p class="hint" style="margin-top:12px">Update the Telegram link in the HTML source to your real public username or contact link. Confirm payment in your wallet before fulfilling an order. Screenshots alone are not proof of settled payment.</p>
+      <button type="button" class="btn secondary" id="editOrder" style="margin-top:10px">← Edit my order</button>
+      <p id="copyStatus" class="hint" role="status"></p>
+    </section>
+  </main>
+  <footer>CELESTIAL LOBBY · YOUR BUILD. YOUR AURA. YOUR EXPERIENCE.<br>Demo checkout · No payment processing or automatic verification.</footer>
+</div>
+<script>
+(() => {
+  "use strict";
+  // EDIT THESE SETTINGS to match your real catalogue.
+  const servers = {
+    cloud: {name:"Cloud9", desc:"New Spawn's Area", price:700, icon:"☁️"},
+    mars: {name:"Mars", desc:"Mid-Game Rush", price:1200, icon:"🔴"},
+    venus: {name:"Venus", desc:"Incubus' Favorite", price:1700, icon:"💜"},
+    saturn: {name:"Saturn", desc:"Empress Build", price:2150, icon:"🪐"},
+    nibiru: {name:"Nibiru", desc:"Celestial Inverted Realm", price:2600, icon:"🌌"}
+  };
+  const addons = [
+    {id:"addonPriority", name:"Priority handling", price:100},
+    {id:"addonPremium", name:"Premium add-on", price:250}
+  ];
+  const $ = id => document.getElementById(id);
+  const money = n => new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP",maximumFractionDigits:0}).format(n);
+  const qtyInput = $("qty");
+  const paymentSection = $("paymentSection");
+  let lastSummary = "";
+
+  function quantity() {
+    let n = Number.parseInt(qtyInput.value,10);
+    if (!Number.isFinite(n)) n = 1;
+    n = Math.min(99,Math.max(1,n));
+    qtyInput.value = n;
+    return n;
+  }
+  function selectedAddons() {
+    return addons.filter(a => $(a.id).checked);
+  }
+  function calculate() {
+    const key = $("server").value;
+    const server = servers[key];
+    const qty = quantity();
+    const chosen = selectedAddons();
+    const subtotal = server.price * qty;
+    const addonTotal = chosen.reduce((sum,a) => sum + a.price * qty,0);
+    const total = subtotal + addonTotal;
+    $("planetIcon").textContent = server.icon;
+    $("serverName").textContent = server.name;
+    $("serverDesc").textContent = server.desc;
+    $("unitPrice").textContent = money(server.price) + " / unit";
+    $("subtotalLabel").textContent = `${server.name} × ${qty}`;
+    $("subtotal").textContent = money(subtotal);
+    $("addonTotal").textContent = money(addonTotal);
+    $("grandTotal").textContent = money(total);
+    lastSummary = [
+      "CELESTIAL LOBBY — ORDER SUMMARY",
+      `Server: ${server.name} — ${server.desc}`,
+      `Unit price: ${money(server.price)}`,
+      `Quantity: ${qty}`,
+      `Subtotal: ${money(subtotal)}`,
+      `Add-ons: ${chosen.length ? chosen.map(a => `${a.name} (${money(a.price)} × ${qty})`).join(", ") : "None"}`,
+      `Add-on total: ${money(addonTotal)}`,
+      `TOTAL: ${money(total)}`,
+      "",
+      "Please confirm order availability and payment details with Celestial Lobby before paying."
+    ].join("\n");
+    $("orderSummary").textContent = lastSummary;
+    return {server,qty,chosen,subtotal,addonTotal,total};
+  }
+  function closePayment() {
+    paymentSection.hidden = true;
+    $("copyStatus").textContent = "";
+  }
+  $("server").addEventListener("change",()=>{calculate();closePayment()});
+  qtyInput.addEventListener("input",()=>{calculate();closePayment()});
+  qtyInput.addEventListener("change",()=>{calculate();closePayment()});
+  $("minus").addEventListener("click",()=>{qtyInput.value = quantity()-1;calculate();closePayment()});
+  $("plus").addEventListener("click",()=>{qtyInput.value = quantity()+1;calculate();closePayment()});
+  addons.forEach(a => $(a.id).addEventListener("change",()=>{calculate();closePayment()}));
+  $("proceed").addEventListener("click",()=>{
+    calculate();
+    paymentSection.hidden = false;
+    paymentSection.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  $("editOrder").addEventListener("click",()=>{
+    closePayment();
+    $("totalHeading").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  $("copySummary").addEventListener("click",async()=>{
+    try {
+      await navigator.clipboard.writeText(lastSummary);
+      $("copyStatus").textContent = "Order summary copied. Paste it into your Telegram chat.";
+    } catch (e) {
+      const area = document.createElement("textarea");
+      area.value = lastSummary;
+      area.setAttribute("readonly","");
+      area.style.position="absolute";area.style.left="-9999px";
+      document.body.appendChild(area);area.select();
+      const ok = document.execCommand("copy");
+      area.remove();
+      $("copyStatus").textContent = ok ? "Order summary copied. Paste it into your Telegram chat." : "Copy is unavailable here. Select and copy the order summary manually.";
+    }
+  });
+  calculate();
+})();
+</script>
+</body>
+</html>
