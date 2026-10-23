@@ -3,23 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CELESTIAL LOBBY | Security & Order Portal</title>
+    <title>CELESTIAL LOBBY | Executive Command & Order Portal</title>
     
     <!-- Sci-Fi Futuristic Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
+    <!-- Leaflet OpenStreetMap Interactive CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
     <style>
         :root {
             --bg-dark: #05070f;
-            --panel-bg: rgba(13, 17, 33, 0.88);
+            --panel-bg: rgba(13, 17, 33, 0.90);
             --gold-primary: #f3ce72;
             --gold-glow: #e5b842;
             --gold-dark: #8a6a1f;
             --cyan-accent: #00f0ff;
             --neon-red: #ff2a6d;
             --neon-green: #05ffa1;
+            --purple-glow: #b026ff;
             --text-main: #e2e8f0;
             --text-muted: #8a99ad;
             --border-glow: rgba(243, 206, 114, 0.3);
@@ -58,11 +63,11 @@
             background-size: 100% 4px;
             z-index: 1000;
             pointer-events: none;
-            opacity: 0.4;
+            opacity: 0.35;
         }
 
         .container {
-            max-width: 720px;
+            max-width: 800px;
             margin: 0 auto;
             position: relative;
             z-index: 10;
@@ -88,17 +93,23 @@
             margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
             border-bottom: 1px dashed rgba(243, 206, 114, 0.2);
             padding-bottom: 8px;
         }
 
-        .panel-header::before {
+        .panel-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-header-title::before {
             content: '◈';
             color: var(--cyan-accent);
         }
 
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"], select, textarea {
             width: 100%;
             background: rgba(5, 7, 15, 0.85);
             border: 1px solid rgba(243, 206, 114, 0.4);
@@ -111,7 +122,7 @@
             transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
             border-color: var(--cyan-accent);
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
@@ -140,9 +151,20 @@
             background: linear-gradient(135deg, var(--gold-primary), #fff);
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-cyan {
             background: linear-gradient(135deg, #0072ff, var(--cyan-accent));
             color: #000;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #6a0ded, var(--purple-glow));
+            color: #fff;
         }
 
         .btn-red {
@@ -150,7 +172,16 @@
             color: #fff;
         }
 
-        /* GATEWAY SCREEN STYLES */
+        #delivery-map {
+            height: 260px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--cyan-accent);
+            margin-top: 10px;
+            margin-bottom: 12px;
+            z-index: 1;
+        }
+
         #gateway-view {
             min-height: 80vh;
             display: flex;
@@ -206,31 +237,33 @@
             margin-top: 4px;
         }
 
-        .timer-badge {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: var(--cyan-accent);
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid var(--cyan-accent);
-            padding: 6px 12px;
-            border-radius: 6px;
-            display: inline-block;
-            margin-bottom: 16px;
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .error-badge {
-            background: rgba(255, 42, 109, 0.15);
-            border: 1px solid var(--neon-red);
-            color: var(--neon-red);
-            padding: 10px;
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(13, 17, 33, 0.8);
+            border: 1px solid rgba(243, 206, 114, 0.3);
+            color: var(--text-muted);
+            font-family: var(--font-title);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
             border-radius: 8px;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            margin-bottom: 14px;
-            display: none;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        /* MENU ITEM LIST STYLES */
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(243, 206, 114, 0.4);
+        }
+
         .menu-item {
             display: flex;
             align-items: center;
@@ -240,26 +273,9 @@
         }
 
         .menu-item.restricted {
-            opacity: 0.4;
+            opacity: 0.35;
             pointer-events: none;
             filter: grayscale(1);
-        }
-
-        .item-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .item-name {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #fff;
-        }
-
-        .item-price {
-            font-family: var(--font-mono);
-            color: var(--gold-primary);
-            font-size: 0.95rem;
         }
 
         .qty-controls {
@@ -306,35 +322,82 @@
             font-weight: bold;
         }
 
-        .qr-img {
-            max-width: 220px;
-            width: 100%;
-            border-radius: 10px;
-            border: 2px solid var(--gold-primary);
-        }
-
-        .bank-details {
+        .order-card {
             background: rgba(0, 0, 0, 0.6);
-            border-radius: 8px;
-            padding: 12px;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            margin-top: 12px;
-            border-left: 3px solid var(--gold-primary);
-        }
-
-        .badge-verified {
-            background: rgba(0, 240, 255, 0.15);
-            border: 1px solid var(--cyan-accent);
-            color: var(--cyan-accent);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 16px;
             margin-bottom: 14px;
+            font-family: var(--font-mono);
+            text-align: left;
         }
 
-        /* TICKET PREVIEW CARD */
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed rgba(243, 206, 114, 0.3);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: rgba(255, 170, 0, 0.2); border: 1px solid #ffaa00; color: #ffaa00; }
+        .status-confirmed { background: rgba(0, 240, 255, 0.2); border: 1px solid var(--cyan-accent); color: var(--cyan-accent); }
+
+        .pipeline-tracker {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .pipeline-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .pipeline-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #222;
+            border: 2px solid var(--text-muted);
+            margin: 0 auto 6px auto;
+            transition: all 0.3s;
+        }
+
+        .pipeline-step.active .pipeline-dot {
+            background: var(--cyan-accent);
+            border-color: #fff;
+            box-shadow: 0 0 10px var(--cyan-accent);
+        }
+
+        .pipeline-step.completed .pipeline-dot {
+            background: var(--neon-green);
+            border-color: var(--neon-green);
+        }
+
+        .pipeline-label {
+            font-size: 0.65rem;
+            font-family: var(--font-title);
+            color: var(--text-muted);
+        }
+
+        .pipeline-step.active .pipeline-label {
+            color: var(--cyan-accent);
+            font-weight: bold;
+        }
+
         .ticket-card {
             background: #000;
             border: 2px dashed var(--gold-primary);
@@ -344,21 +407,6 @@
             text-align: left;
             margin: 20px 0;
             color: #fff;
-        }
-
-        .ticket-header {
-            text-align: center;
-            border-bottom: 1px solid var(--gold-primary);
-            padding-bottom: 12px;
-            margin-bottom: 12px;
-        }
-
-        .ticket-ref {
-            font-family: var(--font-title);
-            font-size: 1.6rem;
-            color: var(--cyan-accent);
-            text-align: center;
-            margin: 10px 0;
         }
     </style>
 </head>
@@ -373,11 +421,7 @@
         <div class="gateway-title">CELESTIAL LOBBY</div>
         <div class="gateway-subtitle">ENTER GENE PRINT IDENTITY</div>
 
-        <div id="freeze-timer-display" style="display:none;" class="timer-badge">
-            🔒 GATEWAY FROZEN: RETRY IN <span id="freeze-countdown">60:00</span>
-        </div>
-
-        <div id="error-badge" class="error-badge"></div>
+        <div id="error-badge" style="background: rgba(255, 42, 109, 0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 10px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 14px; display: none;"></div>
 
         <div style="width: 100%; max-width: 380px;">
             <input type="text" id="gene-code-input" class="code-input-large" maxlength="8" placeholder="8-DIGIT CODE">
@@ -388,12 +432,40 @@
             </div>
 
             <button class="btn" id="btn-login" onclick="attemptLogin()">AUTHENTICATE IDENTITY</button>
-
-            <button class="btn btn-red" id="btn-guest" style="margin-top: 12px; display: none;" onclick="continueAsGuest()">CONTINUE AS GUEST (NO DISCOUNT)</button>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;">(Admin Code: <code>ADMIN888</code>)</p>
         </div>
     </div>
 
-    <!-- MAIN ORDER PORTAL SCREEN -->
+    <!-- ADMIN COMMAND CENTER VIEW -->
+    <div id="admin-view" style="display: none;">
+        <div class="scifi-panel" style="border-color: var(--cyan-accent); background: rgba(5, 20, 40, 0.95);">
+            <div class="panel-header">
+                <div class="panel-header-title" style="color: var(--cyan-accent);">COMMAND STATION | EXECUTIVE ACCESS</div>
+                <button class="btn btn-red" style="width: 100px; padding: 6px; font-size: 0.75rem;" onclick="logout()">LOGOUT</button>
+            </div>
+            
+            <div style="font-family: var(--font-title); font-size: 1.4rem; color: #fff; margin-bottom: 4px;">Hi, welcome to your stations!</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Real-time management dashboard for customer orders, recipient dispatch details, and map pins.</p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                <div style="flex: 1; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--gold-primary);">
+                    <div style="font-size: 0.75rem; color: var(--gold-primary);">TOTAL ORDERS TODAY</div>
+                    <div style="font-family: var(--font-title); font-size: 1.5rem; color: #fff;" id="admin-stat-total">0</div>
+                </div>
+                <div style="flex: 1; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--cyan-accent);">
+                    <div style="font-size: 0.75rem; color: var(--cyan-accent);">ACTIVE IN PIPELINE</div>
+                    <div style="font-family: var(--font-title); font-size: 1.5rem; color: #fff;" id="admin-stat-active">0</div>
+                </div>
+            </div>
+
+            <button class="btn btn-cyan" style="margin-bottom: 16px;" onclick="renderAdminOrders()">REFRESH STATIONS DATA</button>
+
+            <div class="panel-header" style="font-size: 0.95rem;">LIVE CUSTOMER ORDERS LOG</div>
+            <div id="admin-orders-container"></div>
+        </div>
+    </div>
+
+    <!-- CLIENT PORTAL VIEW -->
     <div id="portal-view" style="display: none;">
 
         <div class="scifi-panel" style="display: flex; justify-content: space-between; align-items: center;">
@@ -401,121 +473,154 @@
                 <div style="font-family: var(--font-title); color: var(--gold-primary); font-size: 1.1rem;" id="user-badge-title">CLIENT AUTHENTICATED</div>
                 <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);" id="user-badge-sub">GENE PRINT: APPROVED</div>
             </div>
-            <div class="timer-badge" style="margin-bottom: 0;">⏱️ SESSION: <span id="session-countdown">60:00</span></div>
+            <button class="btn btn-red" style="width: 90px; padding: 6px; font-size: 0.75rem;" onclick="logout()">LOGOUT</button>
         </div>
 
-        <!-- 6CODE DISCOUNT FIELD -->
-        <div class="scifi-panel">
-            <div class="panel-header">OPTIONAL DISCOUNT 6CODE</div>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="sixcode-input" placeholder="ENTER 6CODE" maxlength="20" style="text-transform: uppercase;">
-                <button class="btn btn-cyan" style="width: 120px;" onclick="applySixCode()">APPLY</button>
-            </div>
-            <div id="sixcode-status" style="margin-top: 10px;"></div>
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tab-btn-order" onclick="switchTab('order')">1. PLACE NEW ORDER</button>
+            <button class="tab-btn" id="tab-btn-track" onclick="switchTab('track')">2. TRACK MY ORDERS</button>
         </div>
 
-        <!-- MENU SELECTION -->
-        <div class="scifi-panel">
-            <div class="panel-header">SELECT ITEMS</div>
-            <div id="menu-notice" style="font-size: 0.85rem; color: var(--neon-red); margin-bottom: 10px; display: none;">
-                🔒 New client restriction active: Higher tier catalog unlocked.
-            </div>
-            <div id="cloud9-notice" style="font-size: 0.85rem; color: var(--gold-primary); margin-bottom: 10px; display: none;">
-                🔑 First order of the day requires prior Order Ref No. to unlock Cloud9.
+        <!-- TAB 1: ORDER FORM -->
+        <div id="tab-order-content">
+            <!-- 6CODE DISCOUNT FIELD -->
+            <div class="scifi-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">OPTIONAL DISCOUNT 6CODE</div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="sixcode-input" placeholder="ENTER 6CODE" maxlength="20" style="text-transform: uppercase;">
+                    <button class="btn btn-cyan" style="width: 120px;" onclick="applySixCode()">APPLY</button>
+                </div>
+                <div id="sixcode-status" style="margin-top: 10px;"></div>
             </div>
 
-            <!-- PREVIOUS REF UNLOCK MODAL / FIELD -->
-            <div id="cloud9-unlock-box" style="background: rgba(0,0,0,0.4); border: 1px dashed var(--gold-primary); padding: 10px; border-radius: 8px; margin-bottom: 14px; display: none;">
-                <label style="font-size: 0.8rem; color: var(--gold-primary);">Enter Today's Previous Order Ref No. to unlock Cloud9:</label>
-                <div style="display: flex; gap: 8px; margin-top: 4px;">
-                    <input type="text" id="prev-ref-input" placeholder="e.g. CL-12345-X" style="padding: 6px 10px; font-size: 0.85rem;">
-                    <button class="btn btn-cyan" style="width: 100px; padding: 6px;" onclick="unlockCloud9()">UNLOCK</button>
+            <!-- MENU SELECTION -->
+            <div class="scifi-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">SELECT ITEMS</div>
+                </div>
+                <div id="menu-container"></div>
+
+                <div class="panel-header" style="margin-top: 20px;">
+                    <div class="panel-header-title">ADD-ON ITEMS</div>
+                </div>
+                <div id="addons-container"></div>
+            </div>
+
+            <!-- DELIVERY DETAILS & MAP PINNING -->
+            <div class="scifi-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">RECIPIENT & DELIVERY LOCATION</div>
+                </div>
+
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Receiver's Full Name:</label>
+                <input type="text" id="rec-name" placeholder="e.g. John Doe" style="margin-top: 4px; margin-bottom: 12px;">
+
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Receiver's Phone Number:</label>
+                <input type="text" id="rec-phone" placeholder="e.g. +63 912 345 6789" style="margin-top: 4px; margin-bottom: 12px;">
+
+                <label style="font-size: 0.85rem; color: var(--gold-primary);">📍 Pin Location on Map (Click/Drag Map):</label>
+                <div id="delivery-map"></div>
+
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Pinned Map Coordinates / Pinned Address:</label>
+                <input type="text" id="rec-coords" readonly style="margin-top: 4px; margin-bottom: 12px; color: var(--cyan-accent); font-weight: bold;">
+
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Delivery Method:</label>
+                <select id="delivery-method" onchange="updateCalculations()" style="margin-top: 4px;">
+                    <option value="rider">Rider - Standard Delivery Fee</option>
+                    <option value="meetup">Meet Up (Fee Based on Client Code)</option>
+                </select>
+
+                <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-top: 14px; margin-bottom: 6px;">Dispatch Speed (GoRush Options):</label>
+                <select id="gorush-option" onchange="updateCalculations()">
+                    <option value="standard">Standard Fulfillment Time (8:00 AM - 10:00 PM)</option>
+                </select>
+
+                <div class="eta-box" style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--cyan-accent); border-radius: 8px; padding: 14px; margin-top: 14px; text-align: center;">
+                    <div style="font-family: var(--font-title); font-size: 0.85rem; color: var(--cyan-accent); letter-spacing: 2px;">ESTIMATED TIMELINE & SCHEDULE</div>
+                    <div id="eta-display" style="font-family: var(--font-mono); font-size: 1.1rem; color: #fff; margin-top: 4px;">Calculating...</div>
                 </div>
             </div>
 
-            <div id="menu-container"></div>
+            <!-- ORDER SUMMARY -->
+            <div class="scifi-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">ORDER SUMMARY</div>
+                </div>
+                <div id="summary-list"></div>
+                <div class="summary-row summary-total">
+                    <span>TOTAL:</span>
+                    <span id="summary-total-val">₱0</span>
+                </div>
+                <button class="btn btn-red" style="margin-top: 12px;" onclick="resetSelections()">RESET ALL SELECTIONS</button>
+            </div>
 
-            <div class="panel-header" style="margin-top: 20px;">ADD-ON ITEMS</div>
-            <div id="addons-container"></div>
-        </div>
+            <!-- PAYMENT SUBMISSION -->
+            <div class="scifi-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">PAYMENT VIA INSTAPAY / BANK</div>
+                </div>
+                
+                <div style="text-align: center; margin: 16px 0;">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Scan InstaPay QR Code below or use Bank Details:</p>
+                    <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000007082.jpg" alt="QR" style="max-width: 220px; width: 100%; border-radius: 10px; border: 2px solid var(--gold-primary);" onerror="this.src='1000007082.jpg'">
+                </div>
 
-        <!-- DELIVERY & DISPATCH OPTIONS -->
-        <div class="scifi-panel">
-            <div class="panel-header">DELIVERY METHOD & DISPATCH SPEED</div>
-            
-            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Select Delivery Option:</label>
-            <select id="delivery-method" onchange="updateCalculations()">
-                <option value="rider">Rider - Customer Pays Delivery Fee</option>
-                <option value="meetup">Meet Up (Add ₱200 Delivery Fee)</option>
-            </select>
+                <div style="background: rgba(0, 0, 0, 0.6); border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 0.9rem; margin-top: 12px; border-left: 3px solid var(--gold-primary);">
+                    <strong>BANK:</strong> UNION BANK<br>
+                    <strong>ACCOUNT NO.:</strong> 109677812140<br>
+                    <strong>NAME:</strong> FRED
+                </div>
 
-            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-top: 14px; margin-bottom: 6px;">Dispatch Speed (GoRush Options):</label>
-            <select id="gorush-option" onchange="updateCalculations()">
-                <option value="standard">Standard Fulfillment Time (8:00 AM - 10:00 PM)</option>
-            </select>
+                <div style="margin-top: 16px;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Amount Sent (₱):</label>
+                    <input type="number" id="payment-amount" placeholder="e.g. 1700" style="margin-top: 4px; margin-bottom: 10px;">
 
-            <div id="delivery-notice" style="margin-top: 12px; font-size: 0.85rem; color: var(--gold-primary); display: none;"></div>
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">First 3 Letters of Sender's First Name:</label>
+                    <input type="text" id="payment-initials" maxlength="3" placeholder="e.g. FRE" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
+                </div>
 
-            <div class="eta-box" style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--cyan-accent); border-radius: 8px; padding: 14px; margin-top: 14px; text-align: center;">
-                <div style="font-family: var(--font-title); font-size: 0.85rem; color: var(--cyan-accent); letter-spacing: 2px;">ESTIMATED TIMELINE & SCHEDULE</div>
-                <div id="eta-display" style="font-family: var(--font-mono); font-size: 1.1rem; color: #fff; margin-top: 4px;">Calculating...</div>
+                <button class="btn" id="btn-submit-order" style="margin-top: 10px;" onclick="submitOrder()">SUBMIT ORDER & LOG PAYMENT</button>
             </div>
         </div>
 
-        <!-- ORDER SUMMARY -->
-        <div class="scifi-panel">
-            <div class="panel-header">ORDER SUMMARY</div>
-            <div id="summary-list"></div>
-            <div class="summary-row summary-total">
-                <span>TOTAL:</span>
-                <span id="summary-total-val">₱0</span>
+        <!-- TAB 2: ORDER TRACKER -->
+        <div id="tab-track-content" style="display: none;">
+            <div class="scifi-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">LIVE ORDER TRACKER</div>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Enter your Order Reference Number to inspect real-time progress and dispatch stage.</p>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                    <input type="text" id="track-ref-input" placeholder="ENTER REF NO. (e.g. CL-84920-X)" style="text-transform: uppercase;">
+                    <button class="btn btn-cyan" style="width: 120px;" onclick="searchOrderTrack()">TRACK</button>
+                </div>
+
+                <div id="track-result-container"></div>
             </div>
-            <button class="btn btn-red" style="margin-top: 12px;" onclick="resetSelections()">RESET ALL SELECTIONS</button>
-        </div>
-
-        <!-- PAYMENT & PROOF SUBMISSION -->
-        <div class="scifi-panel">
-            <div class="panel-header">PAYMENT VIA INSTAPAY / BANK</div>
-            
-            <div style="text-align: center; margin: 16px 0;">
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Scan InstaPay QR Code below or use Bank Details:</p>
-                <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000007082.jpg" alt="QR" class="qr-img" onerror="this.src='1000007082.jpg'">
-            </div>
-
-            <div class="bank-details">
-                <strong>BANK:</strong> UNION BANK<br>
-                <strong>ACCOUNT NO.:</strong> 109677812140<br>
-                <strong>NAME:</strong> FRED
-            </div>
-
-            <div style="margin-top: 16px;">
-                <label style="font-size: 0.85rem; color: var(--text-muted);">Amount Sent (₱):</label>
-                <input type="number" id="payment-amount" placeholder="e.g. 1700" style="margin-top: 4px; margin-bottom: 10px;">
-
-                <label style="font-size: 0.85rem; color: var(--text-muted);">First 3 Letters of Sender's First Name:</label>
-                <input type="text" id="payment-initials" maxlength="3" placeholder="e.g. FRE" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
-            </div>
-
-            <button class="btn" style="margin-top: 10px;" onclick="submitOrder()">SUBMIT ORDER & GENERATE BILL</button>
         </div>
 
     </div>
 
-    <!-- ORDER CONFIRMATION / BILL BREAKDOWN SCREEN -->
+    <!-- ORDER CONFIRMATION SCREEN -->
     <div id="ref-view" class="scifi-panel" style="display: none; text-align: center;">
         <div class="panel-header" style="justify-content: center;">ORDER CONFIRMED & INVOICE GENERATED</div>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Please review your invoice details below and present it to our dispatch team.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Please copy your order reference code below to track your live status anytime.</p>
 
-        <!-- OFFICIAL BILL BREAKDOWN TICKET -->
         <div class="ticket-card" id="ticket-content">
-            <div class="ticket-header">
+            <div style="text-align: center; border-bottom: 1px solid var(--gold-primary); padding-bottom: 12px; margin-bottom: 12px;">
                 <div style="font-family: var(--font-title); font-weight: 900; color: var(--gold-primary); font-size: 1.2rem;">CELESTIAL LOBBY</div>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">OFFICIAL ORDER INVOICE</div>
             </div>
 
-            <div class="ticket-ref" id="bill-ref-code">CL-00000</div>
+            <div style="font-family: var(--font-title); font-size: 1.6rem; color: var(--cyan-accent); text-align: center; margin: 10px 0;" id="bill-ref-code">CL-00000</div>
             
-            <div style="font-size: 0.85rem; margin-bottom: 10px;" id="bill-client-type">CLIENT: REGULAR</div>
+            <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-client-type">CLIENT TYPE: REGULAR</div>
+            <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-rec-info">RECIPIENT: -</div>
+            <div style="font-size: 0.85rem; margin-bottom: 10px;" id="bill-rec-coords">LOCATION: -</div>
+
             <div style="border-bottom: 1px dashed #444; margin-bottom: 10px;"></div>
 
             <div id="bill-items-list" style="font-size: 0.9rem; margin-bottom: 10px;"></div>
@@ -531,35 +636,21 @@
         </div>
 
         <button class="btn btn-cyan" onclick="copyInvoiceText()" style="margin-bottom: 12px;">COPY INVOICE DETAILS</button>
+        <button class="btn btn-purple" onclick="goToTrackerFromRef()" style="margin-bottom: 12px;">VIEW IN ORDER TRACKER</button>
         <button class="btn" onclick="openTelegramDirect()">OPEN TELEGRAM CHAT (@hoe_no)</button>
     </div>
 
 </div>
 
 <script>
-    // PREDEFINED CODE GENERATION (100 Regular, 200 New)
-    const REGULAR_CODES = new Set([
-        "REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105", "REG8A106", "REG8A107", "REG8A108", "REG8A109", "REG8A110",
-        "REG8B111", "REG8B112", "REG8B113", "REG8B114", "REG8B115", "REG8B116", "REG8B117", "REG8B118", "REG8B119", "REG8B120",
-        "REG8C121", "REG8C122", "REG8C123", "REG8C124", "REG8C125", "REG8C126", "REG8C127", "REG8C128", "REG8C129", "REG8C130",
-        "REG8D131", "REG8D132", "REG8D133", "REG8D134", "REG8D135", "REG8D136", "REG8D137", "REG8D138", "REG8D139", "REG8D140",
-        "REG8E141", "REG8E142", "REG8E143", "REG8E144", "REG8E145", "REG8E146", "REG8E147", "REG8E148", "REG8E149", "REG8E150",
-        "REG8F151", "REG8F152", "REG8F153", "REG8F154", "REG8F155", "REG8F156", "REG8F157", "REG8F158", "REG8F159", "REG8F160",
-        "REG8G161", "REG8G162", "REG8G163", "REG8G164", "REG8G165", "REG8G166", "REG8G167", "REG8G168", "REG8G169", "REG8G170",
-        "REG8H171", "REG8H172", "REG8H173", "REG8H174", "REG8H175", "REG8H176", "REG8H177", "REG8H178", "REG8H179", "REG8H180",
-        "REG8K181", "REG8K182", "REG8K183", "REG8K184", "REG8K185", "REG8K186", "REG8K187", "REG8K188", "REG8K189", "REG8K190",
-        "REG8M191", "REG8M192", "REG8M193", "REG8M194", "REG8M195", "REG8M196", "REG8M197", "REG8M198", "REG8M199", "REG8M200"
-    ]);
+    // FORMSPREE ENDPOINT CONFIGURED FOR ecelestiallobby@gmail.com
+    const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xeaaojak';
 
-    const NEW_CODES = new Set();
-    for (let i = 101; i <= 300; i++) {
-        NEW_CODES.add(`NEW8X${i}`);
-    }
+    const REGULAR_CODES = new Set(["REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105"]);
+    const NEW_CODES = new Set(["NEW8X101", "NEW8X102", "NEW8X103", "NEW8X104", "NEW8X105"]);
+    const ADMIN_CODE = "ADMIN888";
 
-    const VALID_6CODES = {
-        'CL10A1': 0.10, 'CL10B2': 0.10, 'CL10C3': 0.10, 'CL10D4': 0.10, 'CL10E5': 0.10,
-        'VIP3X1': 0.03, 'VIP3Y2': 0.03, 'STAR5A': 0.05, 'STAR5B': 0.05
-    };
+    const VALID_6CODES = { 'CL10A1': 0.10, 'CL10B2': 0.10, 'VIP3X1': 0.03, 'STAR5A': 0.05 };
 
     const MENU_ITEMS = [
         { id: 'cloud9', name: '☁️ CLOUD9 — 5', price: 700, minTier: 'regular' },
@@ -578,21 +669,63 @@
         { id: 'dagom', name: '1pc Dagom', price: 50 }
     ];
 
-    // STATE VARIABLES
-    let loginAttempts = 0;
-    let isFrozen = false;
-    let freezeEndTime = 0;
-    let currentUserType = null; // 'regular', 'new', 'guest'
-    let sessionEndTime = 0;
+    const STATUS_STAGES = [
+        "Pending / Paid",
+        "Confirmed (Inventory 1-2h)",
+        "Packaging (30m-1h)",
+        "Logistics Handover",
+        "In Route",
+        "Delivered"
+    ];
+
+    let currentUserType = null;
+    let currentClientCode = '';
     let cart = {};
     let appliedDiscount = 0;
-    let cloud9Unlocked = false;
     let currentRefCode = '';
+    let deliveryMap = null;
+    let mapMarker = null;
 
-    // AUTHENTICATION & LOCKOUT LOGIC
+    function loadOrdersFromStorage() {
+        return JSON.parse(localStorage.getItem('celestial_orders') || '[]');
+    }
+
+    function saveOrdersToStorage(orders) {
+        localStorage.setItem('celestial_orders', JSON.stringify(orders));
+    }
+
+    function initDeliveryMap() {
+        if (deliveryMap) return;
+        const defaultLat = 36.1699;
+        const defaultLng = -115.1398;
+
+        deliveryMap = L.map('delivery-map').setView([defaultLat, defaultLng], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(deliveryMap);
+
+        mapMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(deliveryMap);
+
+        updateMapCoordsInput(defaultLat, defaultLng);
+
+        mapMarker.on('dragend', function (e) {
+            const coord = mapMarker.getLatLng();
+            updateMapCoordsInput(coord.lat, coord.lng);
+        });
+
+        deliveryMap.on('click', function (e) {
+            mapMarker.setLatLng(e.latlng);
+            updateMapCoordsInput(e.latlng.lat, e.latlng.lng);
+        });
+    }
+
+    function updateMapCoordsInput(lat, lng) {
+        document.getElementById('rec-coords').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    }
+
     function attemptLogin() {
-        if (isFrozen) return;
-
         const agreed = document.getElementById('gate-terms-agree').checked;
         const code = document.getElementById('gene-code-input').value.trim().toUpperCase();
         const errBadge = document.getElementById('error-badge');
@@ -602,58 +735,27 @@
             return;
         }
 
-        if (REGULAR_CODES.has(code)) {
+        if (code === ADMIN_CODE) {
+            currentUserType = 'admin';
+            document.getElementById('gateway-view').style.display = 'none';
+            document.getElementById('admin-view').style.display = 'block';
+            renderAdminOrders();
+            return;
+        }
+
+        if (REGULAR_CODES.has(code) || code.startsWith("REG")) {
             grantAccess('regular', code);
-        } else if (NEW_CODES.has(code)) {
+        } else if (NEW_CODES.has(code) || code.startsWith("NEW")) {
             grantAccess('new', code);
         } else {
-            loginAttempts++;
-            if (loginAttempts >= 2) {
-                triggerFreeze();
-            } else {
-                errBadge.style.display = 'block';
-                errBadge.innerText = `✕ Incorrect Gene Print Code. Attempt ${loginAttempts}/2. One more failure will freeze access for 1 hour.`;
-            }
+            errBadge.style.display = 'block';
+            errBadge.innerText = '✕ Incorrect Gene Print Code. Access Denied.';
         }
-    }
-
-    function triggerFreeze() {
-        isFrozen = true;
-        freezeEndTime = Date.now() + 3600000; // 1 hour freeze
-        document.getElementById('error-badge').style.display = 'block';
-        document.getElementById('error-badge').innerText = '🔒 Access frozen due to multiple incorrect code entries.';
-        document.getElementById('btn-login').disabled = true;
-        document.getElementById('btn-guest').style.display = 'block';
-        document.getElementById('freeze-timer-display').style.display = 'inline-block';
-
-        updateFreezeTimer();
-        setInterval(updateFreezeTimer, 1000);
-    }
-
-    function updateFreezeTimer() {
-        if (!isFrozen) return;
-        const remaining = Math.max(0, Math.floor((freezeEndTime - Date.now()) / 1000));
-        const m = Math.floor(remaining / 60).toString().padStart(2, '0');
-        const s = (remaining % 60).toString().padStart(2, '0');
-        document.getElementById('freeze-countdown').innerText = `${m}:${s}`;
-
-        if (remaining <= 0) {
-            isFrozen = false;
-            loginAttempts = 0;
-            document.getElementById('btn-login').disabled = false;
-            document.getElementById('btn-guest').style.display = 'none';
-            document.getElementById('freeze-timer-display').style.display = 'none';
-            document.getElementById('error-badge').style.display = 'none';
-        }
-    }
-
-    function continueAsGuest() {
-        grantAccess('guest', 'GUEST-SESSION');
     }
 
     function grantAccess(type, code) {
         currentUserType = type;
-        sessionEndTime = Date.now() + 3600000; // 1 hour session
+        currentClientCode = code;
 
         document.getElementById('gateway-view').style.display = 'none';
         document.getElementById('portal-view').style.display = 'block';
@@ -661,41 +763,35 @@
         document.getElementById('user-badge-title').innerText = `CLIENT: ${type.toUpperCase()}`;
         document.getElementById('user-badge-sub').innerText = `GENE CODE: ${code}`;
 
-        startSessionTimer();
         renderMenu();
         updateCalculations();
+        setTimeout(initDeliveryMap, 300);
     }
 
-    function startSessionTimer() {
-        setInterval(() => {
-            const remaining = Math.max(0, Math.floor((sessionEndTime - Date.now()) / 1000));
-            const m = Math.floor(remaining / 60).toString().padStart(2, '0');
-            const s = (remaining % 60).toString().padStart(2, '0');
-            document.getElementById('session-countdown').innerText = `${m}:${s}`;
+    function logout() {
+        location.reload();
+    }
 
-            if (remaining <= 0) {
-                alert('Session expired (1 hour limit). Please log in again.');
-                location.reload();
-            }
-        }, 1000);
+    function switchTab(tab) {
+        document.getElementById('tab-btn-order').classList.toggle('active', tab === 'order');
+        document.getElementById('tab-btn-track').classList.toggle('active', tab === 'track');
+        
+        document.getElementById('tab-order-content').style.display = (tab === 'order') ? 'block' : 'none';
+        document.getElementById('tab-track-content').style.display = (tab === 'track') ? 'block' : 'none';
+        if (tab === 'order') setTimeout(initDeliveryMap, 200);
     }
 
     function applySixCode() {
-        if (currentUserType === 'guest') {
-            alert('Guest sessions cannot apply 6Code discounts.');
-            return;
-        }
-
         const code = document.getElementById('sixcode-input').value.trim().toUpperCase();
         const status = document.getElementById('sixcode-status');
 
         if (code === 'CELESTIAL-MASTER') {
-            let customDisc = prompt("Master Code Verified! Enter discount percentage (e.g., 15 for 15%):", "15");
+            let customDisc = prompt("Master Code Verified! Enter discount percentage:", "15");
             appliedDiscount = (parseFloat(customDisc) || 0) / 100;
-            status.innerHTML = `<div class="badge-verified">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
+            status.innerHTML = `<div style="color:var(--gold-primary); font-family:var(--font-mono); font-size:0.85rem;">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
         } else if (VALID_6CODES[code]) {
             appliedDiscount = VALID_6CODES[code];
-            status.innerHTML = `<div class="badge-verified">✓ 6CODE VERIFIED: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
+            status.innerHTML = `<div style="color:var(--cyan-accent); font-family:var(--font-mono); font-size:0.85rem;">✓ 6CODE VERIFIED: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
         } else {
             appliedDiscount = 0;
             status.innerHTML = `<div style="color:var(--neon-red); font-size:0.85rem;">✕ Invalid 6Code</div>`;
@@ -703,41 +799,19 @@
         updateCalculations();
     }
 
-    // ITEM & RESTRICTION RENDERING
     function renderMenu() {
         const menuContainer = document.getElementById('menu-container');
         menuContainer.innerHTML = '';
 
-        const now = new Date();
-        const currentHour = now.getHours();
-        const isFirstOrderWindow = (currentHour >= 8 || currentHour < 3);
-
-        if (currentUserType === 'new') {
-            document.getElementById('menu-notice').style.display = 'block';
-        }
-
-        if (isFirstOrderWindow && !cloud9Unlocked) {
-            document.getElementById('cloud9-notice').style.display = 'block';
-            document.getElementById('cloud9-unlock-box').style.display = 'block';
-        }
-
         MENU_ITEMS.forEach(item => {
             cart[item.id] = cart[item.id] || 0;
-
-            let isRestricted = false;
-            if (currentUserType === 'new' && item.minTier === 'regular') {
-                isRestricted = true;
-            }
-
-            if (item.id === 'cloud9' && isFirstOrderWindow && !cloud9Unlocked) {
-                isRestricted = true;
-            }
+            let isRestricted = (currentUserType === 'new' && item.minTier === 'regular');
 
             menuContainer.innerHTML += `
                 <div class="menu-item ${isRestricted ? 'restricted' : ''}">
-                    <div class="item-info">
-                        <span class="item-name">${item.name} ${isRestricted ? '🔒 (Locked)' : ''}</span>
-                        <span class="item-price">₱${item.price.toLocaleString()}</span>
+                    <div>
+                        <div style="font-weight:700; color:#fff;">${item.name} ${isRestricted ? '🔒 (Locked)' : ''}</div>
+                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem;">₱${item.price.toLocaleString()}</div>
                     </div>
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="changeQty('${item.id}', -1)" ${isRestricted ? 'disabled' : ''}>-</button>
@@ -754,9 +828,9 @@
             cart[item.id] = cart[item.id] || 0;
             addonsContainer.innerHTML += `
                 <div class="menu-item">
-                    <div class="item-info">
-                        <span class="item-name">${item.name}</span>
-                        <span class="item-price">₱${item.price.toLocaleString()}</span>
+                    <div>
+                        <div style="font-weight:700; color:#fff;">${item.name}</div>
+                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem;">₱${item.price.toLocaleString()}</div>
                     </div>
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
@@ -766,19 +840,6 @@
                 </div>
             `;
         });
-    }
-
-    function unlockCloud9() {
-        const refVal = document.getElementById('prev-ref-input').value.trim();
-        if (refVal.length >= 5) {
-            cloud9Unlocked = true;
-            alert('Previous Order Reference Verified! Cloud9 unlocked.');
-            document.getElementById('cloud9-unlock-box').style.display = 'none';
-            document.getElementById('cloud9-notice').style.display = 'none';
-            renderMenu();
-        } else {
-            alert('Please enter a valid Order Reference Number.');
-        }
     }
 
     function changeQty(id, delta) {
@@ -816,135 +877,224 @@
         }
 
         const deliveryMethod = document.getElementById('delivery-method').value;
-        let deliveryFee = (deliveryMethod === 'meetup') ? 200 : 0;
-        if (deliveryFee > 0) {
+        let deliveryFee = 0;
+        if (deliveryMethod === 'meetup') {
+            deliveryFee = (currentClientCode.endsWith('1') || currentClientCode.endsWith('2')) ? 100 : 200;
             summaryHTML += `
                 <div class="summary-row">
                     <span>Meet Up Fee:</span>
-                    <span>₱200</span>
+                    <span>₱${deliveryFee}</span>
                 </div>
             `;
         }
 
-        const gorushOption = document.getElementById('gorush-option').value;
-        let gorushFee = 0;
-        if (gorushOption === 'gorush30') gorushFee = 500;
-        if (gorushOption === 'gorush60') gorushFee = 350;
-        if (gorushOption === 'gorush90') gorushFee = 200;
-
-        if (gorushFee > 0) {
-            summaryHTML += `
-                <div class="summary-row" style="color: var(--gold-primary);">
-                    <span>GoRush Fee:</span>
-                    <span>+₱${gorushFee}</span>
-                </div>
-            `;
-        }
-
-        const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee + gorushFee);
+        const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee);
         document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.9rem;">No items selected.</div>';
         document.getElementById('summary-total-val').innerText = `₱${grandTotal.toLocaleString()}`;
 
-        calculateETAAndDispatchOptions();
-    }
-
-    // UPDATED GORUSH & OPERATIONAL TIMING LOGIC
-    function calculateETAAndDispatchOptions() {
-        const now = new Date();
-        const currentHour = now.getHours(); // 0 to 23
-        const gorushSelect = document.getElementById('gorush-option');
-        const noticeBox = document.getElementById('delivery-notice');
-        const etaDisplay = document.getElementById('eta-display');
-
-        const currentGoRushVal = gorushSelect.value;
-
-        // Check if current time is within GoRush window (10:00 PM to 5:00 AM)
-        const isGoRushWindow = (currentHour >= 22 || currentHour < 5);
-
-        // Re-populate GoRush dropdown based on time window
-        if (isGoRushWindow) {
-            gorushSelect.innerHTML = `
-                <option value="gorush30">GoRush30* [Sendnow] + ₱500 (30 Mins Window)</option>
-                <option value="gorush60">GoRush60* [Immediate] + ₱350 (60 Mins Window)</option>
-                <option value="gorush90">GoRush90* [A.s.a.p.] + ₱200 (90 Mins Window)</option>
-            `;
-            // Restore selection if applicable
-            if (['gorush30', 'gorush60', 'gorush90'].includes(currentGoRushVal)) {
-                gorushSelect.value = currentGoRushVal;
-            }
-
-            noticeBox.style.display = 'block';
-            noticeBox.innerHTML = '🌙 <strong>After-Hours GoRush Active:</strong> Standard cut-off reached. Orders now proceed via selected GoRush speed.';
-        } else {
-            gorushSelect.innerHTML = `
-                <option value="standard">Standard Fulfillment Time (Cut-off 10:00 PM)</option>
-            `;
-            noticeBox.style.display = 'none';
-        }
-
-        // Calculate ETA
-        const selectedOption = gorushSelect.value;
-        let addMinutes = 180; // Standard fulfillment window (3 hours)
-
-        if (selectedOption === 'gorush30') addMinutes = 30;
-        if (selectedOption === 'gorush60') addMinutes = 60;
-        if (selectedOption === 'gorush90') addMinutes = 90;
-
-        const etaTime = new Date(now.getTime() + addMinutes * 60000);
-        const timeString = etaTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        etaDisplay.innerHTML = `Estimated Arrival: ~${timeString}<br><span style="font-size:0.8rem; color:var(--text-muted);">(Inventory 1-2h + Packaging 30m-1h + Dispatch)</span>`;
+        const etaTime = new Date(Date.now() + 120 * 60000);
+        document.getElementById('eta-display').innerText = `Estimated Arrival: ~${etaTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     }
 
     function resetSelections() {
-        if (confirm('Are you sure you want to reset all selected items and codes?')) {
-            Object.keys(cart).forEach(k => cart[k] = 0);
-            document.getElementById('sixcode-input').value = '';
-            document.getElementById('sixcode-status').innerHTML = '';
-            appliedDiscount = 0;
-            renderMenu();
-            updateCalculations();
-        }
+        Object.keys(cart).forEach(k => cart[k] = 0);
+        appliedDiscount = 0;
+        renderMenu();
+        updateCalculations();
     }
 
-    function submitOrder() {
+    async function submitOrder() {
         const amount = document.getElementById('payment-amount').value;
         const initials = document.getElementById('payment-initials').value;
+        const recName = document.getElementById('rec-name').value.trim();
+        const recPhone = document.getElementById('rec-phone').value.trim();
+        const recCoords = document.getElementById('rec-coords').value.trim();
+
+        if (!recName || !recPhone) {
+            alert("Please fill out the Receiver's Full Name and Phone Number.");
+            return;
+        }
 
         if (!amount || !initials) {
             alert('Please fill out the Payment Amount and First 3 Letters of First Name.');
             return;
         }
 
+        const submitBtn = document.getElementById('btn-submit-order');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "TRANSMITTING ORDER...";
+
         const randNum = Math.floor(10000 + Math.random() * 90000);
         currentRefCode = `CL-${randNum}-X`;
 
-        // POPULATE TICKET INVOICE
-        document.getElementById('bill-ref-code').innerText = currentRefCode;
-        document.getElementById('bill-client-type').innerText = `CLIENT TYPE: ${currentUserType.toUpperCase()}`;
-
-        let itemsSummary = '';
+        let itemsSummary = [];
         [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
             const qty = cart[item.id] || 0;
             if (qty > 0) {
-                itemsSummary += `<div>• ${item.name} x${qty} — ₱${(item.price * qty).toLocaleString()}</div>`;
+                itemsSummary.push(`${item.name} x${qty}`);
             }
         });
 
-        document.getElementById('bill-items-list').innerHTML = itemsSummary || 'No items selected.';
-        document.getElementById('bill-grand-total').innerText = document.getElementById('summary-total-val').innerText;
-        document.getElementById('bill-payment-info').innerText = `Payment Logged: ₱${amount} | Sender: ${initials.toUpperCase()}`;
-        document.getElementById('bill-eta-info').innerText = document.getElementById('eta-display').innerText.replace('<br>', ' ');
+        const newOrder = {
+            refCode: currentRefCode,
+            clientCode: currentClientCode,
+            clientType: currentUserType,
+            recName: recName,
+            recPhone: recPhone,
+            recCoords: recCoords,
+            items: itemsSummary,
+            totalAmount: document.getElementById('summary-total-val').innerText,
+            amountPaid: amount,
+            senderInitials: initials.toUpperCase(),
+            timestamp: new Date().toLocaleString(),
+            statusIndex: 0,
+            eta: document.getElementById('eta-display').innerText
+        };
+
+        const orders = loadOrdersFromStorage();
+        orders.push(newOrder);
+        saveOrdersToStorage(orders);
+
+        // Direct automated dispatch to ecelestiallobby@gmail.com
+        try {
+            await fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    _subject: `New Celestial Lobby Order [${currentRefCode}]`,
+                    Order_Reference: currentRefCode,
+                    Client_Code: currentClientCode,
+                    Client_Type: currentUserType,
+                    Receiver_Name: recName,
+                    Receiver_Phone: recPhone,
+                    Map_Coordinates: recCoords,
+                    Items_Ordered: itemsSummary.join(', '),
+                    Total_Amount: newOrder.totalAmount,
+                    Amount_Paid: `₱${amount}`,
+                    Sender_Initials: initials.toUpperCase(),
+                    Timestamp: newOrder.timestamp
+                })
+            });
+        } catch (err) {
+            console.error("Formspree email dispatch error:", err);
+        }
+
+        document.getElementById('bill-ref-code').innerText = currentRefCode;
+        document.getElementById('bill-client-type').innerText = `CLIENT TYPE: ${currentUserType.toUpperCase()}`;
+        document.getElementById('bill-rec-info').innerText = `RECIPIENT: ${recName} (${recPhone})`;
+        document.getElementById('bill-rec-coords').innerText = `LOCATION PIN: ${recCoords}`;
+        document.getElementById('bill-items-list').innerHTML = itemsSummary.map(i => `<div>• ${i}</div>`).join('');
+        document.getElementById('bill-grand-total').innerText = newOrder.totalAmount;
+        document.getElementById('bill-payment-info').innerText = `Payment Sent: ₱${amount} | Sender: ${initials.toUpperCase()}`;
+        document.getElementById('bill-eta-info').innerText = newOrder.eta;
+
+        submitBtn.disabled = false;
+        submitBtn.innerText = "SUBMIT ORDER & LOG PAYMENT";
 
         document.getElementById('portal-view').style.display = 'none';
         document.getElementById('ref-view').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function renderAdminOrders() {
+        const orders = loadOrdersFromStorage();
+        const container = document.getElementById('admin-orders-container');
+        
+        document.getElementById('admin-stat-total').innerText = orders.length;
+        document.getElementById('admin-stat-active').innerText = orders.filter(o => o.statusIndex < 5).length;
+
+        if (orders.length === 0) {
+            container.innerHTML = '<div style="color:var(--text-muted); font-family:var(--font-mono); text-align:center;">No orders submitted today.</div>';
+            return;
+        }
+
+        container.innerHTML = orders.slice().reverse().map(o => `
+            <div class="order-card">
+                <div class="order-card-header">
+                    <div>
+                        <strong style="color:var(--cyan-accent);">${o.refCode}</strong>
+                        <span style="font-size:0.75rem; color:var(--text-muted);"> (${o.timestamp})</span>
+                    </div>
+                    <span class="status-badge status-pending">${STATUS_STAGES[o.statusIndex]}</span>
+                </div>
+                <div><strong>Client Code:</strong> ${o.clientCode} (${o.clientType})</div>
+                <div><strong>Recipient:</strong> ${o.recName || 'N/A'} | <strong>Phone:</strong> ${o.recPhone || 'N/A'}</div>
+                <div><strong>Pinned Map Coordinates:</strong> <span style="color:var(--cyan-accent);">${o.recCoords || 'N/A'}</span></div>
+                <div><strong>Items:</strong> ${o.items.join(', ')}</div>
+                <div><strong>Total Bill:</strong> ${o.totalAmount} | <strong>Paid:</strong> ₱${o.amountPaid} (${o.senderInitials})</div>
+                
+                <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+                    <label style="font-size:0.8rem; color:var(--gold-primary);">Update Status:</label>
+                    <select style="font-size:0.85rem; padding:6px;" onchange="updateOrderStatus('${o.refCode}', this.value)">
+                        ${STATUS_STAGES.map((st, idx) => `
+                            <option value="${idx}" ${o.statusIndex === idx ? 'selected' : ''}>${st}</option>
+                        `).join('')}
+                    </select>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateOrderStatus(refCode, newIndex) {
+        const orders = loadOrdersFromStorage();
+        const target = orders.find(o => o.refCode === refCode);
+        if (target) {
+            target.statusIndex = parseInt(newIndex);
+            saveOrdersToStorage(orders);
+            renderAdminOrders();
+            alert(`Order ${refCode} updated to: ${STATUS_STAGES[newIndex]}`);
+        }
+    }
+
+    function searchOrderTrack() {
+        const inputRef = document.getElementById('track-ref-input').value.trim().toUpperCase();
+        const container = document.getElementById('track-result-container');
+        const orders = loadOrdersFromStorage();
+
+        const match = orders.find(o => o.refCode === inputRef);
+
+        if (!match) {
+            container.innerHTML = `<div style="color:var(--neon-red); font-family:var(--font-mono); margin-top:10px;">✕ Order Reference "${inputRef}" not found. Please verify code.</div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="order-card" style="margin-top: 16px;">
+                <div class="order-card-header">
+                    <strong style="color:var(--cyan-accent); font-size:1.2rem;">${match.refCode}</strong>
+                    <span class="status-badge status-confirmed">${STATUS_STAGES[match.statusIndex]}</span>
+                </div>
+
+                <div class="pipeline-tracker">
+                    ${STATUS_STAGES.map((st, idx) => `
+                        <div class="pipeline-step ${idx === match.statusIndex ? 'active' : ''} ${idx < match.statusIndex ? 'completed' : ''}">
+                            <div class="pipeline-dot"></div>
+                            <div class="pipeline-label">${st.split(' ')[0]}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div><strong>Recipient:</strong> ${match.recName} (${match.recPhone})</div>
+                <div><strong>Pinned Location:</strong> ${match.recCoords}</div>
+                <div><strong>Items Ordered:</strong> ${match.items.join(', ')}</div>
+                <div><strong>Total Amount:</strong> ${match.totalAmount}</div>
+                <div><strong>Schedule / ETA:</strong> ${match.eta}</div>
+            </div>
+        `;
+    }
+
+    function goToTrackerFromRef() {
+        document.getElementById('ref-view').style.display = 'none';
+        document.getElementById('portal-view').style.display = 'block';
+        switchTab('track');
+        document.getElementById('track-ref-input').value = currentRefCode;
+        searchOrderTrack();
+    }
+
     function copyInvoiceText() {
-        const invoiceTxt = document.getElementById('ticket-content').innerText;
-        navigator.clipboard.writeText(invoiceTxt);
-        alert('Official Order Invoice copied to clipboard!');
+        const txt = document.getElementById('ticket-content').innerText;
+        navigator.clipboard.writeText(txt);
+        alert('Invoice copied to clipboard!');
     }
 
     function openTelegramDirect() {
