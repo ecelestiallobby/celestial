@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CELESTIAL LOBBY | Order Portal</title>
+    <title>CELESTIAL LOBBY | Security & Order Portal</title>
     
     <!-- Sci-Fi Futuristic Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,12 +13,13 @@
     <style>
         :root {
             --bg-dark: #05070f;
-            --panel-bg: rgba(13, 17, 33, 0.85);
+            --panel-bg: rgba(13, 17, 33, 0.88);
             --gold-primary: #f3ce72;
             --gold-glow: #e5b842;
             --gold-dark: #8a6a1f;
             --cyan-accent: #00f0ff;
             --neon-red: #ff2a6d;
+            --neon-green: #05ffa1;
             --text-main: #e2e8f0;
             --text-muted: #8a99ad;
             --border-glow: rgba(243, 206, 114, 0.3);
@@ -48,7 +49,6 @@
             min-height: 100vh;
         }
 
-        /* Scanline Overlay */
         body::before {
             content: " ";
             display: block;
@@ -68,62 +68,11 @@
             z-index: 10;
         }
 
-        /* Header & Logo */
-        .header-card {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-glow);
-            border-radius: 16px;
-            padding: 24px 16px;
-            text-align: center;
-            box-shadow: 0 0 25px rgba(243, 206, 114, 0.12);
-            backdrop-filter: blur(10px);
-            margin-bottom: 24px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-card::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
-        }
-
-        .main-logo {
-            max-width: 320px;
-            width: 100%;
-            height: auto;
-            filter: drop-shadow(0 0 15px rgba(243, 206, 114, 0.5));
-            margin-bottom: 12px;
-            border-radius: 10px;
-        }
-
-        .brand-title {
-            font-family: var(--font-title);
-            font-weight: 900;
-            font-size: 1.8rem;
-            color: var(--gold-primary);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(243, 206, 114, 0.5);
-        }
-
-        .brand-tagline {
-            font-family: var(--font-mono);
-            color: var(--cyan-accent);
-            font-size: 0.9rem;
-            letter-spacing: 4px;
-            margin-top: 4px;
-            text-transform: uppercase;
-        }
-
-        /* Sci-Fi Panels */
         .scifi-panel {
             background: var(--panel-bg);
             border: 1px solid rgba(243, 206, 114, 0.2);
             border-radius: 12px;
-            padding: 20px;
+            padding: 22px;
             margin-bottom: 20px;
             backdrop-filter: blur(8px);
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
@@ -147,13 +96,11 @@
         .panel-header::before {
             content: '◈';
             color: var(--cyan-accent);
-            font-size: 1rem;
         }
 
-        /* Inputs & Buttons */
         input[type="text"], input[type="number"], select {
             width: 100%;
-            background: rgba(5, 7, 15, 0.8);
+            background: rgba(5, 7, 15, 0.85);
             border: 1px solid rgba(243, 206, 114, 0.4);
             border-radius: 8px;
             padding: 12px 14px;
@@ -201,34 +148,89 @@
         .btn-red {
             background: linear-gradient(135deg, #8a1f1f, var(--neon-red));
             color: #fff;
-            margin-top: 10px;
         }
 
-        /* 6Code Verification */
-        .code-box {
+        /* GATEWAY SCREEN STYLES */
+        #gateway-view {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .gateway-title {
+            font-family: var(--font-title);
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--gold-primary);
+            letter-spacing: 4px;
+            margin-bottom: 6px;
+            text-shadow: 0 0 15px rgba(243, 206, 114, 0.5);
+        }
+
+        .gateway-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--cyan-accent);
+            letter-spacing: 3px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .code-input-large {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            text-align: center;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .clause-box {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 16px 0;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(243, 206, 114, 0.2);
             display: flex;
             gap: 10px;
         }
 
-        .code-box input {
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: bold;
+        .clause-box input {
+            width: auto;
+            margin-top: 4px;
         }
 
-        .badge-verified {
-            background: rgba(0, 240, 255, 0.15);
-            border: 1px solid var(--cyan-accent);
-            color: var(--cyan-accent);
-            padding: 6px 12px;
-            border-radius: 6px;
+        .timer-badge {
             font-family: var(--font-mono);
             font-size: 0.85rem;
-            margin-top: 10px;
+            color: var(--cyan-accent);
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--cyan-accent);
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .error-badge {
+            background: rgba(255, 42, 109, 0.15);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            margin-bottom: 14px;
             display: none;
         }
 
-        /* Menu List */
+        /* MENU ITEM LIST STYLES */
         .menu-item {
             display: flex;
             align-items: center;
@@ -237,8 +239,10 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .menu-item:last-child {
-            border-bottom: none;
+        .menu-item.restricted {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(1);
         }
 
         .item-info {
@@ -286,69 +290,6 @@
             font-weight: bold;
         }
 
-        /* Delivery Notice */
-        .delivery-notice {
-            background: rgba(255, 42, 109, 0.1);
-            border: 1px solid var(--neon-red);
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            font-size: 0.9rem;
-            color: #ff9ebb;
-            display: none;
-        }
-
-        /* ETA Display Box */
-        .eta-box {
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid var(--cyan-accent);
-            border-radius: 8px;
-            padding: 14px;
-            margin-top: 14px;
-            text-align: center;
-        }
-
-        .eta-title {
-            font-family: var(--font-title);
-            font-size: 0.85rem;
-            color: var(--cyan-accent);
-            letter-spacing: 2px;
-        }
-
-        .eta-time {
-            font-family: var(--font-mono);
-            font-size: 1.15rem;
-            color: #fff;
-            font-weight: bold;
-            margin-top: 4px;
-            line-height: 1.4;
-        }
-
-        /* QR & Payment Section */
-        .qr-container {
-            text-align: center;
-            margin: 16px 0;
-        }
-
-        .qr-img {
-            max-width: 240px;
-            width: 100%;
-            border-radius: 12px;
-            border: 2px solid var(--gold-primary);
-            box-shadow: 0 0 15px rgba(243, 206, 114, 0.3);
-        }
-
-        .bank-details {
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 8px;
-            padding: 12px;
-            font-family: var(--font-mono);
-            font-size: 0.95rem;
-            margin-top: 12px;
-            border-left: 3px solid var(--gold-primary);
-        }
-
-        /* Order Summary Table */
         .summary-row {
             display: flex;
             justify-content: space-between;
@@ -365,42 +306,59 @@
             font-weight: bold;
         }
 
-        /* Reference Modal / Output Screen */
-        .ref-card {
-            text-align: center;
-            display: none;
+        .qr-img {
+            max-width: 220px;
+            width: 100%;
+            border-radius: 10px;
+            border: 2px solid var(--gold-primary);
         }
 
-        .ref-num {
-            font-family: var(--font-title);
-            font-size: 2rem;
-            color: var(--cyan-accent);
-            letter-spacing: 4px;
-            margin: 16px 0;
-            text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
-        }
-
-        .ref-notice {
-            color: var(--gold-primary);
-            font-family: var(--font-mono);
-            border: 1px dashed var(--gold-primary);
-            padding: 16px;
+        .bank-details {
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            margin-top: 12px;
+            border-left: 3px solid var(--gold-primary);
         }
 
-        .clause-box {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin: 16px 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
+        .badge-verified {
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid var(--cyan-accent);
+            color: var(--cyan-accent);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            margin-bottom: 14px;
         }
 
-        .clause-box input {
-            width: auto;
-            margin-top: 3px;
+        /* TICKET PREVIEW CARD */
+        .ticket-card {
+            background: #000;
+            border: 2px dashed var(--gold-primary);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: var(--font-mono);
+            text-align: left;
+            margin: 20px 0;
+            color: #fff;
+        }
+
+        .ticket-header {
+            text-align: center;
+            border-bottom: 1px solid var(--gold-primary);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ticket-ref {
+            font-family: var(--font-title);
+            font-size: 1.6rem;
+            color: var(--cyan-accent);
+            text-align: center;
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -408,37 +366,80 @@
 
 <div class="container">
 
-    <!-- HEADER / BRANDING -->
-    <div class="header-card">
-        <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000006630.png" alt="Celestial Lobby Logo" class="main-logo" onerror="this.src='1000006630.png'">
-        <div class="brand-title">CELESTIAL LOBBY</div>
-        <div class="brand-tagline">FANTASY | EUPHORIA | PLEASURE</div>
-    </div>
+    <!-- STARTUP SECURITY GATEWAY SCREEN -->
+    <div id="gateway-view" class="scifi-panel">
+        <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000006630.png" alt="Logo" style="max-width: 180px; border-radius: 8px; margin-bottom: 16px;" onerror="this.src='1000006630.png'">
+        
+        <div class="gateway-title">CELESTIAL LOBBY</div>
+        <div class="gateway-subtitle">ENTER GENE PRINT IDENTITY</div>
 
-    <!-- MAIN FORM / PORTAL VIEW -->
-    <div id="portal-view">
-
-        <!-- 1. CLIENT 6CODE VERIFICATION -->
-        <div class="scifi-panel">
-            <div class="panel-header">CLIENT 6CODE AUTHORIZATION</div>
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">Enter your client authorization code to unlock custom discounts and pricing.</p>
-            <div class="code-box">
-                <input type="text" id="client-code-input" maxlength="20" placeholder="ENTER YOUR AUTHORIZATION CODE">
-                <button class="btn btn-cyan" style="width: 120px;" onclick="verifyCode()">VERIFY</button>
-            </div>
-            <div id="code-badge" class="badge-verified"></div>
+        <div id="freeze-timer-display" style="display:none;" class="timer-badge">
+            🔒 GATEWAY FROZEN: RETRY IN <span id="freeze-countdown">60:00</span>
         </div>
 
-        <!-- 2. MENU SELECTION -->
+        <div id="error-badge" class="error-badge"></div>
+
+        <div style="width: 100%; max-width: 380px;">
+            <input type="text" id="gene-code-input" class="code-input-large" maxlength="8" placeholder="8-DIGIT CODE">
+
+            <div class="clause-box">
+                <input type="checkbox" id="gate-terms-agree">
+                <label for="gate-terms-agree">I confirm agreement and policies of Celestial Lobby before entering the order portal.</label>
+            </div>
+
+            <button class="btn" id="btn-login" onclick="attemptLogin()">AUTHENTICATE IDENTITY</button>
+
+            <button class="btn btn-red" id="btn-guest" style="margin-top: 12px; display: none;" onclick="continueAsGuest()">CONTINUE AS GUEST (NO DISCOUNT)</button>
+        </div>
+    </div>
+
+    <!-- MAIN ORDER PORTAL SCREEN -->
+    <div id="portal-view" style="display: none;">
+
+        <div class="scifi-panel" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="font-family: var(--font-title); color: var(--gold-primary); font-size: 1.1rem;" id="user-badge-title">CLIENT AUTHENTICATED</div>
+                <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);" id="user-badge-sub">GENE PRINT: APPROVED</div>
+            </div>
+            <div class="timer-badge" style="margin-bottom: 0;">⏱️ SESSION: <span id="session-countdown">60:00</span></div>
+        </div>
+
+        <!-- 6CODE DISCOUNT FIELD -->
         <div class="scifi-panel">
-            <div class="panel-header">SELECT ITEMS (CUSTOM MIX SUPPORTED)</div>
+            <div class="panel-header">OPTIONAL DISCOUNT 6CODE</div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="sixcode-input" placeholder="ENTER 6CODE" maxlength="20" style="text-transform: uppercase;">
+                <button class="btn btn-cyan" style="width: 120px;" onclick="applySixCode()">APPLY</button>
+            </div>
+            <div id="sixcode-status" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- MENU SELECTION -->
+        <div class="scifi-panel">
+            <div class="panel-header">SELECT ITEMS</div>
+            <div id="menu-notice" style="font-size: 0.85rem; color: var(--neon-red); margin-bottom: 10px; display: none;">
+                🔒 New client restriction active: Higher tier catalog unlocked.
+            </div>
+            <div id="cloud9-notice" style="font-size: 0.85rem; color: var(--gold-primary); margin-bottom: 10px; display: none;">
+                🔑 First order of the day requires prior Order Ref No. to unlock Cloud9.
+            </div>
+
+            <!-- PREVIOUS REF UNLOCK MODAL / FIELD -->
+            <div id="cloud9-unlock-box" style="background: rgba(0,0,0,0.4); border: 1px dashed var(--gold-primary); padding: 10px; border-radius: 8px; margin-bottom: 14px; display: none;">
+                <label style="font-size: 0.8rem; color: var(--gold-primary);">Enter Today's Previous Order Ref No. to unlock Cloud9:</label>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                    <input type="text" id="prev-ref-input" placeholder="e.g. CL-12345-X" style="padding: 6px 10px; font-size: 0.85rem;">
+                    <button class="btn btn-cyan" style="width: 100px; padding: 6px;" onclick="unlockCloud9()">UNLOCK</button>
+                </div>
+            </div>
+
             <div id="menu-container"></div>
-            
+
             <div class="panel-header" style="margin-top: 20px;">ADD-ON ITEMS</div>
             <div id="addons-container"></div>
         </div>
 
-        <!-- 3. DELIVERY & SPEED OPTIONS -->
+        <!-- DELIVERY & DISPATCH OPTIONS -->
         <div class="scifi-panel">
             <div class="panel-header">DELIVERY METHOD & DISPATCH SPEED</div>
             
@@ -446,26 +447,22 @@
             <select id="delivery-method" onchange="updateCalculations()">
                 <option value="rider">Rider - Customer Pays Delivery Fee</option>
                 <option value="meetup">Meet Up (Add ₱200 Delivery Fee)</option>
-                <option value="dropoff" disabled>Dropoff (Not Available)</option>
             </select>
 
             <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-top: 14px; margin-bottom: 6px;">Dispatch Speed (GoRush Options):</label>
             <select id="gorush-option" onchange="updateCalculations()">
-                <option value="standard">Standard Dispatch (Cut-off 10:00 PM)</option>
-                <option value="send_now">GoRush [Send Now] (+₱500) • Fast Logistics</option>
-                <option value="immediately">GoRush [Immediately] (+₱350) • Standard Logistics</option>
-                <option value="asap">GoRush [ASAP] (+₱200) • Economy Logistics</option>
+                <option value="standard">Standard Fulfillment Time (8:00 AM - 10:00 PM)</option>
             </select>
 
-            <div id="delivery-notice" class="delivery-notice"></div>
+            <div id="delivery-notice" style="margin-top: 12px; font-size: 0.85rem; color: var(--gold-primary); display: none;"></div>
 
-            <div class="eta-box">
-                <div class="eta-title">ESTIMATED TIMELINE & SCHEDULE</div>
-                <div id="eta-display" class="eta-time">Calculating...</div>
+            <div class="eta-box" style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--cyan-accent); border-radius: 8px; padding: 14px; margin-top: 14px; text-align: center;">
+                <div style="font-family: var(--font-title); font-size: 0.85rem; color: var(--cyan-accent); letter-spacing: 2px;">ESTIMATED TIMELINE & SCHEDULE</div>
+                <div id="eta-display" style="font-family: var(--font-mono); font-size: 1.1rem; color: #fff; margin-top: 4px;">Calculating...</div>
             </div>
         </div>
 
-        <!-- 4. ORDER SUMMARY -->
+        <!-- ORDER SUMMARY -->
         <div class="scifi-panel">
             <div class="panel-header">ORDER SUMMARY</div>
             <div id="summary-list"></div>
@@ -473,19 +470,16 @@
                 <span>TOTAL:</span>
                 <span id="summary-total-val">₱0</span>
             </div>
-            <button class="btn btn-red" onclick="resetSelections()">RESET ALL SELECTIONS</button>
+            <button class="btn btn-red" style="margin-top: 12px;" onclick="resetSelections()">RESET ALL SELECTIONS</button>
         </div>
 
-        <!-- 5. PAYMENT & PROOF SUBMISSION -->
+        <!-- PAYMENT & PROOF SUBMISSION -->
         <div class="scifi-panel">
             <div class="panel-header">PAYMENT VIA INSTAPAY / BANK</div>
             
-            <div class="qr-container">
+            <div style="text-align: center; margin: 16px 0;">
                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Scan InstaPay QR Code below or use Bank Details:</p>
-                <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000007082.jpg" alt="InstaPay QR Code" class="qr-img" onerror="this.src='1000007082.jpg'">
-                <div>
-                    <a href="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000007082.jpg" download="Celestial_Lobby_QR.jpg" style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; text-decoration: underline;">Download QR Code Image</a>
-                </div>
+                <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000007082.jpg" alt="QR" class="qr-img" onerror="this.src='1000007082.jpg'">
             </div>
 
             <div class="bank-details">
@@ -500,51 +494,83 @@
 
                 <label style="font-size: 0.85rem; color: var(--text-muted);">First 3 Letters of Sender's First Name:</label>
                 <input type="text" id="payment-initials" maxlength="3" placeholder="e.g. FRE" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
-
-                <label style="font-size: 0.85rem; color: var(--text-muted);">Upload Proof of Payment Screenshot:</label>
-                <input type="file" id="payment-proof" accept="image/*" style="margin-top: 4px; font-family: var(--font-mono); font-size: 0.85rem;">
             </div>
 
-            <div class="clause-box">
-                <input type="checkbox" id="terms-agree">
-                <label for="terms-agree"><strong>❗️❗️ Binding Agreement Clause ❗️❗️</strong><br>By sending payment, you acknowledge that you have reviewed and agreed to the applicable pricing and Terms & Agreement.</label>
-            </div>
-
-            <button class="btn" style="margin-top: 10px;" onclick="submitOrder()">SUBMIT ORDER & VERIFY PAYMENT</button>
+            <button class="btn" style="margin-top: 10px;" onclick="submitOrder()">SUBMIT ORDER & GENERATE BILL</button>
         </div>
 
     </div>
 
-    <!-- ORDER CONFIRMATION / REFERENCE SCREEN -->
-    <div id="ref-view" class="scifi-panel ref-card">
-        <div class="panel-header" style="justify-content: center;">ORDER CONFIRMED</div>
-        <p style="color: var(--text-muted);">Your order details have been compiled and sent to our team!</p>
-        
-        <div class="ref-num" id="display-ref-code">CL-00000</div>
+    <!-- ORDER CONFIRMATION / BILL BREAKDOWN SCREEN -->
+    <div id="ref-view" class="scifi-panel" style="display: none; text-align: center;">
+        <div class="panel-header" style="justify-content: center;">ORDER CONFIRMED & INVOICE GENERATED</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Please review your invoice details below and present it to our dispatch team.</p>
 
-        <div class="ref-notice">
-            ⚠️ <strong>IMPORTANT:</strong><br>
-            Please wait <strong>1 - 2 hours</strong> for order confirmation from our team.<br>
-            <strong>Keep your lines open!</strong>
+        <!-- OFFICIAL BILL BREAKDOWN TICKET -->
+        <div class="ticket-card" id="ticket-content">
+            <div class="ticket-header">
+                <div style="font-family: var(--font-title); font-weight: 900; color: var(--gold-primary); font-size: 1.2rem;">CELESTIAL LOBBY</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">OFFICIAL ORDER INVOICE</div>
+            </div>
+
+            <div class="ticket-ref" id="bill-ref-code">CL-00000</div>
+            
+            <div style="font-size: 0.85rem; margin-bottom: 10px;" id="bill-client-type">CLIENT: REGULAR</div>
+            <div style="border-bottom: 1px dashed #444; margin-bottom: 10px;"></div>
+
+            <div id="bill-items-list" style="font-size: 0.9rem; margin-bottom: 10px;"></div>
+
+            <div style="border-bottom: 1px dashed #444; margin-bottom: 10px;"></div>
+            
+            <div class="summary-row" style="color: var(--gold-primary); font-weight: bold; font-size: 1.1rem;">
+                <span>TOTAL AMOUNT:</span>
+                <span id="bill-grand-total">₱0</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="bill-payment-info"></div>
+            <div style="font-size: 0.8rem; color: var(--cyan-accent); margin-top: 6px;" id="bill-eta-info"></div>
         </div>
 
-        <button class="btn btn-cyan" onclick="copyRefCode()" style="margin-bottom: 12px;">COPY REFERENCE CODE</button>
+        <button class="btn btn-cyan" onclick="copyInvoiceText()" style="margin-bottom: 12px;">COPY INVOICE DETAILS</button>
         <button class="btn" onclick="openTelegramDirect()">OPEN TELEGRAM CHAT (@hoe_no)</button>
     </div>
 
 </div>
 
 <script>
+    // PREDEFINED CODE GENERATION (100 Regular, 200 New)
+    const REGULAR_CODES = new Set([
+        "REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105", "REG8A106", "REG8A107", "REG8A108", "REG8A109", "REG8A110",
+        "REG8B111", "REG8B112", "REG8B113", "REG8B114", "REG8B115", "REG8B116", "REG8B117", "REG8B118", "REG8B119", "REG8B120",
+        "REG8C121", "REG8C122", "REG8C123", "REG8C124", "REG8C125", "REG8C126", "REG8C127", "REG8C128", "REG8C129", "REG8C130",
+        "REG8D131", "REG8D132", "REG8D133", "REG8D134", "REG8D135", "REG8D136", "REG8D137", "REG8D138", "REG8D139", "REG8D140",
+        "REG8E141", "REG8E142", "REG8E143", "REG8E144", "REG8E145", "REG8E146", "REG8E147", "REG8E148", "REG8E149", "REG8E150",
+        "REG8F151", "REG8F152", "REG8F153", "REG8F154", "REG8F155", "REG8F156", "REG8F157", "REG8F158", "REG8F159", "REG8F160",
+        "REG8G161", "REG8G162", "REG8G163", "REG8G164", "REG8G165", "REG8G166", "REG8G167", "REG8G168", "REG8G169", "REG8G170",
+        "REG8H171", "REG8H172", "REG8H173", "REG8H174", "REG8H175", "REG8H176", "REG8H177", "REG8H178", "REG8H179", "REG8H180",
+        "REG8K181", "REG8K182", "REG8K183", "REG8K184", "REG8K185", "REG8K186", "REG8K187", "REG8K188", "REG8K189", "REG8K190",
+        "REG8M191", "REG8M192", "REG8M193", "REG8M194", "REG8M195", "REG8M196", "REG8M197", "REG8M198", "REG8M199", "REG8M200"
+    ]);
+
+    const NEW_CODES = new Set();
+    for (let i = 101; i <= 300; i++) {
+        NEW_CODES.add(`NEW8X${i}`);
+    }
+
+    const VALID_6CODES = {
+        'CL10A1': 0.10, 'CL10B2': 0.10, 'CL10C3': 0.10, 'CL10D4': 0.10, 'CL10E5': 0.10,
+        'VIP3X1': 0.03, 'VIP3Y2': 0.03, 'STAR5A': 0.05, 'STAR5B': 0.05
+    };
+
     const MENU_ITEMS = [
-        { id: 'cloud9', name: '☁️ CLOUD9 — 5', price: 700 },
-        { id: 'mars', name: '🔴 MARS — 10*', price: 1200 },
-        { id: 'venus', name: '🟣 VENUS — 15*', price: 1700 },
-        { id: 'saturn', name: '🪐 SATURN — 20*', price: 2150 },
-        { id: 'nibiru', name: '🌑 NIBIRU — 25*', price: 2600 },
-        { id: 'nemik', name: '⚫ NEMIK — 30*', price: 3100 },
-        { id: 'vaelithar', name: '🌑 VAELITHAR — 40u', price: 3500 },
-        { id: 'p05', name: '🌑 0.5 — 60*', price: 4450 },
-        { id: 'p10', name: '🌑 1.0 — 110*', price: 6950 }
+        { id: 'cloud9', name: '☁️ CLOUD9 — 5', price: 700, minTier: 'regular' },
+        { id: 'mars', name: '🔴 MARS — 10*', price: 1200, minTier: 'regular' },
+        { id: 'venus', name: '🟣 VENUS — 15*', price: 1700, minTier: 'new' },
+        { id: 'saturn', name: '🪐 SATURN — 20*', price: 2150, minTier: 'new' },
+        { id: 'nibiru', name: '🌑 NIBIRU — 25*', price: 2600, minTier: 'new' },
+        { id: 'nemik', name: '⚫ NEMIK — 30*', price: 3100, minTier: 'new' },
+        { id: 'vaelithar', name: '🌑 VAELITHAR — 40u', price: 3500, minTier: 'new' },
+        { id: 'p05', name: '🌑 0.5 — 60*', price: 4450, minTier: 'regular' },
+        { id: 'p10', name: '🌑 1.0 — 110*', price: 6950, minTier: 'regular' }
     ];
 
     const ADDON_ITEMS = [
@@ -552,33 +578,171 @@
         { id: 'dagom', name: '1pc Dagom', price: 50 }
     ];
 
-    const VALID_CODES = {
-        'CL10A1': 0.10, 'CL10B2': 0.10, 'CL10C3': 0.10, 'CL10D4': 0.10, 'CL10E5': 0.10,
-        'CL10F6': 0.10, 'CL10G7': 0.10, 'CL10H8': 0.10, 'CL10K9': 0.10, 'CL10M0': 0.10,
-        'VIP3X1': 0.03, 'VIP3Y2': 0.03, 'VIP3Z3': 0.03, 'VIP3A4': 0.03, 'VIP3B5': 0.03,
-        'STAR5A': 0.05, 'STAR5B': 0.05, 'STAR5C': 0.05, 'STAR5D': 0.05, 'STAR5E': 0.05
-    };
-
+    // STATE VARIABLES
+    let loginAttempts = 0;
+    let isFrozen = false;
+    let freezeEndTime = 0;
+    let currentUserType = null; // 'regular', 'new', 'guest'
+    let sessionEndTime = 0;
     let cart = {};
     let appliedDiscount = 0;
-    let isMasterAuthorized = false;
-    let generatedRefCode = '';
+    let cloud9Unlocked = false;
+    let currentRefCode = '';
 
+    // AUTHENTICATION & LOCKOUT LOGIC
+    function attemptLogin() {
+        if (isFrozen) return;
+
+        const agreed = document.getElementById('gate-terms-agree').checked;
+        const code = document.getElementById('gene-code-input').value.trim().toUpperCase();
+        const errBadge = document.getElementById('error-badge');
+
+        if (!agreed) {
+            alert('You must accept the terms and policies to proceed.');
+            return;
+        }
+
+        if (REGULAR_CODES.has(code)) {
+            grantAccess('regular', code);
+        } else if (NEW_CODES.has(code)) {
+            grantAccess('new', code);
+        } else {
+            loginAttempts++;
+            if (loginAttempts >= 2) {
+                triggerFreeze();
+            } else {
+                errBadge.style.display = 'block';
+                errBadge.innerText = `✕ Incorrect Gene Print Code. Attempt ${loginAttempts}/2. One more failure will freeze access for 1 hour.`;
+            }
+        }
+    }
+
+    function triggerFreeze() {
+        isFrozen = true;
+        freezeEndTime = Date.now() + 3600000; // 1 hour freeze
+        document.getElementById('error-badge').style.display = 'block';
+        document.getElementById('error-badge').innerText = '🔒 Access frozen due to multiple incorrect code entries.';
+        document.getElementById('btn-login').disabled = true;
+        document.getElementById('btn-guest').style.display = 'block';
+        document.getElementById('freeze-timer-display').style.display = 'inline-block';
+
+        updateFreezeTimer();
+        setInterval(updateFreezeTimer, 1000);
+    }
+
+    function updateFreezeTimer() {
+        if (!isFrozen) return;
+        const remaining = Math.max(0, Math.floor((freezeEndTime - Date.now()) / 1000));
+        const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+        const s = (remaining % 60).toString().padStart(2, '0');
+        document.getElementById('freeze-countdown').innerText = `${m}:${s}`;
+
+        if (remaining <= 0) {
+            isFrozen = false;
+            loginAttempts = 0;
+            document.getElementById('btn-login').disabled = false;
+            document.getElementById('btn-guest').style.display = 'none';
+            document.getElementById('freeze-timer-display').style.display = 'none';
+            document.getElementById('error-badge').style.display = 'none';
+        }
+    }
+
+    function continueAsGuest() {
+        grantAccess('guest', 'GUEST-SESSION');
+    }
+
+    function grantAccess(type, code) {
+        currentUserType = type;
+        sessionEndTime = Date.now() + 3600000; // 1 hour session
+
+        document.getElementById('gateway-view').style.display = 'none';
+        document.getElementById('portal-view').style.display = 'block';
+
+        document.getElementById('user-badge-title').innerText = `CLIENT: ${type.toUpperCase()}`;
+        document.getElementById('user-badge-sub').innerText = `GENE CODE: ${code}`;
+
+        startSessionTimer();
+        renderMenu();
+        updateCalculations();
+    }
+
+    function startSessionTimer() {
+        setInterval(() => {
+            const remaining = Math.max(0, Math.floor((sessionEndTime - Date.now()) / 1000));
+            const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+            const s = (remaining % 60).toString().padStart(2, '0');
+            document.getElementById('session-countdown').innerText = `${m}:${s}`;
+
+            if (remaining <= 0) {
+                alert('Session expired (1 hour limit). Please log in again.');
+                location.reload();
+            }
+        }, 1000);
+    }
+
+    function applySixCode() {
+        if (currentUserType === 'guest') {
+            alert('Guest sessions cannot apply 6Code discounts.');
+            return;
+        }
+
+        const code = document.getElementById('sixcode-input').value.trim().toUpperCase();
+        const status = document.getElementById('sixcode-status');
+
+        if (code === 'CELESTIAL-MASTER') {
+            let customDisc = prompt("Master Code Verified! Enter discount percentage (e.g., 15 for 15%):", "15");
+            appliedDiscount = (parseFloat(customDisc) || 0) / 100;
+            status.innerHTML = `<div class="badge-verified">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
+        } else if (VALID_6CODES[code]) {
+            appliedDiscount = VALID_6CODES[code];
+            status.innerHTML = `<div class="badge-verified">✓ 6CODE VERIFIED: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
+        } else {
+            appliedDiscount = 0;
+            status.innerHTML = `<div style="color:var(--neon-red); font-size:0.85rem;">✕ Invalid 6Code</div>`;
+        }
+        updateCalculations();
+    }
+
+    // ITEM & RESTRICTION RENDERING
     function renderMenu() {
         const menuContainer = document.getElementById('menu-container');
         menuContainer.innerHTML = '';
+
+        const now = new Date();
+        const currentHour = now.getHours();
+        const isFirstOrderWindow = (currentHour >= 8 || currentHour < 3);
+
+        if (currentUserType === 'new') {
+            document.getElementById('menu-notice').style.display = 'block';
+        }
+
+        if (isFirstOrderWindow && !cloud9Unlocked) {
+            document.getElementById('cloud9-notice').style.display = 'block';
+            document.getElementById('cloud9-unlock-box').style.display = 'block';
+        }
+
         MENU_ITEMS.forEach(item => {
             cart[item.id] = cart[item.id] || 0;
+
+            let isRestricted = false;
+            if (currentUserType === 'new' && item.minTier === 'regular') {
+                isRestricted = true;
+            }
+
+            if (item.id === 'cloud9' && isFirstOrderWindow && !cloud9Unlocked) {
+                isRestricted = true;
+            }
+
             menuContainer.innerHTML += `
-                <div class="menu-item">
+                <div class="menu-item ${isRestricted ? 'restricted' : ''}">
                     <div class="item-info">
-                        <span class="item-name">${item.name}</span>
+                        <span class="item-name">${item.name} ${isRestricted ? '🔒 (Locked)' : ''}</span>
                         <span class="item-price">₱${item.price.toLocaleString()}</span>
                     </div>
                     <div class="qty-controls">
-                        <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                        <button class="qty-btn" onclick="changeQty('${item.id}', -1)" ${isRestricted ? 'disabled' : ''}>-</button>
                         <span class="qty-val" id="qty-${item.id}">${cart[item.id]}</span>
-                        <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                        <button class="qty-btn" onclick="changeQty('${item.id}', 1)" ${isRestricted ? 'disabled' : ''}>+</button>
                     </div>
                 </div>
             `;
@@ -604,52 +768,23 @@
         });
     }
 
+    function unlockCloud9() {
+        const refVal = document.getElementById('prev-ref-input').value.trim();
+        if (refVal.length >= 5) {
+            cloud9Unlocked = true;
+            alert('Previous Order Reference Verified! Cloud9 unlocked.');
+            document.getElementById('cloud9-unlock-box').style.display = 'none';
+            document.getElementById('cloud9-notice').style.display = 'none';
+            renderMenu();
+        } else {
+            alert('Please enter a valid Order Reference Number.');
+        }
+    }
+
     function changeQty(id, delta) {
         cart[id] = Math.max(0, (cart[id] || 0) + delta);
         document.getElementById(`qty-${id}`).innerText = cart[id];
         updateCalculations();
-    }
-
-    function verifyCode() {
-        const codeInput = document.getElementById('client-code-input').value.trim().toUpperCase();
-        const badge = document.getElementById('code-badge');
-
-        if (codeInput === 'CELESTIAL-MASTER') {
-            isMasterAuthorized = true;
-            let customDisc = prompt("Master Code Verified! Enter discount percentage (e.g., 15 for 15%):", "15");
-            appliedDiscount = (parseFloat(customDisc) || 0) / 100;
-            badge.style.display = 'block';
-            badge.style.color = 'var(--gold-primary)';
-            badge.style.borderColor = 'var(--gold-primary)';
-            badge.innerHTML = `⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% CUSTOM OVERRIDE APPLIED`;
-        } else if (VALID_CODES[codeInput]) {
-            appliedDiscount = VALID_CODES[codeInput];
-            isMasterAuthorized = false;
-            badge.style.display = 'block';
-            badge.style.color = 'var(--cyan-accent)';
-            badge.style.borderColor = 'var(--cyan-accent)';
-            badge.innerHTML = `✓ CODE AUTHORIZED: ${(appliedDiscount * 100)}% DISCOUNT APPLIED`;
-        } else {
-            appliedDiscount = 0;
-            isMasterAuthorized = false;
-            badge.style.display = 'block';
-            badge.style.color = '#ff2a6d';
-            badge.style.borderColor = '#ff2a6d';
-            badge.innerHTML = `✕ INVALID CODE. STANDARD PRICING APPLIED.`;
-        }
-        updateCalculations();
-    }
-
-    function resetSelections() {
-        if (confirm('Are you sure you want to reset all selected items and codes?')) {
-            Object.keys(cart).forEach(k => cart[k] = 0);
-            document.getElementById('client-code-input').value = '';
-            document.getElementById('code-badge').style.display = 'none';
-            appliedDiscount = 0;
-            isMasterAuthorized = false;
-            renderMenu();
-            updateCalculations();
-        }
     }
 
     function updateCalculations() {
@@ -659,8 +794,7 @@
         [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
             const qty = cart[item.id] || 0;
             if (qty > 0) {
-                let itemPrice = item.price;
-                const itemTotal = itemPrice * qty;
+                const itemTotal = item.price * qty;
                 subtotal += itemTotal;
                 summaryHTML += `
                     <div class="summary-row">
@@ -675,7 +809,7 @@
         if (discountAmount > 0) {
             summaryHTML += `
                 <div class="summary-row" style="color: var(--cyan-accent);">
-                    <span>Discount (${(appliedDiscount * 100)}%):</span>
+                    <span>Discount (${appliedDiscount * 100}%):</span>
                     <span>-₱${discountAmount.toLocaleString()}</span>
                 </div>
             `;
@@ -694,9 +828,9 @@
 
         const gorushOption = document.getElementById('gorush-option').value;
         let gorushFee = 0;
-        if (gorushOption === 'send_now') gorushFee = 500;
-        if (gorushOption === 'immediately') gorushFee = 350;
-        if (gorushOption === 'asap') gorushFee = 200;
+        if (gorushOption === 'gorush30') gorushFee = 500;
+        if (gorushOption === 'gorush60') gorushFee = 350;
+        if (gorushOption === 'gorush90') gorushFee = 200;
 
         if (gorushFee > 0) {
             summaryHTML += `
@@ -711,48 +845,71 @@
         document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.9rem;">No items selected.</div>';
         document.getElementById('summary-total-val').innerText = `₱${grandTotal.toLocaleString()}`;
 
-        calculateETA(gorushOption);
+        calculateETAAndDispatchOptions();
     }
 
-    function calculateETA(gorushOption) {
+    // UPDATED GORUSH & OPERATIONAL TIMING LOGIC
+    function calculateETAAndDispatchOptions() {
         const now = new Date();
-        const currentHour = now.getHours();
+        const currentHour = now.getHours(); // 0 to 23
+        const gorushSelect = document.getElementById('gorush-option');
         const noticeBox = document.getElementById('delivery-notice');
         const etaDisplay = document.getElementById('eta-display');
 
-        if (currentHour >= 1 && currentHour < 5) {
+        const currentGoRushVal = gorushSelect.value;
+
+        // Check if current time is within GoRush window (10:00 PM to 5:00 AM)
+        const isGoRushWindow = (currentHour >= 22 || currentHour < 5);
+
+        // Re-populate GoRush dropdown based on time window
+        if (isGoRushWindow) {
+            gorushSelect.innerHTML = `
+                <option value="gorush30">GoRush30* [Sendnow] + ₱500 (30 Mins Window)</option>
+                <option value="gorush60">GoRush60* [Immediate] + ₱350 (60 Mins Window)</option>
+                <option value="gorush90">GoRush90* [A.s.a.p.] + ₱200 (90 Mins Window)</option>
+            `;
+            // Restore selection if applicable
+            if (['gorush30', 'gorush60', 'gorush90'].includes(currentGoRushVal)) {
+                gorushSelect.value = currentGoRushVal;
+            }
+
             noticeBox.style.display = 'block';
-            noticeBox.innerHTML = '❗️ <strong>Special Handling Applies:</strong> Orders placed between 1:00 AM - 5:00 AM require extra time for dispatch.';
+            noticeBox.innerHTML = '🌙 <strong>After-Hours GoRush Active:</strong> Standard cut-off reached. Orders now proceed via selected GoRush speed.';
         } else {
+            gorushSelect.innerHTML = `
+                <option value="standard">Standard Fulfillment Time (Cut-off 10:00 PM)</option>
+            `;
             noticeBox.style.display = 'none';
         }
 
-        if (currentHour >= 22 || currentHour < 5) {
-            etaDisplay.innerHTML = 'SCHEDULED FOR NEXT DAY @ 10:00 AM<br><span style="font-size:0.8rem; color:var(--text-muted);">(Inventory: 1-2h • Packaging: 30m-1h • Logistics: 1-6h)</span>';
-            return;
-        }
+        // Calculate ETA
+        const selectedOption = gorushSelect.value;
+        let addMinutes = 180; // Standard fulfillment window (3 hours)
 
-        let logisticsHours = 2;
-        if (gorushOption === 'send_now') logisticsHours = 1;
-        if (gorushOption === 'immediately') logisticsHours = 2;
-        if (gorushOption === 'asap') logisticsHours = 3;
+        if (selectedOption === 'gorush30') addMinutes = 30;
+        if (selectedOption === 'gorush60') addMinutes = 60;
+        if (selectedOption === 'gorush90') addMinutes = 90;
 
-        const totalMinutes = Math.round((1.5 + logisticsHours) * 60);
-        const etaTime = new Date(now.getTime() + totalMinutes * 60000);
+        const etaTime = new Date(now.getTime() + addMinutes * 60000);
         const timeString = etaTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        etaDisplay.innerHTML = `Estimated Arrival: ~${timeString}<br><span style="font-size:0.8rem; color:var(--text-muted);">(Inventory 1-2h + Packaging 30m-1h + Logistics ${logisticsHours}h)</span>`;
+        etaDisplay.innerHTML = `Estimated Arrival: ~${timeString}<br><span style="font-size:0.8rem; color:var(--text-muted);">(Inventory 1-2h + Packaging 30m-1h + Dispatch)</span>`;
+    }
+
+    function resetSelections() {
+        if (confirm('Are you sure you want to reset all selected items and codes?')) {
+            Object.keys(cart).forEach(k => cart[k] = 0);
+            document.getElementById('sixcode-input').value = '';
+            document.getElementById('sixcode-status').innerHTML = '';
+            appliedDiscount = 0;
+            renderMenu();
+            updateCalculations();
+        }
     }
 
     function submitOrder() {
-        const agreed = document.getElementById('terms-agree').checked;
         const amount = document.getElementById('payment-amount').value;
         const initials = document.getElementById('payment-initials').value;
-
-        if (!agreed) {
-            alert('Please accept the Binding Agreement Clause before submitting.');
-            return;
-        }
 
         if (!amount || !initials) {
             alert('Please fill out the Payment Amount and First 3 Letters of First Name.');
@@ -760,25 +917,39 @@
         }
 
         const randNum = Math.floor(10000 + Math.random() * 90000);
-        generatedRefCode = `CL-${randNum}-X`;
+        currentRefCode = `CL-${randNum}-X`;
 
-        document.getElementById('display-ref-code').innerText = generatedRefCode;
+        // POPULATE TICKET INVOICE
+        document.getElementById('bill-ref-code').innerText = currentRefCode;
+        document.getElementById('bill-client-type').innerText = `CLIENT TYPE: ${currentUserType.toUpperCase()}`;
+
+        let itemsSummary = '';
+        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
+            const qty = cart[item.id] || 0;
+            if (qty > 0) {
+                itemsSummary += `<div>• ${item.name} x${qty} — ₱${(item.price * qty).toLocaleString()}</div>`;
+            }
+        });
+
+        document.getElementById('bill-items-list').innerHTML = itemsSummary || 'No items selected.';
+        document.getElementById('bill-grand-total').innerText = document.getElementById('summary-total-val').innerText;
+        document.getElementById('bill-payment-info').innerText = `Payment Logged: ₱${amount} | Sender: ${initials.toUpperCase()}`;
+        document.getElementById('bill-eta-info').innerText = document.getElementById('eta-display').innerText.replace('<br>', ' ');
+
         document.getElementById('portal-view').style.display = 'none';
         document.getElementById('ref-view').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function copyRefCode() {
-        navigator.clipboard.writeText(generatedRefCode);
-        alert(`Order Reference ${generatedRefCode} copied to clipboard!`);
+    function copyInvoiceText() {
+        const invoiceTxt = document.getElementById('ticket-content').innerText;
+        navigator.clipboard.writeText(invoiceTxt);
+        alert('Official Order Invoice copied to clipboard!');
     }
 
     function openTelegramDirect() {
         window.open('https://t.me/hoe_no', '_blank');
     }
-
-    renderMenu();
-    updateCalculations();
 </script>
 
 </body>
