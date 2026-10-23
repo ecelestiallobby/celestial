@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CELESTIAL LOBBY | Executive Command & Order Portal</title>
+    <title>CELESTIAL LOBBY | Telegram Mini App Portal</title>
     
     <!-- Sci-Fi Futuristic Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +13,9 @@
     <!-- Leaflet OpenStreetMap Interactive CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
         :root {
@@ -50,7 +53,7 @@
             font-family: var(--font-body);
             font-size: 18px;
             line-height: 1.5;
-            padding: 20px 10px;
+            padding: 16px 10px;
             min-height: 100vh;
         }
 
@@ -77,7 +80,7 @@
             background: var(--panel-bg);
             border: 1px solid rgba(243, 206, 114, 0.2);
             border-radius: 12px;
-            padding: 22px;
+            padding: 20px;
             margin-bottom: 20px;
             backdrop-filter: blur(8px);
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
@@ -183,7 +186,7 @@
         }
 
         #gateway-view {
-            min-height: 80vh;
+            min-height: 75vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -193,20 +196,20 @@
 
         .gateway-title {
             font-family: var(--font-title);
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 900;
             color: var(--gold-primary);
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             margin-bottom: 6px;
             text-shadow: 0 0 15px rgba(243, 206, 114, 0.5);
         }
 
         .gateway-subtitle {
             font-family: var(--font-mono);
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--cyan-accent);
-            letter-spacing: 3px;
-            margin-bottom: 24px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
             text-transform: uppercase;
         }
 
@@ -250,7 +253,7 @@
             border: 1px solid rgba(243, 206, 114, 0.3);
             color: var(--text-muted);
             font-family: var(--font-title);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             letter-spacing: 1px;
             border-radius: 8px;
             cursor: pointer;
@@ -367,8 +370,8 @@
         }
 
         .pipeline-dot {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: #222;
             border: 2px solid var(--text-muted);
@@ -388,7 +391,7 @@
         }
 
         .pipeline-label {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-family: var(--font-title);
             color: var(--text-muted);
         }
@@ -416,10 +419,10 @@
 
     <!-- STARTUP SECURITY GATEWAY SCREEN -->
     <div id="gateway-view" class="scifi-panel">
-        <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000006630.png" alt="Logo" style="max-width: 180px; border-radius: 8px; margin-bottom: 16px;" onerror="this.src='1000006630.png'">
+        <img src="https://raw.githubusercontent.com/ecelestiallobby/celestial/main/1000006630.png" alt="Logo" style="max-width: 160px; border-radius: 8px; margin-bottom: 16px;" onerror="this.src='1000006630.png'">
         
         <div class="gateway-title">CELESTIAL LOBBY</div>
-        <div class="gateway-subtitle">ENTER GENE PRINT IDENTITY</div>
+        <div class="gateway-subtitle">TELEGRAM MINI APP GATEWAY</div>
 
         <div id="error-badge" style="background: rgba(255, 42, 109, 0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 10px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 14px; display: none;"></div>
 
@@ -441,20 +444,20 @@
         <div class="scifi-panel" style="border-color: var(--cyan-accent); background: rgba(5, 20, 40, 0.95);">
             <div class="panel-header">
                 <div class="panel-header-title" style="color: var(--cyan-accent);">COMMAND STATION | EXECUTIVE ACCESS</div>
-                <button class="btn btn-red" style="width: 100px; padding: 6px; font-size: 0.75rem;" onclick="logout()">LOGOUT</button>
+                <button class="btn btn-red" style="width: 90px; padding: 6px; font-size: 0.75rem;" onclick="logout()">LOGOUT</button>
             </div>
             
-            <div style="font-family: var(--font-title); font-size: 1.4rem; color: #fff; margin-bottom: 4px;">Hi, welcome to your stations!</div>
+            <div style="font-family: var(--font-title); font-size: 1.3rem; color: #fff; margin-bottom: 4px;">Hi, welcome to your stations!</div>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Real-time management dashboard for customer orders, recipient dispatch details, and map pins.</p>
 
             <div style="display: flex; gap: 10px; margin-bottom: 16px;">
                 <div style="flex: 1; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--gold-primary);">
                     <div style="font-size: 0.75rem; color: var(--gold-primary);">TOTAL ORDERS TODAY</div>
-                    <div style="font-family: var(--font-title); font-size: 1.5rem; color: #fff;" id="admin-stat-total">0</div>
+                    <div style="font-family: var(--font-title); font-size: 1.4rem; color: #fff;" id="admin-stat-total">0</div>
                 </div>
                 <div style="flex: 1; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--cyan-accent);">
                     <div style="font-size: 0.75rem; color: var(--cyan-accent);">ACTIVE IN PIPELINE</div>
-                    <div style="font-family: var(--font-title); font-size: 1.5rem; color: #fff;" id="admin-stat-active">0</div>
+                    <div style="font-family: var(--font-title); font-size: 1.4rem; color: #fff;" id="admin-stat-active">0</div>
                 </div>
             </div>
 
@@ -470,10 +473,10 @@
 
         <div class="scifi-panel" style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <div style="font-family: var(--font-title); color: var(--gold-primary); font-size: 1.1rem;" id="user-badge-title">CLIENT AUTHENTICATED</div>
+                <div style="font-family: var(--font-title); color: var(--gold-primary); font-size: 1rem;" id="user-badge-title">CLIENT AUTHENTICATED</div>
                 <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);" id="user-badge-sub">GENE PRINT: APPROVED</div>
             </div>
-            <button class="btn btn-red" style="width: 90px; padding: 6px; font-size: 0.75rem;" onclick="logout()">LOGOUT</button>
+            <button class="btn btn-red" style="width: 80px; padding: 6px; font-size: 0.75rem;" onclick="logout()">LOGOUT</button>
         </div>
 
         <div class="tab-nav">
@@ -490,7 +493,7 @@
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <input type="text" id="sixcode-input" placeholder="ENTER 6CODE" maxlength="20" style="text-transform: uppercase;">
-                    <button class="btn btn-cyan" style="width: 120px;" onclick="applySixCode()">APPLY</button>
+                    <button class="btn btn-cyan" style="width: 110px;" onclick="applySixCode()">APPLY</button>
                 </div>
                 <div id="sixcode-status" style="margin-top: 10px;"></div>
             </div>
@@ -595,7 +598,7 @@
                 
                 <div style="display: flex; gap: 10px; margin-bottom: 16px;">
                     <input type="text" id="track-ref-input" placeholder="ENTER REF NO. (e.g. CL-84920-X)" style="text-transform: uppercase;">
-                    <button class="btn btn-cyan" style="width: 120px;" onclick="searchOrderTrack()">TRACK</button>
+                    <button class="btn btn-cyan" style="width: 110px;" onclick="searchOrderTrack()">TRACK</button>
                 </div>
 
                 <div id="track-result-container"></div>
@@ -611,11 +614,11 @@
 
         <div class="ticket-card" id="ticket-content">
             <div style="text-align: center; border-bottom: 1px solid var(--gold-primary); padding-bottom: 12px; margin-bottom: 12px;">
-                <div style="font-family: var(--font-title); font-weight: 900; color: var(--gold-primary); font-size: 1.2rem;">CELESTIAL LOBBY</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">OFFICIAL ORDER INVOICE</div>
+                <div style="font-family: var(--font-title); font-weight: 900; color: var(--gold-primary); font-size: 1.1rem;">CELESTIAL LOBBY</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">OFFICIAL TELEGRAM INVOICE</div>
             </div>
 
-            <div style="font-family: var(--font-title); font-size: 1.6rem; color: var(--cyan-accent); text-align: center; margin: 10px 0;" id="bill-ref-code">CL-00000</div>
+            <div style="font-family: var(--font-title); font-size: 1.5rem; color: var(--cyan-accent); text-align: center; margin: 10px 0;" id="bill-ref-code">CL-00000</div>
             
             <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-client-type">CLIENT TYPE: REGULAR</div>
             <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-rec-info">RECIPIENT: -</div>
@@ -643,6 +646,13 @@
 </div>
 
 <script>
+    // TELEGRAM WEB APP SDK INITIALIZATION
+    let tg = window.Telegram ? window.Telegram.WebApp : null;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+    }
+
     // FORMSPREE ENDPOINT CONFIGURED FOR ecelestiallobby@gmail.com
     const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xeaaojak';
 
@@ -733,6 +743,10 @@
         if (!agreed) {
             alert('You must accept the terms and policies to proceed.');
             return;
+        }
+
+        if (tg && tg.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred('success');
         }
 
         if (code === ADMIN_CODE) {
@@ -955,7 +969,7 @@
         orders.push(newOrder);
         saveOrdersToStorage(orders);
 
-        // Direct automated dispatch to ecelestiallobby@gmail.com
+        // Formspree dispatch to ecelestiallobby@gmail.com
         try {
             await fetch(FORMSPREE_ENDPOINT, {
                 method: 'POST',
@@ -976,7 +990,7 @@
                 })
             });
         } catch (err) {
-            console.error("Formspree email dispatch error:", err);
+            console.error("Formspree dispatch error:", err);
         }
 
         document.getElementById('bill-ref-code').innerText = currentRefCode;
