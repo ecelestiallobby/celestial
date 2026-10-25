@@ -10,9 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
-    <!-- Leaflet OpenStreetMap Interactive CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- Google Maps JavaScript API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initGoogleMap" async defer></script>
 
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -169,22 +168,21 @@
             color: #fff;
         }
 
-        /* CLIENT TYPE TOGGLE SWITCH */
         .type-selector {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 16px;
         }
 
         .type-btn {
             flex: 1;
-            padding: 12px 8px;
+            padding: 10px 4px;
             background: rgba(5, 7, 15, 0.85);
             border: 1px solid rgba(243, 206, 114, 0.3);
             border-radius: 8px;
             color: var(--text-muted);
             font-family: var(--font-title);
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             cursor: pointer;
             text-align: center;
             transition: all 0.3s ease;
@@ -420,6 +418,25 @@
             margin: 20px 0;
             color: #fff;
         }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            margin: 12px 0;
+        }
+
+        .inventory-table th, .inventory-table td {
+            border: 1px solid rgba(243, 206, 114, 0.3);
+            padding: 8px;
+            text-align: left;
+        }
+
+        .inventory-table th {
+            background: rgba(243, 206, 114, 0.15);
+            color: var(--gold-primary);
+        }
     </style>
 </head>
 <body>
@@ -435,18 +452,28 @@
 
         <div id="error-badge" style="background: rgba(255, 42, 109, 0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 10px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 14px; display: none;"></div>
 
-        <div style="width: 100%; max-width: 380px; text-align: left;">
-            <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 8px;">1. SELECT YOUR CLIENT STATUS:</label>
+        <div style="width: 100%; max-width: 420px; text-align: left;">
+            <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 8px;">1. SELECT ACCESS MODE:</label>
             
             <div class="type-selector">
                 <div class="type-btn active" id="btn-type-new" onclick="selectClientType('new')">🟢 NEW CLIENT</div>
                 <div class="type-btn" id="btn-type-reg" onclick="selectClientType('regular')">🔵 REGULAR CLIENT</div>
+                <div class="type-btn" id="btn-type-admin" onclick="selectClientType('admin')">⚡ ADMIN ACCESS</div>
             </div>
 
-            <!-- Access Code Container (Hidden by default for New Clients, Revealed for Regular Clients) -->
+            <!-- Admin Role Selector -->
+            <div id="admin-role-box" style="display: none; margin-bottom: 12px;">
+                <label style="font-size: 0.85rem; color: var(--cyan-accent); display: block; margin-bottom: 6px;">SELECT ADMIN ROLE:</label>
+                <select id="admin-role-select">
+                    <option value="sales">Sales Team / Admin — POS Dashboard & Inventory</option>
+                    <option value="owner">Owner — Super Dashboard Workspace</option>
+                </select>
+            </div>
+
+            <!-- Access Code Container -->
             <div id="access-code-box" style="display: none;">
-                <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 6px;">2. ENTER 8-DIGIT ACCESS CODE:</label>
-                <input type="text" id="gene-code-input" maxlength="12" placeholder="ENTER CODE" style="font-family: var(--font-mono); text-align: center; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px;">
+                <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 6px;" id="code-label-text">2. ENTER 8-DIGIT ACCESS CODE:</label>
+                <input type="text" id="gene-code-input" maxlength="20" placeholder="ENTER CODE" style="font-family: var(--font-mono); text-align: center; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px;">
             </div>
 
             <div class="clause-box">
@@ -458,16 +485,16 @@
         </div>
     </div>
 
-    <!-- ADMIN COMMAND CENTER VIEW -->
+    <!-- SALES TEAM & OWNER COMMAND CENTER DASHBOARD -->
     <div id="admin-view" style="display: none;">
         <div class="scifi-panel" style="border-color: var(--cyan-accent); background: rgba(5, 20, 40, 0.95);">
             <div class="panel-header">
-                <div class="panel-header-title" style="color: var(--cyan-accent);">COMMAND STATION | EXECUTIVE ACCESS</div>
+                <div class="panel-header-title" id="admin-dashboard-title" style="color: var(--cyan-accent);">COMMAND STATION | EXECUTIVE ACCESS</div>
                 <button class="btn btn-red" style="width: 90px; padding: 6px; font-size: 0.75rem;" onclick="logout()">LOGOUT</button>
             </div>
             
-            <div style="font-family: var(--font-title); font-size: 1.3rem; color: #fff; margin-bottom: 4px;">Hi, welcome to your stations!</div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Real-time management dashboard for customer orders, recipient dispatch details, and map pins.</p>
+            <div style="font-family: var(--font-title); font-size: 1.3rem; color: #fff; margin-bottom: 4px;" id="admin-welcome-heading">Welcome Commander One</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Ready your command captain:</p>
 
             <div style="display: flex; gap: 10px; margin-bottom: 16px;">
                 <div style="flex: 1; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--gold-primary);">
@@ -480,10 +507,37 @@
                 </div>
             </div>
 
-            <button class="btn btn-cyan" style="margin-bottom: 16px;" onclick="renderAdminOrders()">REFRESH STATIONS DATA</button>
+            <div class="tab-nav">
+                <button class="tab-btn active" id="admin-tab-orders-btn" onclick="switchAdminTab('orders')">1. POS & CUSTOMER SALES SERVICE</button>
+                <button class="tab-btn" id="admin-tab-stock-btn" onclick="switchAdminTab('stock')">2. STOCK & INVENTORY MANAGEMENT</button>
+            </div>
 
-            <div class="panel-header" style="font-size: 0.95rem;">LIVE CUSTOMER ORDERS LOG</div>
-            <div id="admin-orders-container"></div>
+            <!-- ADMIN SUB-TAB 1: POS & ORDERS SERVICE -->
+            <div id="admin-orders-tab-content">
+                <button class="btn btn-cyan" style="margin-bottom: 16px;" onclick="renderAdminOrders()">REFRESH ORDERS LOG</button>
+                <div class="panel-header" style="font-size: 0.95rem;">LIVE CUSTOMER ORDERS LOG</div>
+                <div id="admin-orders-container"></div>
+            </div>
+
+            <!-- ADMIN SUB-TAB 2: STOCK & INVENTORY -->
+            <div id="admin-stock-tab-content" style="display: none;">
+                <div class="panel-header" style="font-size: 0.95rem;">STOCK & ADD-ON INVENTORY COUNT</div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Update stock counts and click 'Save Inventory Changes' to store in browser memory.</p>
+                
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Current Stock Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+                <button class="btn" onclick="saveInventoryStock()" style="margin-top: 10px;">SAVE INVENTORY CHANGES</button>
+            </div>
+
         </div>
     </div>
 
@@ -530,7 +584,7 @@
                 <div id="addons-container"></div>
             </div>
 
-            <!-- DELIVERY DETAILS & MAP PINNING -->
+            <!-- DELIVERY DETAILS, MANUAL ADDRESS & GOOGLE MAP GPS PINNING -->
             <div class="scifi-panel">
                 <div class="panel-header">
                     <div class="panel-header-title">RECIPIENT & DELIVERY LOCATION</div>
@@ -542,10 +596,16 @@
                 <label style="font-size: 0.85rem; color: var(--text-muted);">Receiver's Phone Number:</label>
                 <input type="text" id="rec-phone" placeholder="e.g. +63 912 345 6789" style="margin-top: 4px; margin-bottom: 12px;">
 
-                <label style="font-size: 0.85rem; color: var(--gold-primary);">📍 Pin Location on Map (Click/Drag Map):</label>
+                <label style="font-size: 0.85rem; color: var(--gold-primary);">Complete Street Address / Landmarks:</label>
+                <textarea id="rec-address" rows="3" placeholder="e.g. House No. 123, Celestial St., Brgy. Central, near Blue Gate" style="margin-top: 4px; margin-bottom: 12px; resize: vertical;"></textarea>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                    <label style="font-size: 0.85rem; color: var(--gold-primary);">📍 Auto-Pinned Live GPS Location:</label>
+                    <button class="btn btn-cyan" style="width: auto; padding: 4px 10px; font-size: 0.75rem;" onclick="fetchCurrentGPSLocation()">RE-CENTER GPS</button>
+                </div>
                 <div id="delivery-map"></div>
 
-                <label style="font-size: 0.85rem; color: var(--text-muted);">Pinned Map Coordinates / Pinned Address:</label>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Pinned GPS Coordinates:</label>
                 <input type="text" id="rec-coords" readonly style="margin-top: 4px; margin-bottom: 12px; color: var(--cyan-accent); font-weight: bold;">
 
                 <label style="font-size: 0.85rem; color: var(--text-muted);">Delivery Method:</label>
@@ -641,7 +701,8 @@
             
             <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-client-type">CLIENT TYPE: REGULAR</div>
             <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-rec-info">RECIPIENT: -</div>
-            <div style="font-size: 0.85rem; margin-bottom: 10px;" id="bill-rec-coords">LOCATION: -</div>
+            <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-rec-address">MANUAL ADDRESS: -</div>
+            <div style="font-size: 0.85rem; margin-bottom: 10px;" id="bill-rec-coords">GPS LOCATION: -</div>
 
             <div style="border-bottom: 1px dashed #444; margin-bottom: 10px;"></div>
 
@@ -676,9 +737,24 @@
     const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xeaaojak';
 
     const ADMIN_CODE = "ADMIN888";
-    const REGULAR_CODES = new Set(["REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105"]);
-    const NEW_CODES = new Set(["NEW8X101", "NEW8X102", "NEW8X103", "NEW8X104", "NEW8X105"]);
-    const VALID_6CODES = { 'CL10A1': 0.10, 'CL10B2': 0.10, 'VIP3X1': 0.03, 'STAR5A': 0.05 };
+    const MASTER_DISCOUNT_CODE = "CELESTIAL-MASTER";
+
+    // Official Access Keys from Workspace Document
+    const REGULAR_CODES = new Set([
+        "REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105", 
+        "REG8A106", "REG8A107", "REG8A108", "REG8A109", "REG8A110"
+    ]);
+
+    const NEW_CODES = new Set([
+        "NEW8X101", "NEW8X102", "NEW8X103", "NEW8X104", "NEW8X105", 
+        "NEW8X106", "NEW8X107", "NEW8X108", "NEW8X109", "NEW8X110"
+    ]);
+
+    const VALID_6CODES = { 
+        'CL10A1': 0.10, 'CL10B2': 0.10, 'CL10C3': 0.10, 'CL10D4': 0.10, 'CL10E5': 0.10,
+        'STAR5A': 0.05, 'STAR5B': 0.05, 'STAR5C': 0.05,
+        'VIP3X1': 0.03, 'VIP3Y2': 0.03
+    };
 
     const MENU_ITEMS = [
         { id: 'cloud9', name: '☁️ CLOUD9 — 5', price: 700, minTier: 'regular' },
@@ -712,17 +788,48 @@
     let cart = {};
     let appliedDiscount = 0;
     let currentRefCode = '';
-    let deliveryMap = null;
-    let mapMarker = null;
+    
+    // Google Maps Variables
+    let googleMap = null;
+    let googleMarker = null;
+
+    let stockCount = JSON.parse(localStorage.getItem('celestial_stock')) || {
+        'cloud9': 50, 'mars': 40, 'venus': 30, 'saturn': 25, 
+        'nibiru': 20, 'nemik': 15, 'vaelithar': 10, 'p05': 8, 'p10': 5,
+        'lube': 100, 'dagom': 100
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const boundCode = localStorage.getItem('celestial_device_code');
+        const boundType = localStorage.getItem('celestial_device_type');
+
+        if (boundCode && boundType && boundType !== 'admin') {
+            grantAccess(boundType, boundCode, true);
+        }
+    });
 
     function selectClientType(type) {
         selectedClientType = type;
         document.getElementById('btn-type-new').classList.toggle('active', type === 'new');
         document.getElementById('btn-type-reg').classList.toggle('active', type === 'regular');
+        document.getElementById('btn-type-admin').classList.toggle('active', type === 'admin');
         
-        // Show code field ONLY when Regular Client is selected
         const codeBox = document.getElementById('access-code-box');
-        codeBox.style.display = (type === 'regular') ? 'block' : 'none';
+        const adminRoleBox = document.getElementById('admin-role-box');
+        const codeLabelText = document.getElementById('code-label-text');
+
+        if (type === 'new') {
+            codeBox.style.display = 'none';
+            adminRoleBox.style.display = 'none';
+        } else if (type === 'regular') {
+            codeBox.style.display = 'block';
+            adminRoleBox.style.display = 'none';
+            codeLabelText.innerText = '2. ENTER 8-DIGIT ACCESS CODE:';
+        } else if (type === 'admin') {
+            codeBox.style.display = 'block';
+            adminRoleBox.style.display = 'block';
+            codeLabelText.innerText = '3. ENTER ADMIN PASSCODE:';
+        }
         
         document.getElementById('error-badge').style.display = 'none';
     }
@@ -735,31 +842,65 @@
         localStorage.setItem('celestial_orders', JSON.stringify(orders));
     }
 
-    function initDeliveryMap() {
-        if (deliveryMap) return;
-        const defaultLat = 36.1699;
-        const defaultLng = -115.1398;
+    // Google Maps Initialization & Geolocation Auto-Pinning
+    function initGoogleMap() {
+        const defaultLat = 7.1907; // Default fallback (Davao City center)
+        const defaultLng = 125.4553;
 
-        deliveryMap = L.map('delivery-map').setView([defaultLat, defaultLng], 13);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(deliveryMap);
+        const mapOptions = {
+            center: { lat: defaultLat, lng: defaultLng },
+            zoom: 15,
+            mapTypeId: 'roadmap',
+            disableDefaultUI: false
+        };
 
-        mapMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(deliveryMap);
+        const mapContainer = document.getElementById('delivery-map');
+        if (!mapContainer) return;
 
-        updateMapCoordsInput(defaultLat, defaultLng);
+        googleMap = new google.maps.Map(mapContainer, mapOptions);
 
-        mapMarker.on('dragend', function (e) {
-            const coord = mapMarker.getLatLng();
-            updateMapCoordsInput(coord.lat, coord.lng);
+        googleMarker = new google.maps.Marker({
+            position: { lat: defaultLat, lng: defaultLng },
+            map: googleMap,
+            draggable: true,
+            title: 'Drag to refine delivery location'
         });
 
-        deliveryMap.on('click', function (e) {
-            mapMarker.setLatLng(e.latlng);
-            updateMapCoordsInput(e.latlng.lat, e.latlng.lng);
+        google.maps.event.addListener(googleMarker, 'dragend', function (event) {
+            updateMapCoordsInput(event.latLng.lat(), event.latLng.lng());
         });
+
+        google.maps.event.addListener(googleMap, 'click', function (event) {
+            googleMarker.setPosition(event.latLng);
+            updateMapCoordsInput(event.latLng.lat(), event.latLng.lng());
+        });
+
+        fetchCurrentGPSLocation();
+    }
+
+    function fetchCurrentGPSLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    if (googleMap && googleMarker) {
+                        googleMap.setCenter(pos);
+                        googleMarker.setPosition(pos);
+                    }
+                    updateMapCoordsInput(pos.lat, pos.lng);
+                },
+                (error) => {
+                    console.warn("Geolocation warning: ", error.message);
+                    updateMapCoordsInput(7.1907, 125.4553);
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        } else {
+            updateMapCoordsInput(7.1907, 125.4553);
+        }
     }
 
     function updateMapCoordsInput(lat, lng) {
@@ -780,13 +921,14 @@
             tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // New Clients proceed directly without needing a code
+        // 1. New Client Access
         if (selectedClientType === 'new') {
-            grantAccess('new', 'NEW-CLIENT-DIRECT');
+            alert("Welcome on your first ascension process");
+            grantAccess('new', 'NEW-CLIENT-DIRECT', false);
             return;
         }
 
-        // Regular Clients must provide a valid access code
+        // 2. Regular Client Access
         if (selectedClientType === 'regular') {
             if (!code) {
                 errBadge.style.display = 'block';
@@ -794,26 +936,57 @@
                 return;
             }
 
-            if (code === ADMIN_CODE) {
-                currentUserType = 'admin';
-                document.getElementById('gateway-view').style.display = 'none';
-                document.getElementById('admin-view').style.display = 'block';
-                renderAdminOrders();
+            const currentBoundCode = localStorage.getItem('celestial_device_code');
+            if (currentBoundCode && currentBoundCode !== code) {
+                errBadge.style.display = 'block';
+                errBadge.innerText = '✕ Access Denied. Device is bound to another key.';
                 return;
             }
 
             if (REGULAR_CODES.has(code) || code.startsWith("REG")) {
-                grantAccess('regular', code);
+                alert("Get ready to warp");
+                grantAccess('regular', code, false);
             } else {
                 errBadge.style.display = 'block';
                 errBadge.innerText = '✕ Invalid Regular Access Code. Please check your code.';
             }
+            return;
+        }
+
+        // 3. Admin Access
+        if (selectedClientType === 'admin') {
+            if (code !== ADMIN_CODE) {
+                errBadge.style.display = 'block';
+                errBadge.innerText = '✕ Incorrect Admin Passcode.';
+                return;
+            }
+
+            const adminRole = document.getElementById('admin-role-select').value;
+            alert("Welcome Commander One\nReady your command captain:");
+
+            currentUserType = (adminRole === 'owner') ? 'owner' : 'sales';
+            document.getElementById('gateway-view').style.display = 'none';
+            document.getElementById('admin-view').style.display = 'block';
+
+            if (adminRole === 'owner') {
+                document.getElementById('admin-dashboard-title').innerText = "OWNER | SUPER DASHBOARD WORKSPACE";
+            } else {
+                document.getElementById('admin-dashboard-title').innerText = "SALES TEAM / ADMIN | POS DASHBOARD";
+            }
+
+            renderAdminOrders();
+            renderInventoryTable();
         }
     }
 
-    function grantAccess(type, code) {
+    function grantAccess(type, code, isAutoLogin) {
         currentUserType = type;
         currentClientCode = code;
+
+        if (!isAutoLogin && type !== 'sales' && type !== 'owner') {
+            localStorage.setItem('celestial_device_code', code);
+            localStorage.setItem('celestial_device_type', type);
+        }
 
         document.getElementById('gateway-view').style.display = 'none';
         document.getElementById('portal-view').style.display = 'block';
@@ -823,7 +996,7 @@
 
         renderMenu();
         updateCalculations();
-        setTimeout(initDeliveryMap, 300);
+        setTimeout(fetchCurrentGPSLocation, 500);
     }
 
     function logout() {
@@ -836,14 +1009,75 @@
         
         document.getElementById('tab-order-content').style.display = (tab === 'order') ? 'block' : 'none';
         document.getElementById('tab-track-content').style.display = (tab === 'track') ? 'block' : 'none';
-        if (tab === 'order') setTimeout(initDeliveryMap, 200);
+        if (tab === 'order') setTimeout(fetchCurrentGPSLocation, 300);
+    }
+
+    function switchAdminTab(tab) {
+        document.getElementById('admin-tab-orders-btn').classList.toggle('active', tab === 'orders');
+        document.getElementById('admin-tab-stock-btn').classList.toggle('active', tab === 'stock');
+
+        document.getElementById('admin-orders-tab-content').style.display = (tab === 'orders') ? 'block' : 'none';
+        document.getElementById('admin-stock-tab-content').style.display = (tab === 'stock') ? 'block' : 'none';
+    }
+
+    function getCombinedStashBadge() {
+        let totalCurrent = 0;
+        let totalMax = 0;
+
+        MENU_ITEMS.forEach(item => {
+            const maxStock = 50;
+            const currentQty = stockCount[item.id] !== undefined ? stockCount[item.id] : maxStock;
+            totalCurrent += Math.max(0, currentQty);
+            totalMax += maxStock;
+        });
+
+        const percentage = (totalCurrent / totalMax) * 100;
+
+        if (percentage > 50) {
+            return `<span style="color: var(--neon-green); font-family: var(--font-mono); font-weight: bold;">IN STASH: [ ON HAND ] 🟢</span>`;
+        } else if (percentage >= 25 && percentage <= 50) {
+            return `<span style="color: var(--gold-primary); font-family: var(--font-mono); font-weight: bold;">IN STASH: [ LIMITED ] 🟡</span>`;
+        } else if (percentage >= 10 && percentage < 25) {
+            return `<span style="color: #ffaa00; font-family: var(--font-mono); font-weight: bold;">IN STASH: [ RESUPPLYING ] 🟠</span>`;
+        } else if (percentage > 0 && percentage < 10) {
+            return `<span style="color: var(--neon-red); font-family: var(--font-mono); font-weight: bold;">IN STASH: [ LAST ITEM ] 🔴</span>`;
+        } else {
+            return `<span style="color: var(--purple-glow); font-family: var(--font-mono); font-weight: bold;">IN STASH: [ BY SUPPLIER ] 🔒</span>`;
+        }
+    }
+
+    function renderInventoryTable() {
+        const tbody = document.getElementById('inventory-table-body');
+        tbody.innerHTML = '';
+
+        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
+            const qty = stockCount[item.id] !== undefined ? stockCount[item.id] : 50;
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${item.name}</strong></td>
+                    <td>
+                        <input type="number" value="${qty}" id="stock-input-${item.id}" style="width: 100px; padding: 4px 8px;">
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function saveInventoryStock() {
+        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
+            const inputVal = document.getElementById(`stock-input-${item.id}`).value;
+            stockCount[item.id] = parseInt(inputVal) || 0;
+        });
+        localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
+        alert("Inventory counts updated and saved successfully!");
+        renderMenu();
     }
 
     function applySixCode() {
         const code = document.getElementById('sixcode-input').value.trim().toUpperCase();
         const status = document.getElementById('sixcode-status');
 
-        if (code === 'CELESTIAL-MASTER') {
+        if (code === MASTER_DISCOUNT_CODE) {
             let customDisc = prompt("Master Code Verified! Enter discount percentage:", "15");
             appliedDiscount = (parseFloat(customDisc) || 0) / 100;
             status.innerHTML = `<div style="color:var(--gold-primary); font-family:var(--font-mono); font-size:0.85rem;">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
@@ -859,17 +1093,27 @@
 
     function renderMenu() {
         const menuContainer = document.getElementById('menu-container');
-        menuContainer.innerHTML = '';
+        const combinedBadge = getCombinedStashBadge();
+
+        let html = `
+            <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--border-glow); padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 16px; font-size: 1rem;">
+                ${combinedBadge}
+            </div>
+        `;
 
         MENU_ITEMS.forEach(item => {
             cart[item.id] = cart[item.id] || 0;
             let isRestricted = (currentUserType === 'new' && item.minTier === 'regular');
 
-            menuContainer.innerHTML += `
+            html += `
                 <div class="menu-item ${isRestricted ? 'restricted' : ''}">
                     <div>
-                        <div style="font-weight:700; color:#fff;">${item.name} ${isRestricted ? '🔒 (Locked for New Clients)' : ''}</div>
-                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem;">₱${item.price.toLocaleString()}</div>
+                        <div style="font-weight:700; color:#fff;">
+                            ${item.name} ${isRestricted ? '🔒 (Locked)' : ''}
+                        </div>
+                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem; margin-top:2px;">
+                            ₱${item.price.toLocaleString()}
+                        </div>
                     </div>
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="changeQty('${item.id}', -1)" ${isRestricted ? 'disabled' : ''}>-</button>
@@ -880,15 +1124,20 @@
             `;
         });
 
+        menuContainer.innerHTML = html;
+
         const addonsContainer = document.getElementById('addons-container');
         addonsContainer.innerHTML = '';
         ADDON_ITEMS.forEach(item => {
             cart[item.id] = cart[item.id] || 0;
+
             addonsContainer.innerHTML += `
                 <div class="menu-item">
                     <div>
                         <div style="font-weight:700; color:#fff;">${item.name}</div>
-                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem;">₱${item.price.toLocaleString()}</div>
+                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem; margin-top:2px;">
+                            ₱${item.price.toLocaleString()}
+                        </div>
                     </div>
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
@@ -966,10 +1215,11 @@
         const initials = document.getElementById('payment-initials').value;
         const recName = document.getElementById('rec-name').value.trim();
         const recPhone = document.getElementById('rec-phone').value.trim();
+        const recAddress = document.getElementById('rec-address').value.trim();
         const recCoords = document.getElementById('rec-coords').value.trim();
 
-        if (!recName || !recPhone) {
-            alert("Please fill out the Receiver's Full Name and Phone Number.");
+        if (!recName || !recPhone || !recAddress) {
+            alert("Please fill out the Receiver's Full Name, Phone Number, and Street Address / Landmarks.");
             return;
         }
 
@@ -989,9 +1239,19 @@
         [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
             const qty = cart[item.id] || 0;
             if (qty > 0) {
-                itemsSummary.push(`${item.name} x${qty}`);
+                const currentStock = stockCount[item.id] !== undefined ? stockCount[item.id] : 50;
+                let tag = "";
+                if (currentStock <= 0) {
+                    tag = " ⚠️ [BY SUPPLIER - Backordered]";
+                }
+
+                itemsSummary.push(`${item.name} x${qty}${tag}`);
+                if (stockCount[item.id] !== undefined) {
+                    stockCount[item.id] = stockCount[item.id] - qty;
+                }
             }
         });
+        localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
 
         const newOrder = {
             refCode: currentRefCode,
@@ -999,6 +1259,7 @@
             clientType: currentUserType,
             recName: recName,
             recPhone: recPhone,
+            recAddress: recAddress,
             recCoords: recCoords,
             items: itemsSummary,
             totalAmount: document.getElementById('summary-total-val').innerText,
@@ -1013,7 +1274,6 @@
         orders.push(newOrder);
         saveOrdersToStorage(orders);
 
-        // Formspree dispatch to ecelestiallobby@gmail.com
         try {
             await fetch(FORMSPREE_ENDPOINT, {
                 method: 'POST',
@@ -1025,6 +1285,7 @@
                     Client_Type: currentUserType,
                     Receiver_Name: recName,
                     Receiver_Phone: recPhone,
+                    Receiver_Address: recAddress,
                     Map_Coordinates: recCoords,
                     Items_Ordered: itemsSummary.join(', '),
                     Total_Amount: newOrder.totalAmount,
@@ -1040,7 +1301,8 @@
         document.getElementById('bill-ref-code').innerText = currentRefCode;
         document.getElementById('bill-client-type').innerText = `CLIENT TYPE: ${currentUserType.toUpperCase()}`;
         document.getElementById('bill-rec-info').innerText = `RECIPIENT: ${recName} (${recPhone})`;
-        document.getElementById('bill-rec-coords').innerText = `LOCATION PIN: ${recCoords}`;
+        document.getElementById('bill-rec-address').innerText = `ADDRESS: ${recAddress}`;
+        document.getElementById('bill-rec-coords').innerText = `GPS LOCATION: ${recCoords}`;
         document.getElementById('bill-items-list').innerHTML = itemsSummary.map(i => `<div>• ${i}</div>`).join('');
         document.getElementById('bill-grand-total').innerText = newOrder.totalAmount;
         document.getElementById('bill-payment-info').innerText = `Payment Sent: ₱${amount} | Sender: ${initials.toUpperCase()}`;
@@ -1076,21 +1338,36 @@
                     <span class="status-badge status-pending">${STATUS_STAGES[o.statusIndex]}</span>
                 </div>
                 <div><strong>Client Mode:</strong> ${o.clientCode} (${o.clientType})</div>
-                <div><strong>Recipient:</strong> ${o.recName || 'N/A'} | <strong>Phone:</strong> ${o.recPhone || 'N/A'}</div>
-                <div><strong>Pinned Map Coordinates:</strong> <span style="color:var(--cyan-accent);">${o.recCoords || 'N/A'}</span></div>
+                <div><strong>Recipient:</strong> <input type="text" value="${o.recName || ''}" id="edit-rec-name-${o.refCode}" style="padding:2px 6px; width:140px; font-size:0.8rem;"> | <strong>Phone:</strong> <input type="text" value="${o.recPhone || ''}" id="edit-rec-phone-${o.refCode}" style="padding:2px 6px; width:130px; font-size:0.8rem;"></div>
+                <div><strong>Manual Address:</strong> <input type="text" value="${o.recAddress || ''}" id="edit-rec-address-${o.refCode}" style="padding:2px 6px; width:100%; font-size:0.8rem; margin-top:4px;"></div>
+                <div><strong>GPS Coordinates:</strong> <span style="color:var(--cyan-accent);">${o.recCoords || 'N/A'}</span></div>
                 <div><strong>Items:</strong> ${o.items.join(', ')}</div>
                 <div><strong>Total Bill:</strong> ${o.totalAmount} | <strong>Paid:</strong> ₱${o.amountPaid} (${o.senderInitials})</div>
                 
-                <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
-                    <label style="font-size:0.8rem; color:var(--gold-primary);">Update Status:</label>
-                    <select style="font-size:0.85rem; padding:6px;" onchange="updateOrderStatus('${o.refCode}', this.value)">
+                <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <label style="font-size:0.8rem; color: var(--gold-primary);">Update Status:</label>
+                    <select style="font-size:0.85rem; padding:4px;" onchange="updateOrderStatus('${o.refCode}', this.value)">
                         ${STATUS_STAGES.map((st, idx) => `
                             <option value="${idx}" ${o.statusIndex === idx ? 'selected' : ''}>${st}</option>
                         `).join('')}
                     </select>
+                    <button class="btn btn-cyan" style="width: auto; padding: 4px 8px; font-size: 0.75rem;" onclick="saveEditedRecipient('${o.refCode}')">Save Delivery Edits</button>
                 </div>
             </div>
         `).join('');
+    }
+
+    function saveEditedRecipient(refCode) {
+        const orders = loadOrdersFromStorage();
+        const target = orders.find(o => o.refCode === refCode);
+        if (target) {
+            target.recName = document.getElementById(`edit-rec-name-${refCode}`).value.trim();
+            target.recPhone = document.getElementById(`edit-rec-phone-${refCode}`).value.trim();
+            target.recAddress = document.getElementById(`edit-rec-address-${refCode}`).value.trim();
+            saveOrdersToStorage(orders);
+            alert(`Delivery details for ${refCode} updated.`);
+            renderAdminOrders();
+        }
     }
 
     function updateOrderStatus(refCode, newIndex) {
@@ -1133,7 +1410,8 @@
                 </div>
 
                 <div><strong>Recipient:</strong> ${match.recName} (${match.recPhone})</div>
-                <div><strong>Pinned Location:</strong> ${match.recCoords}</div>
+                <div><strong>Manual Address:</strong> ${match.recAddress || 'N/A'}</div>
+                <div><strong>GPS Location:</strong> ${match.recCoords}</div>
                 <div><strong>Items Ordered:</strong> ${match.items.join(', ')}</div>
                 <div><strong>Total Amount:</strong> ${match.totalAmount}</div>
                 <div><strong>Schedule / ETA:</strong> ${match.eta}</div>
@@ -1161,4 +1439,4 @@
 </script>
 
 </body>
-    </html>
+</html>
