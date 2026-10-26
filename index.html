@@ -111,7 +111,7 @@
             color: var(--cyan-accent);
         }
 
-        input[type="text"], input[type="number"], select, textarea {
+        input[type="text"], input[type="number"], input[type="datetime-local"], select, textarea {
             width: 100%;
             background: rgba(5, 7, 15, 0.85);
             border: 1px solid rgba(243, 206, 114, 0.4);
@@ -124,7 +124,7 @@
             transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+        input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus, select:focus, textarea:focus {
             border-color: var(--cyan-accent);
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
@@ -437,6 +437,23 @@
             background: rgba(243, 206, 114, 0.15);
             color: var(--gold-primary);
         }
+
+        .paylater-box {
+            background: rgba(176, 38, 255, 0.1);
+            border: 1px solid var(--purple-glow);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 14px;
+        }
+
+        .handling-checkbox-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(243, 206, 114, 0.15);
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -472,7 +489,7 @@
 
             <!-- Access Code Container -->
             <div id="access-code-box" style="display: none;">
-                <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 6px;" id="code-label-text">2. ENTER 8-DIGIT ACCESS CODE:</label>
+                <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 6px;" id="code-label-text">2. ENTER ACCESS CODE:</label>
                 <input type="text" id="gene-code-input" maxlength="20" placeholder="ENTER CODE" style="font-family: var(--font-mono); text-align: center; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px;">
             </div>
 
@@ -559,13 +576,13 @@
 
         <!-- TAB 1: ORDER FORM -->
         <div id="tab-order-content">
-            <!-- 6CODE DISCOUNT FIELD -->
+            <!-- SPECIAL CODE & DISCOUNT FIELD -->
             <div class="scifi-panel">
                 <div class="panel-header">
-                    <div class="panel-header-title">OPTIONAL DISCOUNT 6CODE</div>
+                    <div class="panel-header-title">SPECIAL ACCESS & DISCOUNT CODE</div>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="sixcode-input" placeholder="ENTER 6CODE" maxlength="20" style="text-transform: uppercase;">
+                    <input type="text" id="sixcode-input" placeholder="ENTER SPECIAL CODE" maxlength="20" style="text-transform: uppercase;">
                     <button class="btn btn-cyan" style="width: 110px;" onclick="applySixCode()">APPLY</button>
                 </div>
                 <div id="sixcode-status" style="margin-top: 10px;"></div>
@@ -584,7 +601,7 @@
                 <div id="addons-container"></div>
             </div>
 
-            <!-- DELIVERY DETAILS, MANUAL ADDRESS & GOOGLE MAP GPS PINNING -->
+            <!-- DELIVERY DETAILS & GORUSH DISPATCH SPEED -->
             <div class="scifi-panel">
                 <div class="panel-header">
                     <div class="panel-header-title">RECIPIENT & DELIVERY LOCATION</div>
@@ -614,14 +631,102 @@
                     <option value="meetup">Meet Up (Fee Based on Client Code)</option>
                 </select>
 
-                <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-top: 14px; margin-bottom: 6px;">Dispatch Speed (GoRush Options):</label>
+                <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-top: 14px; margin-bottom: 6px;">Dispatch Speed (GoRush Options):</label>
                 <select id="gorush-option" onchange="updateCalculations()">
-                    <option value="standard">Standard Fulfillment Time (8:00 AM - 10:00 PM)</option>
+                    <option value="standard">Standard Fulfillment Time (8:00 AM - 10:00 PM) [+₱0]</option>
+                    <option value="gorush30">🚀 GoRush30 [Sendnow] — +₱500 (Delivery within 30 mins after confirmation)</option>
+                    <option value="gorush60">🚀 GoRush60 [Immediate] — +₱350 (Delivery within 60 mins after confirmation)</option>
+                    <option value="gorush90">🚀 GoRush90 [A.s.a.p.] — +₱200 (Delivery within 90 mins after confirmation)</option>
                 </select>
 
                 <div class="eta-box" style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--cyan-accent); border-radius: 8px; padding: 14px; margin-top: 14px; text-align: center;">
                     <div style="font-family: var(--font-title); font-size: 0.85rem; color: var(--cyan-accent); letter-spacing: 2px;">ESTIMATED TIMELINE & SCHEDULE</div>
                     <div id="eta-display" style="font-family: var(--font-mono); font-size: 1.1rem; color: #fff; margin-top: 4px;">Calculating...</div>
+                </div>
+            </div>
+
+            <!-- SPECIAL HANDLING OPTIONS -->
+            <div class="scifi-panel">
+                <div class="panel-header">
+                    <div class="panel-header-title">CLIENT-INITIATED SPECIAL HANDLING</div>
+                </div>
+
+                <div class="handling-checkbox-item">
+                    <label for="chk-handling-unitsplit">Unit Splitting (+₱100) — Manual dose/unit splitting into separate packages</label>
+                    <input type="checkbox" id="chk-handling-unitsplit" onchange="updateCalculations()">
+                </div>
+
+                <div class="handling-checkbox-item">
+                    <label for="chk-handling-locchange">Sudden Location Change (+₱100 + Fare Variance)</label>
+                    <input type="checkbox" id="chk-handling-locchange" onchange="updateCalculations()">
+                </div>
+
+                <div class="handling-checkbox-item">
+                    <label for="chk-handling-priority">Priority Queue (+₱150) — Daytime pick & pack queue override</label>
+                    <input type="checkbox" id="chk-handling-priority" onchange="updateCalculations()">
+                </div>
+
+                <div class="handling-checkbox-item">
+                    <label for="chk-handling-delay">Customer-Caused Delay Penalty (+₱100) — Driver waiting time fee</label>
+                    <input type="checkbox" id="chk-handling-delay" onchange="updateCalculations()">
+                </div>
+
+                <div class="handling-checkbox-item">
+                    <label for="chk-handling-schedule">Scheduled Delivery (+₱100) — Held for a specific delivery window</label>
+                    <input type="checkbox" id="chk-handling-schedule" onchange="toggleScheduledBox()">
+                </div>
+                <div id="scheduled-input-box" style="display: none; margin-top: 8px; margin-bottom: 12px;">
+                    <label style="font-size: 0.8rem; color: var(--gold-primary);">Specify Scheduled Date & Time:</label>
+                    <input type="datetime-local" id="scheduled-datetime" style="margin-top: 4px;">
+                </div>
+
+                <div class="handling-checkbox-item">
+                    <label for="chk-handling-personalized">Personalized Packaging — Material Cost + 30% Markup</label>
+                    <input type="checkbox" id="chk-handling-personalized" onchange="togglePersonalizedBox()">
+                </div>
+                <div id="personalized-input-box" style="display: none; margin-top: 8px; margin-bottom: 12px;">
+                    <label style="font-size: 0.8rem; color: var(--gold-primary);">Describe Your Custom Packaging Request:</label>
+                    <textarea id="personalized-details" rows="2" placeholder="Specify custom materials, layout, or wrap..." style="margin-top: 4px; resize: vertical;"></textarea>
+                </div>
+
+                <!-- UNLOCKED ONLY VIA SPECIAL CODE -->
+                <div class="handling-checkbox-item" id="piggyback-container" style="display: none;">
+                    <label for="chk-handling-piggyback" style="color: var(--neon-green);">
+                        <strong>Wholesale Grouping Piggyback (+₱0)</strong> — Min. order ₱1,000–₱1,500; 24-hr SLA
+                    </label>
+                    <input type="checkbox" id="chk-handling-piggyback" onchange="updateCalculations()">
+                </div>
+                <div id="piggyback-status-msg" style="font-size: 0.8rem; font-family: var(--font-mono); margin-top: 4px;"></div>
+            </div>
+
+            <!-- PAYLATER SPECIAL UNLOCK PANEL -->
+            <div class="scifi-panel paylater-box" id="paylater-section" style="display: none;">
+                <div class="panel-header" style="border-color: var(--purple-glow);">
+                    <div class="panel-header-title" style="color: var(--purple-glow);">⚡ SPECIAL UNLOCK: PAYLATER FACILITY</div>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">* Requires owner approval. Collateral with equivalent value of the total bill must be provided.</p>
+
+                <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 6px;">Select PayLater Option:</label>
+                <select id="paylater-plan-select" onchange="updateCalculations()">
+                    <option value="none">Disabled (Full Payment upfront)</option>
+                    <option value="payday" id="opt-payday">1. PAY-DAY (24 Hours) — 20% Loanable | 20% Interest</option>
+                    <option value="pay3day" id="opt-pay3day">2. PAY-3DAY (36 Hours) — 15% Loanable | 25% Interest</option>
+                    <option value="paylater" id="opt-paylater">3. PAY-LATER (5 Days) — 10% Loanable | 30% Interest</option>
+                </select>
+
+                <div id="paylater-details-box" style="margin-top: 12px; font-family: var(--font-mono); font-size: 0.85rem; display: none;">
+                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 6px; border: 1px solid var(--purple-glow);">
+                        <div>• Loanable Amount: <span id="pl-loanable-val" style="color: var(--cyan-accent);">₱0</span></div>
+                        <div>• Downpayment Due Today: <span id="pl-downpayment-val" style="color: var(--neon-green);">₱0</span></div>
+                        <div>• Interest Charge: <span id="pl-interest-val" style="color: var(--gold-primary);">₱0</span></div>
+                        <div>• Total Balance Due at Maturity: <span id="pl-repay-val" style="color: var(--neon-red);">₱0</span></div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+                            * Late Fee: ₱500 | Daily interest after commitment: <span id="pl-daily-int-val">5%</span>.
+                        </div>
+                    </div>
+
+                    <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-top: 12px; margin-bottom: 4px;">Proposed Collateral (Equivalent to Total Bill):</label>
+                    <input type="text" id="paylater-collateral-input" placeholder="e.g. iPhone 12 Pro Max, Serial/Details..." style="margin-bottom: 8px;">
                 </div>
             </div>
 
@@ -632,9 +737,10 @@
                 </div>
                 <div id="summary-list"></div>
                 <div class="summary-row summary-total">
-                    <span>TOTAL:</span>
+                    <span>TOTAL BILL:</span>
                     <span id="summary-total-val">₱0</span>
                 </div>
+                <div id="paylater-summary-breakdown"></div>
                 <button class="btn btn-red" style="margin-top: 12px;" onclick="resetSelections()">RESET ALL SELECTIONS</button>
             </div>
 
@@ -656,7 +762,7 @@
                 </div>
 
                 <div style="margin-top: 16px;">
-                    <label style="font-size: 0.85rem; color: var(--text-muted);">Amount Sent (₱):</label>
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Amount Sent Today (₱):</label>
                     <input type="number" id="payment-amount" placeholder="e.g. 1700" style="margin-top: 4px; margin-bottom: 10px;">
 
                     <label style="font-size: 0.85rem; color: var(--text-muted);">First 3 Letters of Sender's First Name:</label>
@@ -714,6 +820,7 @@
                 <span>TOTAL AMOUNT:</span>
                 <span id="bill-grand-total">₱0</span>
             </div>
+            <div id="bill-paylater-details" style="font-size:0.85rem; color:var(--purple-glow);"></div>
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="bill-payment-info"></div>
             <div style="font-size: 0.8rem; color: var(--cyan-accent); margin-top: 6px;" id="bill-eta-info"></div>
         </div>
@@ -733,13 +840,11 @@
         tg.expand();
     }
 
-    // FORMSPREE ENDPOINT CONFIGURED FOR ecelestiallobby@gmail.com
     const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xeaaojak';
 
     const ADMIN_CODE = "ADMIN888";
     const MASTER_DISCOUNT_CODE = "CELESTIAL-MASTER";
 
-    // Official Access Keys from Workspace Document
     const REGULAR_CODES = new Set([
         "REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105", 
         "REG8A106", "REG8A107", "REG8A108", "REG8A109", "REG8A110"
@@ -750,22 +855,31 @@
         "NEW8X106", "NEW8X107", "NEW8X108", "NEW8X109", "NEW8X110"
     ]);
 
+    // Special Client Codes that grant discounts, unlock PayLater & Wholesale Piggyback
+    const SPECIAL_CODES = {
+        'PAYLATER2026': { discount: 0.10, label: 'SPECIAL AUTHORIZED CLIENT (10% OFF)', paylater: true, piggyback: true },
+        'VIPGOLD99': { discount: 0.20, label: 'GOLD VIP TIER (20% OFF)', paylater: true, piggyback: true },
+        'CELESTIAL77': { discount: 0.15, label: 'CELESTIAL ELITE TIER (15% OFF)', paylater: true, piggyback: true },
+        'BLACKCARD01': { discount: 0.25, label: 'BLACK TIER UNLOCKED (25% OFF)', paylater: true, piggyback: true }
+    };
+
     const VALID_6CODES = { 
         'CL10A1': 0.10, 'CL10B2': 0.10, 'CL10C3': 0.10, 'CL10D4': 0.10, 'CL10E5': 0.10,
         'STAR5A': 0.05, 'STAR5B': 0.05, 'STAR5C': 0.05,
         'VIP3X1': 0.03, 'VIP3Y2': 0.03
     };
 
+    // Updated Store Pricing Menu Offer
     const MENU_ITEMS = [
-        { id: 'cloud9', name: '☁️ CLOUD9 — 5', price: 700, minTier: 'regular' },
+        { id: 'cloud9', name: '☁️ CLOUD9 — 5*', price: 700, minTier: 'regular' },
         { id: 'mars', name: '🔴 MARS — 10*', price: 1200, minTier: 'regular' },
         { id: 'venus', name: '🟣 VENUS — 15*', price: 1700, minTier: 'new' },
         { id: 'saturn', name: '🪐 SATURN — 20*', price: 2150, minTier: 'new' },
         { id: 'nibiru', name: '🌑 NIBIRU — 25*', price: 2600, minTier: 'new' },
         { id: 'nemik', name: '⚫ NEMIK — 30*', price: 3100, minTier: 'new' },
         { id: 'vaelithar', name: '🌑 VAELITHAR — 40u', price: 3500, minTier: 'new' },
-        { id: 'p05', name: '🌑 0.5 — 60*', price: 4450, minTier: 'regular' },
-        { id: 'p10', name: '🌑 1.0 — 110*', price: 6950, minTier: 'regular' }
+        { id: 'vhaerion05', name: '🌑 Vhaerion 0.5 — 60*', price: 4450, freebie: 'Freebies: Lube & 5 Dagom', minTier: 'regular' },
+        { id: 'zhaevoryn10', name: '🌑 Zhaevoryn 1.0 — 110*', price: 6950, freebie: 'Freebies: Lube & 10 Dagom', minTier: 'regular' }
     ];
 
     const ADDON_ITEMS = [
@@ -788,14 +902,14 @@
     let cart = {};
     let appliedDiscount = 0;
     let currentRefCode = '';
+    let isSpecialCodeActive = false;
     
-    // Google Maps Variables
     let googleMap = null;
     let googleMarker = null;
 
     let stockCount = JSON.parse(localStorage.getItem('celestial_stock')) || {
         'cloud9': 50, 'mars': 40, 'venus': 30, 'saturn': 25, 
-        'nibiru': 20, 'nemik': 15, 'vaelithar': 10, 'p05': 8, 'p10': 5,
+        'nibiru': 20, 'nemik': 15, 'vaelithar': 10, 'vhaerion05': 8, 'zhaevoryn10': 5,
         'lube': 100, 'dagom': 100
     };
 
@@ -824,7 +938,7 @@
         } else if (type === 'regular') {
             codeBox.style.display = 'block';
             adminRoleBox.style.display = 'none';
-            codeLabelText.innerText = '2. ENTER 8-DIGIT ACCESS CODE:';
+            codeLabelText.innerText = '2. ENTER ACCESS CODE:';
         } else if (type === 'admin') {
             codeBox.style.display = 'block';
             adminRoleBox.style.display = 'block';
@@ -842,9 +956,8 @@
         localStorage.setItem('celestial_orders', JSON.stringify(orders));
     }
 
-    // Google Maps Initialization & Geolocation Auto-Pinning
     function initGoogleMap() {
-        const defaultLat = 7.1907; // Default fallback (Davao City center)
+        const defaultLat = 7.1907;
         const defaultLng = 125.4553;
 
         const mapOptions = {
@@ -921,18 +1034,24 @@
             tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // 1. New Client Access
         if (selectedClientType === 'new') {
             alert("Welcome on your first ascension process");
             grantAccess('new', 'NEW-CLIENT-DIRECT', false);
             return;
         }
 
-        // 2. Regular Client Access
         if (selectedClientType === 'regular') {
             if (!code) {
                 errBadge.style.display = 'block';
-                errBadge.innerText = '✕ Please enter your 8-digit access code.';
+                errBadge.innerText = '✕ Please enter your access code.';
+                return;
+            }
+
+            if (SPECIAL_CODES[code]) {
+                alert(`Special Access Granted! ${SPECIAL_CODES[code].label}`);
+                appliedDiscount = SPECIAL_CODES[code].discount;
+                enableSpecialFeatures();
+                grantAccess('special', code, false);
                 return;
             }
 
@@ -948,12 +1067,11 @@
                 grantAccess('regular', code, false);
             } else {
                 errBadge.style.display = 'block';
-                errBadge.innerText = '✕ Invalid Regular Access Code. Please check your code.';
+                errBadge.innerText = '✕ Invalid Access Code. Please check your code.';
             }
             return;
         }
 
-        // 3. Admin Access
         if (selectedClientType === 'admin') {
             if (code !== ADMIN_CODE) {
                 errBadge.style.display = 'block';
@@ -1003,6 +1121,12 @@
         location.reload();
     }
 
+    function enableSpecialFeatures() {
+        isSpecialCodeActive = true;
+        document.getElementById('paylater-section').style.display = 'block';
+        document.getElementById('piggyback-container').style.display = 'flex';
+    }
+
     function switchTab(tab) {
         document.getElementById('tab-btn-order').classList.toggle('active', tab === 'order');
         document.getElementById('tab-btn-track').classList.toggle('active', tab === 'track');
@@ -1018,6 +1142,18 @@
 
         document.getElementById('admin-orders-tab-content').style.display = (tab === 'orders') ? 'block' : 'none';
         document.getElementById('admin-stock-tab-content').style.display = (tab === 'stock') ? 'block' : 'none';
+    }
+
+    function toggleScheduledBox() {
+        const isChecked = document.getElementById('chk-handling-schedule').checked;
+        document.getElementById('scheduled-input-box').style.display = isChecked ? 'block' : 'none';
+        updateCalculations();
+    }
+
+    function togglePersonalizedBox() {
+        const isChecked = document.getElementById('chk-handling-personalized').checked;
+        document.getElementById('personalized-input-box').style.display = isChecked ? 'block' : 'none';
+        updateCalculations();
     }
 
     function getCombinedStashBadge() {
@@ -1080,13 +1216,18 @@
         if (code === MASTER_DISCOUNT_CODE) {
             let customDisc = prompt("Master Code Verified! Enter discount percentage:", "15");
             appliedDiscount = (parseFloat(customDisc) || 0) / 100;
-            status.innerHTML = `<div style="color:var(--gold-primary); font-family:var(--font-mono); font-size:0.85rem;">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
+            enableSpecialFeatures();
+            status.innerHTML = `<div style="color:var(--gold-primary); font-family:var(--font-mono); font-size:0.85rem;">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT & SPECIAL OPTIONS UNLOCKED</div>`;
+        } else if (SPECIAL_CODES[code]) {
+            appliedDiscount = SPECIAL_CODES[code].discount;
+            enableSpecialFeatures();
+            status.innerHTML = `<div style="color:var(--neon-green); font-family:var(--font-mono); font-size:0.85rem;">★ SPECIAL CODE ACTIVE: ${SPECIAL_CODES[code].label}</div>`;
         } else if (VALID_6CODES[code]) {
             appliedDiscount = VALID_6CODES[code];
             status.innerHTML = `<div style="color:var(--cyan-accent); font-family:var(--font-mono); font-size:0.85rem;">✓ 6CODE VERIFIED: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
         } else {
             appliedDiscount = 0;
-            status.innerHTML = `<div style="color:var(--neon-red); font-size:0.85rem;">✕ Invalid 6Code</div>`;
+            status.innerHTML = `<div style="color:var(--neon-red); font-size:0.85rem;">✕ Invalid Code</div>`;
         }
         updateCalculations();
     }
@@ -1111,6 +1252,7 @@
                         <div style="font-weight:700; color:#fff;">
                             ${item.name} ${isRestricted ? '🔒 (Locked)' : ''}
                         </div>
+                        ${item.freebie ? `<div style="font-size:0.75rem; color:var(--neon-green); font-family:var(--font-mono);">${item.freebie}</div>` : ''}
                         <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem; margin-top:2px;">
                             ₱${item.price.toLocaleString()}
                         </div>
@@ -1155,6 +1297,16 @@
         updateCalculations();
     }
 
+    function getMaxSelectedMenuBasePrice() {
+        let maxPrice = 0;
+        MENU_ITEMS.forEach(item => {
+            if ((cart[item.id] || 0) > 0) {
+                if (item.price > maxPrice) maxPrice = item.price;
+            }
+        });
+        return maxPrice;
+    }
+
     function updateCalculations() {
         let subtotal = 0;
         let summaryHTML = '';
@@ -1183,6 +1335,7 @@
             `;
         }
 
+        // Delivery Fee calculation
         const deliveryMethod = document.getElementById('delivery-method').value;
         let deliveryFee = 0;
         if (deliveryMethod === 'meetup') {
@@ -1195,17 +1348,164 @@
             `;
         }
 
-        const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee);
+        // GoRush Speed Surcharges
+        const gorushVal = document.getElementById('gorush-option').value;
+        let gorushSurcharge = 0;
+        if (gorushVal === 'gorush30') gorushSurcharge = 500;
+        else if (gorushVal === 'gorush60') gorushSurcharge = 350;
+        else if (gorushVal === 'gorush90') gorushSurcharge = 200;
+
+        if (gorushSurcharge > 0) {
+            summaryHTML += `
+                <div class="summary-row" style="color: var(--cyan-accent);">
+                    <span>GoRush Speed Fee:</span>
+                    <span>+₱${gorushSurcharge}</span>
+                </div>
+            `;
+        }
+
+        // Special Handling Fees Calculation
+        let specialHandlingFee = 0;
+        if (document.getElementById('chk-handling-unitsplit').checked) {
+            specialHandlingFee += 100;
+            summaryHTML += `<div class="summary-row"><span>Unit Splitting:</span><span>+₱100</span></div>`;
+        }
+        if (document.getElementById('chk-handling-locchange').checked) {
+            specialHandlingFee += 100;
+            summaryHTML += `<div class="summary-row"><span>Location Change Fee:</span><span>+₱100</span></div>`;
+        }
+        if (document.getElementById('chk-handling-priority').checked) {
+            specialHandlingFee += 150;
+            summaryHTML += `<div class="summary-row"><span>Priority Dispatch:</span><span>+₱150</span></div>`;
+        }
+        if (document.getElementById('chk-handling-delay').checked) {
+            specialHandlingFee += 100;
+            summaryHTML += `<div class="summary-row"><span>Customer Delay Fee:</span><span>+₱100</span></div>`;
+        }
+        if (document.getElementById('chk-handling-schedule').checked) {
+            specialHandlingFee += 100;
+            summaryHTML += `<div class="summary-row"><span>Scheduled Delivery Hold:</span><span>+₱100</span></div>`;
+        }
+        if (document.getElementById('chk-handling-personalized').checked) {
+            summaryHTML += `<div class="summary-row" style="color: var(--gold-primary);"><span>Personalized Packaging:</span><span>Material Cost + 30%</span></div>`;
+        }
+
+        // Wholesale Grouping Piggyback Validation
+        const piggybackChk = document.getElementById('chk-handling-piggyback');
+        const piggybackMsg = document.getElementById('piggyback-status-msg');
+
+        if (isSpecialCodeActive) {
+            if (subtotal >= 1000 && subtotal <= 1500) {
+                piggybackChk.disabled = false;
+                piggybackMsg.style.color = "var(--neon-green)";
+                piggybackMsg.innerText = "✓ Subtotal qualifies for Piggyback (₱1,000–₱1,500). SLA: 24-hr.";
+            } else {
+                piggybackChk.checked = false;
+                piggybackChk.disabled = true;
+                piggybackMsg.style.color = "var(--neon-red)";
+                piggybackMsg.innerText = "✕ Piggyback requires subtotal between ₱1,000 and ₱1,500.";
+            }
+
+            if (piggybackChk.checked) {
+                summaryHTML += `<div class="summary-row" style="color: var(--neon-green);"><span>Wholesale Piggyback:</span><span>₱0 (24h SLA)</span></div>`;
+            }
+        }
+
+        const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee + gorushSurcharge + specialHandlingFee);
         document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.9rem;">No items selected.</div>';
         document.getElementById('summary-total-val').innerText = `₱${grandTotal.toLocaleString()}`;
 
-        const etaTime = new Date(Date.now() + 120 * 60000);
-        document.getElementById('eta-display').innerText = `Estimated Arrival: ~${etaTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        // Validate PayLater Eligibility based on base prices
+        const maxBasePrice = getMaxSelectedMenuBasePrice();
+        const optPayday = document.getElementById('opt-payday');
+        const optPay3day = document.getElementById('opt-pay3day');
+        const optPaylater = document.getElementById('opt-paylater');
+
+        if (optPayday && optPay3day && optPaylater) {
+            optPayday.disabled = maxBasePrice > 2600;
+            optPayday.text = maxBasePrice > 2600 
+                ? "1. PAY-DAY (Unavailable - Base price exceeds ₱2,600 Nibiru)"
+                : "1. PAY-DAY (24 Hours) — 20% Loanable | 20% Interest";
+
+            optPay3day.disabled = maxBasePrice > 2150;
+            optPay3day.text = maxBasePrice > 2150 
+                ? "2. PAY-3DAY (Unavailable - Base price exceeds ₱2,150 Saturn)"
+                : "2. PAY-3DAY (36 Hours) — 15% Loanable | 25% Interest";
+
+            optPaylater.disabled = maxBasePrice > 1700;
+            optPaylater.text = maxBasePrice > 1700 
+                ? "3. PAY-LATER (Unavailable - Base price exceeds ₱1,700 Venus)"
+                : "3. PAY-LATER (5 Days) — 10% Loanable | 30% Interest";
+
+            const planSelect = document.getElementById('paylater-plan-select');
+            if (planSelect.selectedOptions[0].disabled) {
+                planSelect.value = "none";
+            }
+        }
+
+        // Calculate PayLater Details
+        const plan = document.getElementById('paylater-plan-select').value;
+        const detailsBox = document.getElementById('paylater-details-box');
+        const summaryBreakdown = document.getElementById('paylater-summary-breakdown');
+
+        if (plan !== 'none' && grandTotal > 0) {
+            detailsBox.style.display = 'block';
+
+            let loanPct = 0, intPct = 0, dailyInt = "5%";
+            if (plan === 'payday') { loanPct = 0.20; intPct = 0.20; dailyInt = "5%"; }
+            else if (plan === 'pay3day') { loanPct = 0.15; intPct = 0.25; dailyInt = "4%"; }
+            else if (plan === 'paylater') { loanPct = 0.10; intPct = 0.30; dailyInt = "3%"; }
+
+            const loanableAmt = grandTotal * loanPct;
+            const interestAmt = loanableAmt * intPct;
+            const downpaymentAmt = grandTotal - loanableAmt;
+            const totalRepayBalance = loanableAmt + interestAmt;
+
+            document.getElementById('pl-loanable-val').innerText = `₱${loanableAmt.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('pl-downpayment-val').innerText = `₱${downpaymentAmt.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('pl-interest-val').innerText = `₱${interestAmt.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('pl-repay-val').innerText = `₱${totalRepayBalance.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('pl-daily-int-val').innerText = dailyInt;
+
+            summaryBreakdown.innerHTML = `
+                <div style="border-top: 1px dashed var(--purple-glow); margin-top: 8px; padding-top: 8px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--purple-glow);">
+                    <div>⚡ <strong>PAYLATER PLAN ACTIVE (${plan.toUpperCase()})</strong></div>
+                    <div>• Downpayment Due Today: <strong>₱${downpaymentAmt.toLocaleString()}</strong></div>
+                    <div>• Loan Balance + Interest Due: <strong>₱${totalRepayBalance.toLocaleString()}</strong></div>
+                    <div>• Status: <em style="color:var(--gold-primary);">Pending Owner Approval</em></div>
+                </div>
+            `;
+            document.getElementById('payment-amount').placeholder = `Min Downpayment: ₱${Math.ceil(downpaymentAmt)}`;
+        } else {
+            detailsBox.style.display = 'none';
+            summaryBreakdown.innerHTML = '';
+            document.getElementById('payment-amount').placeholder = 'e.g. 1700';
+        }
+
+        // Calculate ETA
+        let minsToAdd = 120;
+        if (gorushVal === 'gorush30') minsToAdd = 30;
+        else if (gorushVal === 'gorush60') minsToAdd = 60;
+        else if (gorushVal === 'gorush90') minsToAdd = 90;
+
+        const etaTime = new Date(Date.now() + minsToAdd * 60000);
+        document.getElementById('eta-display').innerText = `Estimated Delivery: ~${etaTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     }
 
     function resetSelections() {
         Object.keys(cart).forEach(k => cart[k] = 0);
         appliedDiscount = 0;
+        document.getElementById('paylater-plan-select').value = 'none';
+        document.getElementById('gorush-option').value = 'standard';
+        document.getElementById('chk-handling-unitsplit').checked = false;
+        document.getElementById('chk-handling-locchange').checked = false;
+        document.getElementById('chk-handling-priority').checked = false;
+        document.getElementById('chk-handling-delay').checked = false;
+        document.getElementById('chk-handling-schedule').checked = false;
+        document.getElementById('chk-handling-personalized').checked = false;
+        document.getElementById('chk-handling-piggyback').checked = false;
+        toggleScheduledBox();
+        togglePersonalizedBox();
         renderMenu();
         updateCalculations();
     }
@@ -1217,9 +1517,16 @@
         const recPhone = document.getElementById('rec-phone').value.trim();
         const recAddress = document.getElementById('rec-address').value.trim();
         const recCoords = document.getElementById('rec-coords').value.trim();
+        const plan = document.getElementById('paylater-plan-select').value;
+        const collateral = document.getElementById('paylater-collateral-input').value.trim();
 
         if (!recName || !recPhone || !recAddress) {
             alert("Please fill out the Receiver's Full Name, Phone Number, and Street Address / Landmarks.");
+            return;
+        }
+
+        if (plan !== 'none' && !collateral) {
+            alert("PayLater option selected! Please specify your proposed collateral.");
             return;
         }
 
@@ -1245,13 +1552,32 @@
                     tag = " ⚠️ [BY SUPPLIER - Backordered]";
                 }
 
-                itemsSummary.push(`${item.name} x${qty}${tag}`);
+                let freebieNote = item.freebie ? ` (${item.freebie})` : '';
+                itemsSummary.push(`${item.name}${freebieNote} x${qty}${tag}`);
                 if (stockCount[item.id] !== undefined) {
                     stockCount[item.id] = stockCount[item.id] - qty;
                 }
             }
         });
         localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
+
+        // Gather Special Handling Options Selected
+        let selectedHandling = [];
+        if (document.getElementById('chk-handling-unitsplit').checked) selectedHandling.push("Unit Splitting (+₱100)");
+        if (document.getElementById('chk-handling-locchange').checked) selectedHandling.push("Location Change (+₱100)");
+        if (document.getElementById('chk-handling-priority').checked) selectedHandling.push("Priority Queue (+₱150)");
+        if (document.getElementById('chk-handling-delay').checked) selectedHandling.push("Customer Delay (+₱100)");
+        if (document.getElementById('chk-handling-schedule').checked) {
+            const dt = document.getElementById('scheduled-datetime').value;
+            selectedHandling.push(`Scheduled Delivery (+₱100, Time: ${dt || 'Unspecified'})`);
+        }
+        if (document.getElementById('chk-handling-personalized').checked) {
+            const details = document.getElementById('personalized-details').value;
+            selectedHandling.push(`Personalized Packaging (Markup 30%, Req: ${details || 'None'})`);
+        }
+        if (document.getElementById('chk-handling-piggyback').checked) {
+            selectedHandling.push("Wholesale Grouping Piggyback (24-hr SLA)");
+        }
 
         const newOrder = {
             refCode: currentRefCode,
@@ -1262,11 +1588,15 @@
             recAddress: recAddress,
             recCoords: recCoords,
             items: itemsSummary,
+            specialHandling: selectedHandling.length > 0 ? selectedHandling.join(', ') : 'None',
             totalAmount: document.getElementById('summary-total-val').innerText,
             amountPaid: amount,
             senderInitials: initials.toUpperCase(),
+            payLaterPlan: plan,
+            collateral: collateral || "N/A",
             timestamp: new Date().toLocaleString(),
             statusIndex: 0,
+            statusLabel: plan !== 'none' ? "Pending Owner Approval (PayLater)" : "Pending / Paid",
             eta: document.getElementById('eta-display').innerText
         };
 
@@ -1279,7 +1609,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    _subject: `New Celestial Lobby Order [${currentRefCode}]`,
+                    _subject: `New Order [${currentRefCode}] ${plan !== 'none' ? '- PAYLATER REQUEST' : ''}`,
                     Order_Reference: currentRefCode,
                     Client_Code: currentClientCode,
                     Client_Type: currentUserType,
@@ -1288,8 +1618,12 @@
                     Receiver_Address: recAddress,
                     Map_Coordinates: recCoords,
                     Items_Ordered: itemsSummary.join(', '),
+                    Special_Handling: newOrder.specialHandling,
                     Total_Amount: newOrder.totalAmount,
                     Amount_Paid: `₱${amount}`,
+                    PayLater_Plan: plan.toUpperCase(),
+                    Proposed_Collateral: collateral || "None",
+                    Approval_Status: plan !== 'none' ? "PENDING OWNER APPROVAL" : "STANDARD",
                     Sender_Initials: initials.toUpperCase(),
                     Timestamp: newOrder.timestamp
                 })
@@ -1305,7 +1639,20 @@
         document.getElementById('bill-rec-coords').innerText = `GPS LOCATION: ${recCoords}`;
         document.getElementById('bill-items-list').innerHTML = itemsSummary.map(i => `<div>• ${i}</div>`).join('');
         document.getElementById('bill-grand-total').innerText = newOrder.totalAmount;
-        document.getElementById('bill-payment-info').innerText = `Payment Sent: ₱${amount} | Sender: ${initials.toUpperCase()}`;
+        
+        if (plan !== 'none') {
+            document.getElementById('bill-paylater-details').innerHTML = `
+                <div style="margin-top:6px; padding:6px; background:rgba(176,38,255,0.15); border-radius:6px;">
+                    <strong>PAYLATER PLAN:</strong> ${plan.toUpperCase()}<br>
+                    <strong>COLLATERAL:</strong> ${collateral}<br>
+                    <strong>STATUS:</strong> PENDING OWNER APPROVAL
+                </div>
+            `;
+        } else {
+            document.getElementById('bill-paylater-details').innerHTML = '';
+        }
+
+        document.getElementById('bill-payment-info').innerText = `Payment Sent Today: ₱${amount} | Sender: ${initials.toUpperCase()}`;
         document.getElementById('bill-eta-info').innerText = newOrder.eta;
 
         submitBtn.disabled = false;
@@ -1335,14 +1682,20 @@
                         <strong style="color:var(--cyan-accent);">${o.refCode}</strong>
                         <span style="font-size:0.75rem; color:var(--text-muted);"> (${o.timestamp})</span>
                     </div>
-                    <span class="status-badge status-pending">${STATUS_STAGES[o.statusIndex]}</span>
+                    <span class="status-badge status-pending">${o.statusLabel || STATUS_STAGES[o.statusIndex]}</span>
                 </div>
                 <div><strong>Client Mode:</strong> ${o.clientCode} (${o.clientType})</div>
                 <div><strong>Recipient:</strong> <input type="text" value="${o.recName || ''}" id="edit-rec-name-${o.refCode}" style="padding:2px 6px; width:140px; font-size:0.8rem;"> | <strong>Phone:</strong> <input type="text" value="${o.recPhone || ''}" id="edit-rec-phone-${o.refCode}" style="padding:2px 6px; width:130px; font-size:0.8rem;"></div>
                 <div><strong>Manual Address:</strong> <input type="text" value="${o.recAddress || ''}" id="edit-rec-address-${o.refCode}" style="padding:2px 6px; width:100%; font-size:0.8rem; margin-top:4px;"></div>
                 <div><strong>GPS Coordinates:</strong> <span style="color:var(--cyan-accent);">${o.recCoords || 'N/A'}</span></div>
                 <div><strong>Items:</strong> ${o.items.join(', ')}</div>
-                <div><strong>Total Bill:</strong> ${o.totalAmount} | <strong>Paid:</strong> ₱${o.amountPaid} (${o.senderInitials})</div>
+                ${o.specialHandling && o.specialHandling !== 'None' ? `<div style="color:var(--gold-primary);"><strong>Special Handling:</strong> ${o.specialHandling}</div>` : ''}
+                <div><strong>Total Bill:</strong> ${o.totalAmount} | <strong>Paid Today:</strong> ₱${o.amountPaid} (${o.senderInitials})</div>
+                ${o.payLaterPlan && o.payLaterPlan !== 'none' ? `
+                    <div style="color: var(--purple-glow); font-size:0.85rem; margin-top:4px;">
+                        <strong>⚡ PayLater Plan:</strong> ${o.payLaterPlan.toUpperCase()} | <strong>Collateral:</strong> ${o.collateral}
+                    </div>
+                ` : ''}
                 
                 <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <label style="font-size:0.8rem; color: var(--gold-primary);">Update Status:</label>
@@ -1375,6 +1728,7 @@
         const target = orders.find(o => o.refCode === refCode);
         if (target) {
             target.statusIndex = parseInt(newIndex);
+            target.statusLabel = STATUS_STAGES[newIndex];
             saveOrdersToStorage(orders);
             renderAdminOrders();
             alert(`Order ${refCode} updated to: ${STATUS_STAGES[newIndex]}`);
@@ -1397,7 +1751,7 @@
             <div class="order-card" style="margin-top: 16px;">
                 <div class="order-card-header">
                     <strong style="color:var(--cyan-accent); font-size:1.2rem;">${match.refCode}</strong>
-                    <span class="status-badge status-confirmed">${STATUS_STAGES[match.statusIndex]}</span>
+                    <span class="status-badge status-confirmed">${match.statusLabel || STATUS_STAGES[match.statusIndex]}</span>
                 </div>
 
                 <div class="pipeline-tracker">
@@ -1413,7 +1767,11 @@
                 <div><strong>Manual Address:</strong> ${match.recAddress || 'N/A'}</div>
                 <div><strong>GPS Location:</strong> ${match.recCoords}</div>
                 <div><strong>Items Ordered:</strong> ${match.items.join(', ')}</div>
+                ${match.specialHandling && match.specialHandling !== 'None' ? `<div><strong>Special Handling:</strong> ${match.specialHandling}</div>` : ''}
                 <div><strong>Total Amount:</strong> ${match.totalAmount}</div>
+                ${match.payLaterPlan && match.payLaterPlan !== 'none' ? `
+                    <div style="color:var(--purple-glow);"><strong>PayLater Plan:</strong> ${match.payLaterPlan.toUpperCase()} (Pending Owner Approval)</div>
+                ` : ''}
                 <div><strong>Schedule / ETA:</strong> ${match.eta}</div>
             </div>
         `;
