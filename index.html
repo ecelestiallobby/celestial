@@ -499,6 +499,11 @@
             </div>
 
             <button class="btn" id="btn-login" onclick="attemptLogin()">ENTER PORTAL 🚀</button>
+
+            <!-- Forgot Code / Reset Device Binding Option -->
+            <div id="device-reset-box" style="text-align: center; margin-top: 14px; display: none;">
+                <a href="javascript:void(0);" onclick="resetDeviceBinding()" style="color: var(--cyan-accent); font-size: 0.8rem; font-family: var(--font-mono); text-decoration: underline;">Forgot Code? Reset Device Binding</a>
+            </div>
         </div>
     </div>
 
@@ -525,8 +530,9 @@
             </div>
 
             <div class="tab-nav">
-                <button class="tab-btn active" id="admin-tab-orders-btn" onclick="switchAdminTab('orders')">1. POS & CUSTOMER SALES SERVICE</button>
-                <button class="tab-btn" id="admin-tab-stock-btn" onclick="switchAdminTab('stock')">2. STOCK & INVENTORY MANAGEMENT</button>
+                <button class="tab-btn active" id="admin-tab-orders-btn" onclick="switchAdminTab('orders')">1. POS & SALES</button>
+                <button class="tab-btn" id="admin-tab-stock-btn" onclick="switchAdminTab('stock')">2. STOCK</button>
+                <button class="tab-btn" id="admin-tab-promo-btn" onclick="switchAdminTab('promo')" id="owner-promo-tab-btn" style="display:none;">3. OWNER PROMO CODES</button>
             </div>
 
             <!-- ADMIN SUB-TAB 1: POS & ORDERS SERVICE -->
@@ -553,6 +559,26 @@
                     </tbody>
                 </table>
                 <button class="btn" onclick="saveInventoryStock()" style="margin-top: 10px;">SAVE INVENTORY CHANGES</button>
+            </div>
+
+            <!-- ADMIN SUB-TAB 3: OWNER CODE & PROMO GENERATOR -->
+            <div id="admin-promo-tab-content" style="display: none;">
+                <div class="panel-header" style="font-size: 0.95rem;">OWNER CUSTOM CODE & PROMOTION GENERATOR</div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Create custom codes with discounts and bonus promotional volume perks for clients.</p>
+                
+                <label style="font-size: 0.85rem; color: var(--gold-primary);">Custom Promo Code Name:</label>
+                <input type="text" id="new-promo-code" placeholder="e.g. SUMMERVIP" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
+
+                <label style="font-size: 0.85rem; color: var(--gold-primary);">Discount Percentage (%):</label>
+                <input type="number" id="new-promo-discount" placeholder="e.g. 15 for 15%" style="margin-top: 4px; margin-bottom: 10px;">
+
+                <label style="font-size: 0.85rem; color: var(--gold-primary);">Bonus Volume / Promotional Perk Description:</label>
+                <input type="text" id="new-promo-bonus" placeholder="e.g. +2 Free Units Volume Perk" style="margin-top: 4px; margin-bottom: 14px;">
+
+                <button class="btn btn-cyan" onclick="saveOwnerPromoCode()">CREATE & SAVE PROMO CODE</button>
+
+                <div class="panel-header" style="font-size: 0.95rem; margin-top: 20px;">ACTIVE CUSTOM CODES</div>
+                <div id="owner-codes-list" style="font-family: var(--font-mono); font-size: 0.85rem;"></div>
             </div>
 
         </div>
@@ -855,13 +881,17 @@
         "NEW8X106", "NEW8X107", "NEW8X108", "NEW8X109", "NEW8X110"
     ]);
 
-    // Special Client Codes that grant discounts, unlock PayLater & Wholesale Piggyback
-    const SPECIAL_CODES = {
-        'PAYLATER2026': { discount: 0.10, label: 'SPECIAL AUTHORIZED CLIENT (10% OFF)', paylater: true, piggyback: true },
-        'VIPGOLD99': { discount: 0.20, label: 'GOLD VIP TIER (20% OFF)', paylater: true, piggyback: true },
-        'CELESTIAL77': { discount: 0.15, label: 'CELESTIAL ELITE TIER (15% OFF)', paylater: true, piggyback: true },
-        'BLACKCARD01': { discount: 0.25, label: 'BLACK TIER UNLOCKED (25% OFF)', paylater: true, piggyback: true }
+    const STATIC_SPECIAL_CODES = {
+        'PAYLATER2026': { discount: 0.10, label: 'SPECIAL AUTHORIZED CLIENT (10% OFF)', paylater: true, piggyback: true, bonus: '' },
+        'VIPGOLD99': { discount: 0.20, label: 'GOLD VIP TIER (20% OFF)', paylater: true, piggyback: true, bonus: '' },
+        'CELESTIAL77': { discount: 0.15, label: 'CELESTIAL ELITE TIER (15% OFF)', paylater: true, piggyback: true, bonus: '' },
+        'BLACKCARD01': { discount: 0.25, label: 'BLACK TIER UNLOCKED (25% OFF)', paylater: true, piggyback: true, bonus: '' }
     };
+
+    function getCombinedSpecialCodes() {
+        let ownerCustom = JSON.parse(localStorage.getItem('celestial_owner_custom_codes') || '{}');
+        return Object.assign({}, STATIC_SPECIAL_CODES, ownerCustom);
+    }
 
     const VALID_6CODES = { 
         'CL10A1': 0.10, 'CL10B2': 0.10, 'CL10C3': 0.10, 'CL10D4': 0.10, 'CL10E5': 0.10,
@@ -869,7 +899,6 @@
         'VIP3X1': 0.03, 'VIP3Y2': 0.03
     };
 
-    // Updated Store Pricing Menu Offer
     const MENU_ITEMS = [
         { id: 'cloud9', name: '☁️ CLOUD9 — 5*', price: 700, minTier: 'regular' },
         { id: 'mars', name: '🔴 MARS — 10*', price: 1200, minTier: 'regular' },
@@ -877,7 +906,7 @@
         { id: 'saturn', name: '🪐 SATURN — 20*', price: 2150, minTier: 'new' },
         { id: 'nibiru', name: '🌑 NIBIRU — 25*', price: 2600, minTier: 'new' },
         { id: 'nemik', name: '⚫ NEMIK — 30*', price: 3100, minTier: 'new' },
-        { id: 'vaelithar', name: '🌑 VAELITHAR — 40u', price: 3500, minTier: 'new' },
+        { id: 'vaelithar', name: '🌑 VAELITHAR — 40*', price: 3500, minTier: 'new' },
         { id: 'vhaerion05', name: '🌑 Vhaerion 0.5 — 60*', price: 4450, freebie: 'Freebies: Lube & 5 Dagom', minTier: 'regular' },
         { id: 'zhaevoryn10', name: '🌑 Zhaevoryn 1.0 — 110*', price: 6950, freebie: 'Freebies: Lube & 10 Dagom', minTier: 'regular' }
     ];
@@ -901,6 +930,7 @@
     let currentClientCode = '';
     let cart = {};
     let appliedDiscount = 0;
+    let activeBonusPerk = '';
     let currentRefCode = '';
     let isSpecialCodeActive = false;
     
@@ -917,7 +947,9 @@
         const boundCode = localStorage.getItem('celestial_device_code');
         const boundType = localStorage.getItem('celestial_device_type');
 
-        if (boundCode && boundType && boundType !== 'admin') {
+        // Show reset device binding option if a device is bound
+        if (boundCode && boundType && boundType !== 'admin' && boundType !== 'new') {
+            document.getElementById('device-reset-box').style.display = 'block';
             grantAccess(boundType, boundCode, true);
         }
     });
@@ -1047,9 +1079,11 @@
                 return;
             }
 
-            if (SPECIAL_CODES[code]) {
-                alert(`Special Access Granted! ${SPECIAL_CODES[code].label}`);
-                appliedDiscount = SPECIAL_CODES[code].discount;
+            const specialCodes = getCombinedSpecialCodes();
+            if (specialCodes[code]) {
+                alert(`Special Access Granted! ${specialCodes[code].label}`);
+                appliedDiscount = specialCodes[code].discount;
+                activeBonusPerk = specialCodes[code].bonus || '';
                 enableSpecialFeatures();
                 grantAccess('special', code, false);
                 return;
@@ -1058,7 +1092,7 @@
             const currentBoundCode = localStorage.getItem('celestial_device_code');
             if (currentBoundCode && currentBoundCode !== code) {
                 errBadge.style.display = 'block';
-                errBadge.innerText = '✕ Access Denied. Device is bound to another key.';
+                errBadge.innerText = '✕ Access Denied. Device is bound to another key. Use "Forgot Code? Reset Device Binding" if needed.';
                 return;
             }
 
@@ -1088,12 +1122,15 @@
 
             if (adminRole === 'owner') {
                 document.getElementById('admin-dashboard-title').innerText = "OWNER | SUPER DASHBOARD WORKSPACE";
+                document.getElementById('owner-promo-tab-btn').style.display = 'block';
             } else {
                 document.getElementById('admin-dashboard-title').innerText = "SALES TEAM / ADMIN | POS DASHBOARD";
+                document.getElementById('owner-promo-tab-btn').style.display = 'none';
             }
 
             renderAdminOrders();
             renderInventoryTable();
+            renderOwnerPromoCodesList();
         }
     }
 
@@ -1101,7 +1138,8 @@
         currentUserType = type;
         currentClientCode = code;
 
-        if (!isAutoLogin && type !== 'sales' && type !== 'owner') {
+        // Save device binding securely for regular/special clients
+        if (!isAutoLogin && type !== 'sales' && type !== 'owner' && type !== 'new') {
             localStorage.setItem('celestial_device_code', code);
             localStorage.setItem('celestial_device_type', type);
         }
@@ -1118,7 +1156,28 @@
     }
 
     function logout() {
-        location.reload();
+        // Return to gateway screen while maintaining device binding for security
+        document.getElementById('portal-view').style.display = 'none';
+        document.getElementById('admin-view').style.display = 'none';
+        document.getElementById('gateway-view').style.display = 'flex';
+        
+        // Clear active session inputs
+        cart = {};
+        appliedDiscount = 0;
+        activeBonusPerk = '';
+        document.getElementById('gene-code-input').value = '';
+        if (localStorage.getItem('celestial_device_code')) {
+            document.getElementById('device-reset-box').style.display = 'block';
+        }
+    }
+
+    function resetDeviceBinding() {
+        if (confirm("Are you sure you want to reset device binding? This will unbind this phone from the previous access code.")) {
+            localStorage.removeItem('celestial_device_code');
+            localStorage.removeItem('celestial_device_type');
+            document.getElementById('device-reset-box').style.display = 'none';
+            alert("Device binding reset successfully. You can now enter a new access code.");
+        }
     }
 
     function enableSpecialFeatures() {
@@ -1139,9 +1198,70 @@
     function switchAdminTab(tab) {
         document.getElementById('admin-tab-orders-btn').classList.toggle('active', tab === 'orders');
         document.getElementById('admin-tab-stock-btn').classList.toggle('active', tab === 'stock');
+        const promoBtn = document.getElementById('owner-promo-tab-btn');
+        if (promoBtn && promoBtn.style.display !== 'none') {
+            promoBtn.classList.toggle('active', tab === 'promo');
+        }
 
         document.getElementById('admin-orders-tab-content').style.display = (tab === 'orders') ? 'block' : 'none';
         document.getElementById('admin-stock-tab-content').style.display = (tab === 'stock') ? 'block' : 'none';
+        const promoContent = document.getElementById('admin-promo-tab-content');
+        if (promoContent) promoContent.style.display = (tab === 'promo') ? 'block' : 'none';
+    }
+
+    function saveOwnerPromoCode() {
+        const codeInput = document.getElementById('new-promo-code').value.trim().toUpperCase();
+        const discInput = parseFloat(document.getElementById('new-promo-discount').value) || 0;
+        const bonusInput = document.getElementById('new-promo-bonus').value.trim();
+
+        if (!codeInput || discInput <= 0) {
+            alert("Please enter a valid code name and discount percentage.");
+            return;
+        }
+
+        let customCodes = JSON.parse(localStorage.getItem('celestial_owner_custom_codes') || '{}');
+        customCodes[codeInput] = {
+            discount: discInput / 100,
+            label: `CUSTOM PROMO (${discInput}% OFF)`,
+            paylater: true,
+            piggyback: true,
+            bonus: bonusInput
+        };
+
+        localStorage.setItem('celestial_owner_custom_codes', JSON.stringify(customCodes));
+        alert(`Promo code '${codeInput}' created successfully!`);
+        document.getElementById('new-promo-code').value = '';
+        document.getElementById('new-promo-discount').value = '';
+        document.getElementById('new-promo-bonus').value = '';
+        renderOwnerPromoCodesList();
+    }
+
+    function renderOwnerPromoCodesList() {
+        const container = document.getElementById('owner-codes-list');
+        const customCodes = JSON.parse(localStorage.getItem('celestial_owner_custom_codes') || '{}');
+        const keys = Object.keys(customCodes);
+
+        if (keys.length === 0) {
+            container.innerHTML = '<div style="color:var(--text-muted);">No custom promo codes generated yet.</div>';
+            return;
+        }
+
+        container.innerHTML = keys.map(k => `
+            <div style="background:rgba(0,0,0,0.5); padding:8px; border-radius:6px; margin-bottom:6px; border:1px solid var(--gold-primary); display:flex; justify-content:between; align-items:center;">
+                <div>
+                    <strong style="color:var(--cyan-accent);">${k}</strong> — ${(customCodes[k].discount * 100)}% OFF 
+                    ${customCodes[k].bonus ? `<br><span style="color:var(--neon-green);">Bonus: ${customCodes[k].bonus}</span>` : ''}
+                </div>
+                <button class="btn btn-red" style="width:auto; padding:4px 8px; font-size:0.7rem;" onclick="deleteOwnerPromoCode('${k}')">DELETE</button>
+            </div>
+        `).join('');
+    }
+
+    function deleteOwnerPromoCode(code) {
+        let customCodes = JSON.parse(localStorage.getItem('celestial_owner_custom_codes') || '{}');
+        delete customCodes[code];
+        localStorage.setItem('celestial_owner_custom_codes', JSON.stringify(customCodes));
+        renderOwnerPromoCodesList();
     }
 
     function toggleScheduledBox() {
@@ -1212,21 +1332,26 @@
     function applySixCode() {
         const code = document.getElementById('sixcode-input').value.trim().toUpperCase();
         const status = document.getElementById('sixcode-status');
+        const specialCodes = getCombinedSpecialCodes();
 
         if (code === MASTER_DISCOUNT_CODE) {
             let customDisc = prompt("Master Code Verified! Enter discount percentage:", "15");
             appliedDiscount = (parseFloat(customDisc) || 0) / 100;
+            activeBonusPerk = "Master Promo Perk Active";
             enableSpecialFeatures();
             status.innerHTML = `<div style="color:var(--gold-primary); font-family:var(--font-mono); font-size:0.85rem;">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT & SPECIAL OPTIONS UNLOCKED</div>`;
-        } else if (SPECIAL_CODES[code]) {
-            appliedDiscount = SPECIAL_CODES[code].discount;
+        } else if (specialCodes[code]) {
+            appliedDiscount = specialCodes[code].discount;
+            activeBonusPerk = specialCodes[code].bonus || '';
             enableSpecialFeatures();
-            status.innerHTML = `<div style="color:var(--neon-green); font-family:var(--font-mono); font-size:0.85rem;">★ SPECIAL CODE ACTIVE: ${SPECIAL_CODES[code].label}</div>`;
+            status.innerHTML = `<div style="color:var(--neon-green); font-family:var(--font-mono); font-size:0.85rem;">★ SPECIAL CODE ACTIVE: ${specialCodes[code].label}${activeBonusPerk ? '<br>Bonus: ' + activeBonusPerk : ''}</div>`;
         } else if (VALID_6CODES[code]) {
             appliedDiscount = VALID_6CODES[code];
+            activeBonusPerk = '';
             status.innerHTML = `<div style="color:var(--cyan-accent); font-family:var(--font-mono); font-size:0.85rem;">✓ 6CODE VERIFIED: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
         } else {
             appliedDiscount = 0;
+            activeBonusPerk = '';
             status.innerHTML = `<div style="color:var(--neon-red); font-size:0.85rem;">✕ Invalid Code</div>`;
         }
         updateCalculations();
@@ -1335,7 +1460,15 @@
             `;
         }
 
-        // Delivery Fee calculation
+        if (activeBonusPerk) {
+            summaryHTML += `
+                <div class="summary-row" style="color: var(--neon-green); font-size: 0.85rem;">
+                    <span>Bonus Volume Perk:</span>
+                    <span>${activeBonusPerk}</span>
+                </div>
+            `;
+        }
+
         const deliveryMethod = document.getElementById('delivery-method').value;
         let deliveryFee = 0;
         if (deliveryMethod === 'meetup') {
@@ -1348,7 +1481,6 @@
             `;
         }
 
-        // GoRush Speed Surcharges
         const gorushVal = document.getElementById('gorush-option').value;
         let gorushSurcharge = 0;
         if (gorushVal === 'gorush30') gorushSurcharge = 500;
@@ -1364,7 +1496,6 @@
             `;
         }
 
-        // Special Handling Fees Calculation
         let specialHandlingFee = 0;
         if (document.getElementById('chk-handling-unitsplit').checked) {
             specialHandlingFee += 100;
@@ -1390,7 +1521,6 @@
             summaryHTML += `<div class="summary-row" style="color: var(--gold-primary);"><span>Personalized Packaging:</span><span>Material Cost + 30%</span></div>`;
         }
 
-        // Wholesale Grouping Piggyback Validation
         const piggybackChk = document.getElementById('chk-handling-piggyback');
         const piggybackMsg = document.getElementById('piggyback-status-msg');
 
@@ -1415,7 +1545,6 @@
         document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.9rem;">No items selected.</div>';
         document.getElementById('summary-total-val').innerText = `₱${grandTotal.toLocaleString()}`;
 
-        // Validate PayLater Eligibility based on base prices
         const maxBasePrice = getMaxSelectedMenuBasePrice();
         const optPayday = document.getElementById('opt-payday');
         const optPay3day = document.getElementById('opt-pay3day');
@@ -1434,7 +1563,7 @@
 
             optPaylater.disabled = maxBasePrice > 1700;
             optPaylater.text = maxBasePrice > 1700 
-                ? "3. PAY-LATER (Unavailable - Base price exceeds ₱1,700 Venus)"
+                ? "3. PAY-LATER (5 Days) — 10% Loanable | 30% Interest"
                 : "3. PAY-LATER (5 Days) — 10% Loanable | 30% Interest";
 
             const planSelect = document.getElementById('paylater-plan-select');
@@ -1443,7 +1572,6 @@
             }
         }
 
-        // Calculate PayLater Details
         const plan = document.getElementById('paylater-plan-select').value;
         const detailsBox = document.getElementById('paylater-details-box');
         const summaryBreakdown = document.getElementById('paylater-summary-breakdown');
@@ -1482,7 +1610,6 @@
             document.getElementById('payment-amount').placeholder = 'e.g. 1700';
         }
 
-        // Calculate ETA
         let minsToAdd = 120;
         if (gorushVal === 'gorush30') minsToAdd = 30;
         else if (gorushVal === 'gorush60') minsToAdd = 60;
@@ -1495,6 +1622,7 @@
     function resetSelections() {
         Object.keys(cart).forEach(k => cart[k] = 0);
         appliedDiscount = 0;
+        activeBonusPerk = '';
         document.getElementById('paylater-plan-select').value = 'none';
         document.getElementById('gorush-option').value = 'standard';
         document.getElementById('chk-handling-unitsplit').checked = false;
@@ -1561,7 +1689,6 @@
         });
         localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
 
-        // Gather Special Handling Options Selected
         let selectedHandling = [];
         if (document.getElementById('chk-handling-unitsplit').checked) selectedHandling.push("Unit Splitting (+₱100)");
         if (document.getElementById('chk-handling-locchange').checked) selectedHandling.push("Location Change (+₱100)");
@@ -1588,6 +1715,7 @@
             recAddress: recAddress,
             recCoords: recCoords,
             items: itemsSummary,
+            bonusPerk: activeBonusPerk || 'None',
             specialHandling: selectedHandling.length > 0 ? selectedHandling.join(', ') : 'None',
             totalAmount: document.getElementById('summary-total-val').innerText,
             amountPaid: amount,
@@ -1618,6 +1746,7 @@
                     Receiver_Address: recAddress,
                     Map_Coordinates: recCoords,
                     Items_Ordered: itemsSummary.join(', '),
+                    Bonus_Volume_Perk: newOrder.bonusPerk,
                     Special_Handling: newOrder.specialHandling,
                     Total_Amount: newOrder.totalAmount,
                     Amount_Paid: `₱${amount}`,
@@ -1638,6 +1767,9 @@
         document.getElementById('bill-rec-address').innerText = `ADDRESS: ${recAddress}`;
         document.getElementById('bill-rec-coords').innerText = `GPS LOCATION: ${recCoords}`;
         document.getElementById('bill-items-list').innerHTML = itemsSummary.map(i => `<div>• ${i}</div>`).join('');
+        if (activeBonusPerk) {
+            document.getElementById('bill-items-list').innerHTML += `<div style="color:var(--neon-green);">• Bonus Volume Perk: ${activeBonusPerk}</div>`;
+        }
         document.getElementById('bill-grand-total').innerText = newOrder.totalAmount;
         
         if (plan !== 'none') {
@@ -1689,6 +1821,7 @@
                 <div><strong>Manual Address:</strong> <input type="text" value="${o.recAddress || ''}" id="edit-rec-address-${o.refCode}" style="padding:2px 6px; width:100%; font-size:0.8rem; margin-top:4px;"></div>
                 <div><strong>GPS Coordinates:</strong> <span style="color:var(--cyan-accent);">${o.recCoords || 'N/A'}</span></div>
                 <div><strong>Items:</strong> ${o.items.join(', ')}</div>
+                ${o.bonusPerk && o.bonusPerk !== 'None' ? `<div style="color:var(--neon-green);"><strong>Bonus Volume Perk:</strong> ${o.bonusPerk}</div>` : ''}
                 ${o.specialHandling && o.specialHandling !== 'None' ? `<div style="color:var(--gold-primary);"><strong>Special Handling:</strong> ${o.specialHandling}</div>` : ''}
                 <div><strong>Total Bill:</strong> ${o.totalAmount} | <strong>Paid Today:</strong> ₱${o.amountPaid} (${o.senderInitials})</div>
                 ${o.payLaterPlan && o.payLaterPlan !== 'none' ? `
@@ -1698,7 +1831,7 @@
                 ` : ''}
                 
                 <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <label style="font-size:0.8rem; color: var(--gold-primary);">Update Status:</label>
+                    <label style="font-size:0.80rem; color: var(--gold-primary);">Update Status:</label>
                     <select style="font-size:0.85rem; padding:4px;" onchange="updateOrderStatus('${o.refCode}', this.value)">
                         ${STATUS_STAGES.map((st, idx) => `
                             <option value="${idx}" ${o.statusIndex === idx ? 'selected' : ''}>${st}</option>
@@ -1767,6 +1900,7 @@
                 <div><strong>Manual Address:</strong> ${match.recAddress || 'N/A'}</div>
                 <div><strong>GPS Location:</strong> ${match.recCoords}</div>
                 <div><strong>Items Ordered:</strong> ${match.items.join(', ')}</div>
+                ${match.bonusPerk && match.bonusPerk !== 'None' ? `<div style="color:var(--neon-green);"><strong>Bonus Volume Perk:</strong> ${match.bonusPerk}</div>` : ''}
                 ${match.specialHandling && match.specialHandling !== 'None' ? `<div><strong>Special Handling:</strong> ${match.specialHandling}</div>` : ''}
                 <div><strong>Total Amount:</strong> ${match.totalAmount}</div>
                 ${match.payLaterPlan && match.payLaterPlan !== 'none' ? `
