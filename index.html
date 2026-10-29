@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CELESTIAL LOBBY | Telegram Mini App Portal</title>
+    <title>CELESTIAL LOBBY | Master Cosmic Portal</title>
     
-    <!-- Sci-Fi Futuristic Fonts -->
+    <!-- Sci-Fi Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
-    <!-- Google Maps JavaScript API -->
+    <!-- Google Maps API & Telegram WebApp -->
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initGoogleMap" async defer></script>
-
-    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
         :root {
             --bg-dark: #05070f;
-            --panel-bg: rgba(13, 17, 33, 0.90);
+            --panel-bg: rgba(13, 17, 33, 0.92);
             --gold-primary: #f3ce72;
-            --gold-glow: #e5b842;
             --gold-dark: #8a6a1f;
             --cyan-accent: #00f0ff;
             --neon-red: #ff2a6d;
@@ -35,479 +32,298 @@
             --font-mono: 'Share Tech Mono', monospace;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
 
         body {
             background-color: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(20, 30, 60, 0.6) 0%, transparent 70%),
-                radial-gradient(circle at 100% 100%, rgba(138, 106, 31, 0.15) 0%, transparent 50%);
+                radial-gradient(circle at 50% 0%, rgba(20, 30, 60, 0.7) 0%, transparent 70%),
+                radial-gradient(circle at 100% 100%, rgba(138, 106, 31, 0.2) 0%, transparent 50%);
             background-attachment: fixed;
             color: var(--text-main);
             font-family: var(--font-body);
             font-size: 18px;
-            line-height: 1.5;
             padding: 16px 10px;
             min-height: 100vh;
         }
 
         body::before {
-            content: " ";
-            display: block;
-            position: fixed;
+            content: " "; display: block; position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px;
-            z-index: 1000;
-            pointer-events: none;
-            opacity: 0.35;
+            background-size: 100% 4px; z-index: 1000; pointer-events: none; opacity: 0.35;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 10;
-        }
+        .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 10; }
 
         .scifi-panel {
             background: var(--panel-bg);
             border: 1px solid rgba(243, 206, 114, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 12px; padding: 20px; margin-bottom: 20px;
             backdrop-filter: blur(8px);
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
             position: relative;
         }
 
         .panel-header {
-            font-family: var(--font-title);
-            font-size: 1.1rem;
-            color: var(--gold-primary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px dashed rgba(243, 206, 114, 0.2);
-            padding-bottom: 8px;
+            font-family: var(--font-title); font-size: 1.1rem; color: var(--gold-primary);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px dashed rgba(243, 206, 114, 0.2); padding-bottom: 8px;
         }
 
-        .panel-header-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .panel-header-title::before {
-            content: '◈';
-            color: var(--cyan-accent);
-        }
+        .panel-header-title::before { content: '◈ '; color: var(--cyan-accent); }
 
         input[type="text"], input[type="number"], input[type="datetime-local"], select, textarea {
-            width: 100%;
-            background: rgba(5, 7, 15, 0.85);
-            border: 1px solid rgba(243, 206, 114, 0.4);
-            border-radius: 8px;
-            padding: 12px 14px;
-            color: #fff;
-            font-family: var(--font-mono);
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s ease;
+            width: 100%; background: rgba(5, 7, 15, 0.85);
+            border: 1px solid rgba(243, 206, 114, 0.4); border-radius: 8px;
+            padding: 12px 14px; color: #fff; font-family: var(--font-mono); font-size: 1rem;
+            outline: none; transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus, select:focus, textarea:focus {
-            border-color: var(--cyan-accent);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--cyan-accent); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
         .btn {
             background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
-            color: #000;
-            font-family: var(--font-title);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border: none;
-            border-radius: 8px;
-            padding: 14px 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-block;
-            text-align: center;
-            width: 100%;
+            color: #000; font-family: var(--font-title); font-weight: 800;
+            text-transform: uppercase; letter-spacing: 2px; border: none;
+            border-radius: 8px; padding: 14px 20px; cursor: pointer;
+            transition: all 0.2s ease; display: inline-block; text-align: center; width: 100%;
             box-shadow: 0 0 15px rgba(243, 206, 114, 0.2);
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(243, 206, 114, 0.5);
-            background: linear-gradient(135deg, var(--gold-primary), #fff);
-        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(243, 206, 114, 0.5); }
+        .btn-cyan { background: linear-gradient(135deg, #0072ff, var(--cyan-accent)); color: #000; }
+        .btn-purple { background: linear-gradient(135deg, #6a0ded, var(--purple-glow)); color: #fff; }
+        .btn-red { background: linear-gradient(135deg, #8a1f1f, var(--neon-red)); color: #fff; }
 
-        .btn-cyan {
-            background: linear-gradient(135deg, #0072ff, var(--cyan-accent));
-            color: #000;
-        }
+        /* 3-COLUMN DESKTOP LANDING */
+        .portal-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .portal-grid { grid-template-columns: 1fr; } }
 
-        .btn-purple {
-            background: linear-gradient(135deg, #6a0ded, var(--purple-glow));
-            color: #fff;
-        }
-
-        .btn-red {
-            background: linear-gradient(135deg, #8a1f1f, var(--neon-red));
-            color: #fff;
-        }
-
-        .type-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
+        .type-selector { display: flex; gap: 8px; margin-bottom: 16px; }
         .type-btn {
-            flex: 1;
-            padding: 10px 4px;
-            background: rgba(5, 7, 15, 0.85);
-            border: 1px solid rgba(243, 206, 114, 0.3);
-            border-radius: 8px;
-            color: var(--text-muted);
-            font-family: var(--font-title);
-            font-size: 0.75rem;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
+            flex: 1; padding: 10px 4px; background: rgba(5, 7, 15, 0.85);
+            border: 1px solid rgba(243, 206, 114, 0.3); border-radius: 8px;
+            color: var(--text-muted); font-family: var(--font-title); font-size: 0.75rem;
+            cursor: pointer; text-align: center;
         }
-
         .type-btn.active {
-            border-color: var(--cyan-accent);
-            background: rgba(0, 240, 255, 0.15);
-            color: var(--cyan-accent);
-            font-weight: bold;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            border-color: var(--cyan-accent); background: rgba(0, 240, 255, 0.15);
+            color: var(--cyan-accent); font-weight: bold;
         }
 
-        #delivery-map {
-            height: 260px;
-            width: 100%;
-            border-radius: 8px;
-            border: 1px solid var(--cyan-accent);
-            margin-top: 10px;
-            margin-bottom: 12px;
-            z-index: 1;
-        }
-
-        #gateway-view {
-            min-height: 75vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .gateway-title {
-            font-family: var(--font-title);
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--gold-primary);
-            letter-spacing: 3px;
-            margin-bottom: 6px;
-            text-shadow: 0 0 15px rgba(243, 206, 114, 0.5);
-        }
-
-        .gateway-subtitle {
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            color: var(--cyan-accent);
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-
-        .clause-box {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin: 16px 0;
-            text-align: left;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(243, 206, 114, 0.2);
-            display: flex;
-            gap: 10px;
-        }
-
-        .clause-box input {
-            width: auto;
-            margin-top: 4px;
-        }
-
-        .tab-nav {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
+        #delivery-map { height: 240px; width: 100%; border-radius: 8px; border: 1px solid var(--cyan-accent); margin: 10px 0; }
+        .tab-nav { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: rgba(13, 17, 33, 0.8);
-            border: 1px solid rgba(243, 206, 114, 0.3);
-            color: var(--text-muted);
-            font-family: var(--font-title);
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
+            flex: 1; padding: 12px; background: rgba(13, 17, 33, 0.8);
+            border: 1px solid rgba(243, 206, 114, 0.3); color: var(--text-muted);
+            font-family: var(--font-title); font-size: 0.8rem; border-radius: 8px; cursor: pointer;
         }
+        .tab-btn.active { background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary)); color: #000; font-weight: bold; }
 
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
-            color: #000;
-            font-weight: bold;
-            box-shadow: 0 0 10px rgba(243, 206, 114, 0.4);
-        }
+        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .menu-item.restricted { opacity: 0.35; pointer-events: none; filter: grayscale(1); }
+        .qty-controls { display: flex; align-items: center; gap: 8px; }
+        .qty-btn { background: rgba(243, 206, 114, 0.15); border: 1px solid var(--gold-primary); color: var(--gold-primary); width: 32px; height: 32px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .qty-val { font-family: var(--font-mono); width: 30px; text-align: center; }
 
-        .menu-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-family: var(--font-mono); }
+        .summary-total { border-top: 1px solid var(--gold-primary); padding-top: 10px; margin-top: 10px; font-size: 1.3rem; color: var(--gold-primary); font-weight: bold; }
 
-        .menu-item.restricted {
-            opacity: 0.35;
-            pointer-events: none;
-            filter: grayscale(1);
-        }
+        .order-card { background: rgba(0, 0, 0, 0.6); border: 1px solid var(--border-glow); border-radius: 10px; padding: 16px; margin-bottom: 14px; font-family: var(--font-mono); }
+        .pipeline-tracker { display: flex; justify-content: space-between; margin: 20px 0; }
+        .pipeline-step { flex: 1; text-align: center; }
+        .pipeline-dot { width: 14px; height: 14px; border-radius: 50%; background: #222; border: 2px solid var(--text-muted); margin: 0 auto 6px auto; }
+        .pipeline-step.active .pipeline-dot { background: var(--cyan-accent); border-color: #fff; box-shadow: 0 0 10px var(--cyan-accent); }
+        .pipeline-step.completed .pipeline-dot { background: var(--neon-green); border-color: var(--neon-green); }
+        .pipeline-label { font-size: 0.6rem; font-family: var(--font-title); color: var(--text-muted); }
 
-        .qty-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .ticket-card { background: #000; border: 2px dashed var(--gold-primary); border-radius: 12px; padding: 20px; font-family: var(--font-mono); text-align: left; margin: 20px 0; }
+        .inventory-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem; margin: 12px 0; }
+        .inventory-table th, .inventory-table td { border: 1px solid rgba(243, 206, 114, 0.3); padding: 8px; text-align: left; }
+        .inventory-table th { background: rgba(243, 206, 114, 0.15); color: var(--gold-primary); }
 
-        .qty-btn {
-            background: rgba(243, 206, 114, 0.15);
-            border: 1px solid var(--gold-primary);
-            color: var(--gold-primary);
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-title);
-        }
-
-        .qty-val {
-            font-family: var(--font-mono);
-            width: 30px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-family: var(--font-mono);
-        }
-
-        .summary-total {
-            border-top: 1px solid var(--gold-primary);
-            padding-top: 10px;
-            margin-top: 10px;
-            font-size: 1.3rem;
-            color: var(--gold-primary);
-            font-weight: bold;
-        }
-
-        .order-card {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--border-glow);
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 14px;
-            font-family: var(--font-mono);
-            text-align: left;
-        }
-
-        .order-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px dashed rgba(243, 206, 114, 0.3);
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-        }
-
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .status-pending { background: rgba(255, 170, 0, 0.2); border: 1px solid #ffaa00; color: #ffaa00; }
-        .status-confirmed { background: rgba(0, 240, 255, 0.2); border: 1px solid var(--cyan-accent); color: var(--cyan-accent); }
-
-        .pipeline-tracker {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
-            position: relative;
-        }
-
-        .pipeline-step {
-            flex: 1;
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .pipeline-dot {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #222;
-            border: 2px solid var(--text-muted);
-            margin: 0 auto 6px auto;
-            transition: all 0.3s;
-        }
-
-        .pipeline-step.active .pipeline-dot {
-            background: var(--cyan-accent);
-            border-color: #fff;
-            box-shadow: 0 0 10px var(--cyan-accent);
-        }
-
-        .pipeline-step.completed .pipeline-dot {
-            background: var(--neon-green);
-            border-color: var(--neon-green);
-        }
-
-        .pipeline-label {
-            font-size: 0.6rem;
-            font-family: var(--font-title);
-            color: var(--text-muted);
-        }
-
-        .ticket-card {
-            background: #000;
-            border: 2px dashed var(--gold-primary);
-            border-radius: 12px;
-            padding: 20px;
-            font-family: var(--font-mono);
-            text-align: left;
-            margin: 20px 0;
-            color: #fff;
-        }
-
-        .inventory-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            margin: 12px 0;
-        }
-
-        .inventory-table th, .inventory-table td {
-            border: 1px solid rgba(243, 206, 114, 0.3);
-            padding: 8px;
-            text-align: left;
-        }
-
-        .inventory-table th {
-            background: rgba(243, 206, 114, 0.15);
-            color: var(--gold-primary);
-        }
-
-        .paylater-box {
-            background: rgba(176, 38, 255, 0.1);
-            border: 1px solid var(--purple-glow);
-            border-radius: 10px;
-            padding: 14px;
-            margin-top: 14px;
-        }
-
-        .handling-checkbox-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed rgba(243, 206, 114, 0.15);
-            font-size: 0.85rem;
-        }
+        .handling-checkbox-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(243, 206, 114, 0.15); font-size: 0.85rem; }
+        .timer-badge { background: rgba(255, 42, 109, 0.2); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); text-align: center; margin-bottom: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
 
-    <!-- STARTUP SECURITY GATEWAY SCREEN -->
-    <div id="gateway-view" class="scifi-panel">
-        <img src="1000007102.jpg" alt="Logo" style="max-width: 160px; border-radius: 8px; margin-bottom: 16px;" onerror="this.src='1000006630.png'">
-        
-        <div class="gateway-title">CELESTIAL LOBBY</div>
-        <div class="gateway-subtitle">TELEGRAM MINI APP GATEWAY</div>
+    <!-- TOP HEADER / NAV BAR -->
+    <div class="scifi-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="1000007102.jpg" alt="Logo" style="height: 40px; border-radius: 6px;" onerror="this.src='1000006630.png'">
+            <span style="font-family: var(--font-title); font-size: 1.2rem; color: var(--gold-primary); font-weight: 900;">CELESTIAL LOBBY</span>
+        </div>
+        <div>
+            <button class="btn btn-purple" style="width: auto; padding: 6px 14px; font-size: 0.75rem;" onclick="showGalacticArmyLogin()">GALACTIC ARMY ⚡</button>
+        </div>
+    </div>
 
-        <div id="error-badge" style="background: rgba(255, 42, 109, 0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 10px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 14px; display: none;"></div>
-
-        <div style="width: 100%; max-width: 420px; text-align: left;">
-            <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 8px;">1. SELECT ACCESS MODE:</label>
-            
-            <div class="type-selector">
-                <div class="type-btn active" id="btn-type-new" onclick="selectClientType('new')">🟢 NEW CLIENT</div>
-                <div class="type-btn" id="btn-type-reg" onclick="selectClientType('regular')">🔵 REGULAR CLIENT</div>
-                <div class="type-btn" id="btn-type-admin" onclick="selectClientType('admin')">⚡ ADMIN ACCESS</div>
+    <!-- 1. LANDING PAGE VIEW (3-COLUMN DESKTOP / SEQUENTIAL MOBILE) -->
+    <div id="landing-view">
+        <div class="portal-grid">
+            <!-- LEFT COLUMN: THE CELESTIALS -->
+            <div class="scifi-panel">
+                <div class="panel-header"><div class="panel-header-title">THE CELESTIALS</div></div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Explore the lore and cosmic foundation of Celestial Lobby realm operations.</p>
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(243,206,114,0.2); border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold-primary);">
+                    ✦ Division: Stardust Mechanics<br>
+                    ✦ Origin: High Celestial Sector<br>
+                    ✦ Mandate: Discrete Fulfillment
+                </div>
             </div>
 
-            <!-- Admin Role Selector -->
-            <div id="admin-role-box" style="display: none; margin-bottom: 12px;">
-                <label style="font-size: 0.85rem; color: var(--cyan-accent); display: block; margin-bottom: 6px;">SELECT ADMIN ROLE:</label>
-                <select id="admin-role-select">
-                    <option value="sales">Sales Team / Admin — POS Dashboard & Inventory</option>
-                    <option value="owner">Owner — Super Dashboard Workspace</option>
-                </select>
+            <!-- MIDDLE COLUMN: THE FOUNDERS -->
+            <div class="scifi-panel">
+                <div class="panel-header"><div class="panel-header-title">THE FOUNDERS</div></div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Executive leadership governing the network profit-share and security logistics.</p>
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(0,240,255,0.2); border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--cyan-accent);">
+                    ✦ Founders: 4 Founding Stakeholders<br>
+                    ✦ Protocol: Zero-Cost Overheads<br>
+                    ✦ Status: Active Operations
+                </div>
             </div>
 
-            <!-- Access Code Container -->
-            <div id="access-code-box" style="display: none;">
-                <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 6px;" id="code-label-text">2. ENTER ACCESS CODE:</label>
-                <input type="text" id="gene-code-input" maxlength="20" placeholder="ENTER CODE" style="font-family: var(--font-mono); text-align: center; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px;">
-            </div>
+            <!-- RIGHT COLUMN: CLIENT ACCESS -->
+            <div class="scifi-panel">
+                <div class="panel-header"><div class="panel-header-title">CLIENT ACCESS PORTAL</div></div>
+                
+                <div id="landing-error-badge" style="background: rgba(255, 42, 109, 0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 12px; display: none;"></div>
 
-            <div class="clause-box">
-                <input type="checkbox" id="gate-terms-agree" checked>
-                <label for="gate-terms-agree">I confirm agreement and policies of Celestial Lobby before entering the order portal.</label>
-            </div>
+                <label style="font-size: 0.8rem; color: var(--gold-primary); display: block; margin-bottom: 6px;">SELECT PATHWAY:</label>
+                <div class="type-selector">
+                    <div class="type-btn active" id="btn-gate-guest" onclick="setLandingPath('guest')">GUEST</div>
+                    <div class="type-btn" id="btn-gate-new" onclick="setLandingPath('new')">NEW CLIENT</div>
+                    <div class="type-btn" id="btn-gate-reg" onclick="setLandingPath('regular')">REGULAR</div>
+                </div>
 
-            <button class="btn" id="btn-login" onclick="attemptLogin()">ENTER PORTAL 🚀</button>
+                <!-- GUEST PATH CONTROLS -->
+                <div id="path-box-guest">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Begin 30-minute timed onboarding and process agreement walkthrough.</p>
+                    <button class="btn" onclick="startGuestWalkthrough()">BEGIN GUEST ASCENSION 🚀</button>
+                </div>
 
-            <!-- Forgot Code / Reset Device Binding Option -->
-            <div id="device-reset-box" style="text-align: center; margin-top: 14px; display: none;">
-                <a href="javascript:void(0);" onclick="resetDeviceBinding()" style="color: var(--cyan-accent); font-size: 0.8rem; font-family: var(--font-mono); text-decoration: underline;">Forgot Code? Reset Device Binding</a>
+                <!-- NEW CLIENT PATH CONTROLS -->
+                <div id="path-box-new" style="display: none;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted);">Enter First-Ever Order Number:</label>
+                    <input type="text" id="new-client-order-num" placeholder="e.g. CL-84920-X" style="margin-top: 4px; margin-bottom: 12px; text-transform: uppercase;">
+                    <button class="btn btn-cyan" onclick="verifyNewClientOrder()">VERIFY & ASCEND 🚀</button>
+                </div>
+
+                <!-- REGULAR CLIENT PATH CONTROLS -->
+                <div id="path-box-reg" style="display: none;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted);">Client ID / Username:</label>
+                    <input type="text" id="reg-client-id" placeholder="ENTER CLIENT ID" style="margin-top: 4px; margin-bottom: 8px; text-transform: uppercase;">
+
+                    <label style="font-size: 0.8rem; color: var(--text-muted);">8-Digit Access Code:</label>
+                    <input type="text" id="reg-access-code" placeholder="ENTER 8-DIGIT CODE" maxlength="20" style="margin-top: 4px; margin-bottom: 12px; text-transform: uppercase;">
+
+                    <button class="btn" onclick="attemptRegularLogin()">WARP TO STORE 🚀</button>
+                    <div style="text-align: center; margin-top: 8px;">
+                        <a href="javascript:void(0);" onclick="resetDeviceBinding()" style="color: var(--cyan-accent); font-size: 0.75rem; font-family: var(--font-mono); text-decoration: underline;">Reset Device Binding</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- SALES TEAM & OWNER COMMAND CENTER DASHBOARD -->
+    <!-- 2. GUEST TIMED ONBOARDING VIEW -->
+    <div id="guest-onboarding-view" style="display: none;">
+        <div class="scifi-panel">
+            <div class="timer-badge" id="guest-timer-display">⏱️ GUEST SESSION TIME REMAINING: 30:00</div>
+
+            <!-- STEP 1: INTRO & WARNING -->
+            <div id="guest-step-1">
+                <div class="panel-header"><div class="panel-header-title">INTRODUCTION: HOW TO GET CELESTIAL STARDUST</div></div>
+                <p style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 12px;">Celestial Stardust procurement is strictly governed by network security protocols and discreet routing rules.</p>
+                <div style="background: rgba(255, 42, 109, 0.1); border: 1px solid var(--neon-red); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                    <strong style="color: var(--neon-red);">⚠️ WARNING & DISCLAIMER:</strong>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Proceeding begins your non-renewable 30-minute portal session. Violating operational terms will result in direct access closure.</p>
+                </div>
+                <button class="btn btn-cyan" onclick="nextGuestStep(2)">I UNDERSTAND — CONTINUE ➔</button>
+            </div>
+
+            <!-- STEP 2: PROCESS FLOW -->
+            <div id="guest-step-2" style="display: none;">
+                <div class="panel-header"><div class="panel-header-title">SIMPLE PROCESS FLOW</div></div>
+                <ul style="font-size: 0.85rem; font-family: var(--font-mono); margin-bottom: 16px; padding-left: 20px; color: var(--text-main);">
+                    <li>1. Select items & add-ons from catalog.</li>
+                    <li>2. Provide manual address & pin GPS location.</li>
+                    <li>3. Submit InstaPay payment reference.</li>
+                    <li>4. Await dispatch tracking approval.</li>
+                </ul>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-red" onclick="terminatePortalAccess()">DO NOT AGREE</button>
+                    <button class="btn" onclick="nextGuestStep(3)">AGREE & CONTINUE ➔</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: GENERAL POLICIES & FAQS -->
+            <div id="guest-step-3" style="display: none;">
+                <div class="panel-header"><div class="panel-header-title">GENERAL POLICIES & TOP 5 FAQS</div></div>
+                <div style="font-size: 0.85rem; font-family: var(--font-mono); margin-bottom: 12px;">
+                    <label><input type="checkbox" id="faq-chk-1"> FAQ 1: All orders are scale-verified prior to dispatch.</label><br>
+                    <label><input type="checkbox" id="faq-chk-2"> FAQ 2: GoRush night options apply after 10:00 PM.</label><br>
+                    <label><input type="checkbox" id="faq-chk-3"> FAQ 3: Zero internal special handling fees absorbed.</label><br>
+                    <label><input type="checkbox" id="faq-chk-4"> FAQ 4: GPS coordinates must match address text.</label><br>
+                    <label><input type="checkbox" id="faq-chk-5"> FAQ 5: Revisions must be approved on tracker screen.</label>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-red" onclick="terminatePortalAccess()">DO NOT AGREE</button>
+                    <button class="btn" onclick="verifyFaqsAndContinue()">AGREE & CONTINUE ➔</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: MOCK ORDER SIMULATOR & NON-NEGOTIABLES -->
+            <div id="guest-step-4" style="display: none;">
+                <div class="panel-header"><div class="panel-header-title">MOCK ORDER SIMULATOR & NON-NEGOTIABLES</div></div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Simulation Check: Acknowledge order placement workflow.</p>
+                <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 12px;">
+                    [SIMULATED ITEM: ☁️ CLOUD9 — 5*] ➔ Total: ₱700 ➔ Status: Simulated OK
+                </div>
+                <div style="margin-bottom: 14px; font-size: 0.85rem;">
+                    <label><input type="checkbox" id="chk-non-neg"> I confirm agreement to non-negotiable discrete handling & dispatch rules.</label>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-red" onclick="terminatePortalAccess()">DO NOT AGREE</button>
+                    <button class="btn btn-cyan" onclick="finishGuestOnboarding()">COMPLETE ONBOARDING & ENTER STORE 🚀</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. GALACTIC ARMY LOGIN MODAL / PANEL -->
+    <div id="galactic-army-login-view" class="scifi-panel" style="display: none; border-color: var(--purple-glow);">
+        <div class="panel-header">
+            <div class="panel-header-title" style="color: var(--purple-glow);">GALACTIC ARMY | EMPLOYEE AUTHENTICATION</div>
+            <button class="btn btn-red" style="width: auto; padding: 4px 10px; font-size: 0.75rem;" onclick="closeGalacticArmyLogin()">CLOSE</button>
+        </div>
+
+        <div id="army-error-badge" style="background: rgba(255, 42, 109, 0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 12px; display: none;"></div>
+
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Employee ID:</label>
+        <input type="text" id="army-emp-id" placeholder="e.g. OFFICER-01" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
+
+        <label style="font-size: 0.85rem; color: var(--text-muted);">8-Digit Passcode:</label>
+        <input type="text" id="army-passcode" placeholder="ENTER PASSCODE" maxlength="20" style="margin-top: 4px; margin-bottom: 12px; text-transform: uppercase;">
+
+        <label style="font-size: 0.85rem; color: var(--purple-glow);">Assigned Role:</label>
+        <select id="army-role-select" style="margin-top: 4px; margin-bottom: 16px;">
+            <option value="sales">Sales Team — POS & Order Processing</option>
+            <option value="admin">ADMIN — Stock Operations & Customer Support</option>
+            <option value="owner">OWNER — Super Dashboard Workspace</option>
+        </select>
+
+        <button class="btn btn-purple" onclick="attemptGalacticArmyLogin()">AUTHENTICATE EMPLOYEE ⚡</button>
+    </div>
+
+    <!-- 4. GALACTIC ARMY STAFF DASHBOARDS -->
     <div id="admin-view" style="display: none;">
         <div class="scifi-panel" style="border-color: var(--cyan-accent); background: rgba(5, 20, 40, 0.95);">
             <div class="panel-header">
@@ -515,8 +331,17 @@
                 <button class="btn btn-red" style="width: 90px; padding: 6px; font-size: 0.75rem;" onclick="logout()">LOGOUT</button>
             </div>
             
-            <div style="font-family: var(--font-title); font-size: 1.3rem; color: #fff; margin-bottom: 4px;" id="admin-welcome-heading">Welcome Commander One</div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Ready your command captain:</p>
+            <div style="font-family: var(--font-title); font-size: 1.3rem; color: #fff; margin-bottom: 4px;" id="admin-welcome-heading">Welcome</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Galactic Army Authorized Station:</p>
+
+            <!-- OWNER EXCLUSIVE FEATURE: ORDER FOR CUSTOMER -->
+            <div id="owner-proxy-order-box" style="display: none; background: rgba(176, 38, 255, 0.15); border: 1px solid var(--purple-glow); padding: 14px; border-radius: 8px; margin-bottom: 16px;">
+                <div style="font-family: var(--font-title); color: var(--purple-glow); font-size: 0.9rem; margin-bottom: 6px;">👑 OWNER EXCLUSIVE: ORDER FOR CUSTOMER</div>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="proxy-customer-code" placeholder="ENTER CLIENT 8-DIGIT CODE" style="text-transform: uppercase;">
+                    <button class="btn btn-purple" style="width: 140px;" onclick="openProxyCustomerOrder()">PROXY ACCESS</button>
+                </div>
+            </div>
 
             <div style="display: flex; gap: 10px; margin-bottom: 16px;">
                 <div style="flex: 1; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--gold-primary);">
@@ -532,7 +357,7 @@
             <div class="tab-nav">
                 <button class="tab-btn active" id="admin-tab-orders-btn" onclick="switchAdminTab('orders')">1. POS & SALES</button>
                 <button class="tab-btn" id="admin-tab-stock-btn" onclick="switchAdminTab('stock')">2. STOCK</button>
-                <button class="tab-btn" id="admin-tab-promo-btn" onclick="switchAdminTab('promo')" id="owner-promo-tab-btn" style="display:none;">3. OWNER PROMO CODES</button>
+                <button class="tab-btn" id="admin-tab-promo-btn" style="display:none;" onclick="switchAdminTab('promo')">3. OWNER PROMO CODES</button>
             </div>
 
             <!-- ADMIN SUB-TAB 1: POS & ORDERS SERVICE -->
@@ -545,38 +370,28 @@
             <!-- ADMIN SUB-TAB 2: STOCK & INVENTORY -->
             <div id="admin-stock-tab-content" style="display: none;">
                 <div class="panel-header" style="font-size: 0.95rem;">STOCK & ADD-ON INVENTORY COUNT</div>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Update stock counts and click 'Save Inventory Changes' to store in browser memory.</p>
-                
                 <table class="inventory-table">
                     <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Current Stock Count</th>
-                        </tr>
+                        <tr><th>Product Name</th><th>Current Stock Count</th></tr>
                     </thead>
-                    <tbody id="inventory-table-body">
-                        <!-- Populated dynamically -->
-                    </tbody>
+                    <tbody id="inventory-table-body"></tbody>
                 </table>
                 <button class="btn" onclick="saveInventoryStock()" style="margin-top: 10px;">SAVE INVENTORY CHANGES</button>
             </div>
 
-            <!-- ADMIN SUB-TAB 3: OWNER CODE & PROMO GENERATOR -->
+            <!-- ADMIN SUB-TAB 3: OWNER PROMO GENERATOR -->
             <div id="admin-promo-tab-content" style="display: none;">
-                <div class="panel-header" style="font-size: 0.95rem;">OWNER CUSTOM CODE & PROMOTION GENERATOR</div>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Create custom codes with discounts and bonus promotional volume perks for clients.</p>
-                
+                <div class="panel-header" style="font-size: 0.95rem;">OWNER CUSTOM CODE & PROMO GENERATOR</div>
                 <label style="font-size: 0.85rem; color: var(--gold-primary);">Custom Promo Code Name:</label>
                 <input type="text" id="new-promo-code" placeholder="e.g. SUMMERVIP" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
 
                 <label style="font-size: 0.85rem; color: var(--gold-primary);">Discount Percentage (%):</label>
                 <input type="number" id="new-promo-discount" placeholder="e.g. 15 for 15%" style="margin-top: 4px; margin-bottom: 10px;">
 
-                <label style="font-size: 0.85rem; color: var(--gold-primary);">Bonus Volume / Promotional Perk Description:</label>
+                <label style="font-size: 0.85rem; color: var(--gold-primary);">Bonus Perk Description:</label>
                 <input type="text" id="new-promo-bonus" placeholder="e.g. +2 Free Units Volume Perk" style="margin-top: 4px; margin-bottom: 14px;">
 
                 <button class="btn btn-cyan" onclick="saveOwnerPromoCode()">CREATE & SAVE PROMO CODE</button>
-
                 <div class="panel-header" style="font-size: 0.95rem; margin-top: 20px;">ACTIVE CUSTOM CODES</div>
                 <div id="owner-codes-list" style="font-family: var(--font-mono); font-size: 0.85rem;"></div>
             </div>
@@ -584,7 +399,7 @@
         </div>
     </div>
 
-    <!-- CLIENT PORTAL VIEW -->
+    <!-- 5. CLIENT STOREFRONT & ORDERING PORTAL -->
     <div id="portal-view" style="display: none;">
 
         <div class="scifi-panel" style="display: flex; justify-content: space-between; align-items: center;">
@@ -604,9 +419,7 @@
         <div id="tab-order-content">
             <!-- SPECIAL CODE & DISCOUNT FIELD -->
             <div class="scifi-panel">
-                <div class="panel-header">
-                    <div class="panel-header-title">SPECIAL ACCESS & DISCOUNT CODE</div>
-                </div>
+                <div class="panel-header"><div class="panel-header-title">SPECIAL ACCESS & DISCOUNT CODE</div></div>
                 <div style="display: flex; gap: 10px;">
                     <input type="text" id="sixcode-input" placeholder="ENTER SPECIAL CODE" maxlength="20" style="text-transform: uppercase;">
                     <button class="btn btn-cyan" style="width: 110px;" onclick="applySixCode()">APPLY</button>
@@ -616,22 +429,17 @@
 
             <!-- MENU SELECTION -->
             <div class="scifi-panel">
-                <div class="panel-header">
-                    <div class="panel-header-title">SELECT ITEMS</div>
-                </div>
+                <div class="panel-header"><div class="panel-header-title">SELECT ITEMS</div></div>
+                <div id="in-stash-banner" style="margin-bottom: 14px; text-align: center;"></div>
                 <div id="menu-container"></div>
 
-                <div class="panel-header" style="margin-top: 20px;">
-                    <div class="panel-header-title">ADD-ON ITEMS</div>
-                </div>
+                <div class="panel-header" style="margin-top: 20px;"><div class="panel-header-title">ADD-ON ITEMS</div></div>
                 <div id="addons-container"></div>
             </div>
 
-            <!-- DELIVERY DETAILS & GORUSH DISPATCH SPEED -->
+            <!-- DELIVERY DETAILS & GORUSH OPTIONS -->
             <div class="scifi-panel">
-                <div class="panel-header">
-                    <div class="panel-header-title">RECIPIENT & DELIVERY LOCATION</div>
-                </div>
+                <div class="panel-header"><div class="panel-header-title">RECIPIENT & DELIVERY LOCATION</div></div>
 
                 <label style="font-size: 0.85rem; color: var(--text-muted);">Receiver's Full Name:</label>
                 <input type="text" id="rec-name" placeholder="e.g. John Doe" style="margin-top: 4px; margin-bottom: 12px;">
@@ -660,9 +468,9 @@
                 <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-top: 14px; margin-bottom: 6px;">Dispatch Speed (GoRush Options):</label>
                 <select id="gorush-option" onchange="updateCalculations()">
                     <option value="standard">Standard Fulfillment Time (8:00 AM - 10:00 PM) [+₱0]</option>
-                    <option value="gorush30">🚀 GoRush30 [Sendnow] — +₱500 (Delivery within 30 mins after confirmation)</option>
-                    <option value="gorush60">🚀 GoRush60 [Immediate] — +₱350 (Delivery within 60 mins after confirmation)</option>
-                    <option value="gorush90">🚀 GoRush90 [A.s.a.p.] — +₱200 (Delivery within 90 mins after confirmation)</option>
+                    <option value="gorush30">🚀 GoRush30 [Sendnow] — +₱500 (Delivery within 30 mins)</option>
+                    <option value="gorush60">🚀 GoRush60 [Immediate] — +₱350 (Delivery within 60 mins)</option>
+                    <option value="gorush90">🚀 GoRush90 [A.s.a.p.] — +₱200 (Delivery within 90 mins)</option>
                 </select>
 
                 <div class="eta-box" style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--cyan-accent); border-radius: 8px; padding: 14px; margin-top: 14px; text-align: center;">
@@ -673,230 +481,156 @@
 
             <!-- SPECIAL HANDLING OPTIONS -->
             <div class="scifi-panel">
-                <div class="panel-header">
-                    <div class="panel-header-title">CLIENT-INITIATED SPECIAL HANDLING</div>
-                </div>
+                <div class="panel-header"><div class="panel-header-title">CLIENT-INITIATED SPECIAL HANDLING</div></div>
 
                 <div class="handling-checkbox-item">
-                    <label for="chk-handling-unitsplit">Unit Splitting (+₱100) — Manual dose/unit splitting into separate packages</label>
+                    <label for="chk-handling-unitsplit">Unit Splitting (+₱100)</label>
                     <input type="checkbox" id="chk-handling-unitsplit" onchange="updateCalculations()">
                 </div>
-
                 <div class="handling-checkbox-item">
                     <label for="chk-handling-locchange">Sudden Location Change (+₱100 + Fare Variance)</label>
                     <input type="checkbox" id="chk-handling-locchange" onchange="updateCalculations()">
                 </div>
-
                 <div class="handling-checkbox-item">
-                    <label for="chk-handling-priority">Priority Queue (+₱150) — Daytime pick & pack queue override</label>
+                    <label for="chk-handling-priority">Priority Queue (+₱150)</label>
                     <input type="checkbox" id="chk-handling-priority" onchange="updateCalculations()">
                 </div>
-
                 <div class="handling-checkbox-item">
-                    <label for="chk-handling-delay">Customer-Caused Delay Penalty (+₱100) — Driver waiting time fee</label>
+                    <label for="chk-handling-delay">Customer-Caused Delay Penalty (+₱100)</label>
                     <input type="checkbox" id="chk-handling-delay" onchange="updateCalculations()">
                 </div>
-
                 <div class="handling-checkbox-item">
-                    <label for="chk-handling-schedule">Scheduled Delivery (+₱100) — Held for a specific delivery window</label>
+                    <label for="chk-handling-schedule">Scheduled Delivery (+₱100)</label>
                     <input type="checkbox" id="chk-handling-schedule" onchange="toggleScheduledBox()">
                 </div>
-                <div id="scheduled-input-box" style="display: none; margin-top: 8px; margin-bottom: 12px;">
-                    <label style="font-size: 0.8rem; color: var(--gold-primary);">Specify Scheduled Date & Time:</label>
-                    <input type="datetime-local" id="scheduled-datetime" style="margin-top: 4px;">
+                <div id="scheduled-input-box" style="display: none; margin-top: 8px;">
+                    <input type="datetime-local" id="scheduled-datetime">
                 </div>
 
                 <div class="handling-checkbox-item">
                     <label for="chk-handling-personalized">Personalized Packaging — Material Cost + 30% Markup</label>
                     <input type="checkbox" id="chk-handling-personalized" onchange="togglePersonalizedBox()">
                 </div>
-                <div id="personalized-input-box" style="display: none; margin-top: 8px; margin-bottom: 12px;">
-                    <label style="font-size: 0.8rem; color: var(--gold-primary);">Describe Your Custom Packaging Request:</label>
-                    <textarea id="personalized-details" rows="2" placeholder="Specify custom materials, layout, or wrap..." style="margin-top: 4px; resize: vertical;"></textarea>
+                <div id="personalized-input-box" style="display: none; margin-top: 8px;">
+                    <textarea id="personalized-details" rows="2" placeholder="Specify custom wrap details..."></textarea>
                 </div>
 
-                <!-- UNLOCKED ONLY VIA SPECIAL CODE -->
                 <div class="handling-checkbox-item" id="piggyback-container" style="display: none;">
-                    <label for="chk-handling-piggyback" style="color: var(--neon-green);">
-                        <strong>Wholesale Grouping Piggyback (+₱0)</strong> — Min. order ₱1,000–₱1,500; 24-hr SLA
-                    </label>
+                    <label for="chk-handling-piggyback" style="color: var(--neon-green);">Wholesale Grouping Piggyback (+₱0)</label>
                     <input type="checkbox" id="chk-handling-piggyback" onchange="updateCalculations()">
                 </div>
-                <div id="piggyback-status-msg" style="font-size: 0.8rem; font-family: var(--font-mono); margin-top: 4px;"></div>
             </div>
 
             <!-- PAYLATER SPECIAL UNLOCK PANEL -->
-            <div class="scifi-panel paylater-box" id="paylater-section" style="display: none;">
-                <div class="panel-header" style="border-color: var(--purple-glow);">
-                    <div class="panel-header-title" style="color: var(--purple-glow);">⚡ SPECIAL UNLOCK: PAYLATER FACILITY</div>
-                </div>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">* Requires owner approval. Collateral with equivalent value of the total bill must be provided.</p>
-
-                <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-bottom: 6px;">Select PayLater Option:</label>
-                <select id="paylater-plan-select" onchange="updateCalculations()">
-                    <option value="none">Disabled (Full Payment upfront)</option>
-                    <option value="payday" id="opt-payday">1. PAY-DAY (24 Hours) — 20% Loanable | 20% Interest</option>
-                    <option value="pay3day" id="opt-pay3day">2. PAY-3DAY (36 Hours) — 15% Loanable | 25% Interest</option>
-                    <option value="paylater" id="opt-paylater">3. PAY-LATER (5 Days) — 10% Loanable | 30% Interest</option>
-                </select>
-
-                <div id="paylater-details-box" style="margin-top: 12px; font-family: var(--font-mono); font-size: 0.85rem; display: none;">
-                    <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 6px; border: 1px solid var(--purple-glow);">
-                        <div>• Loanable Amount: <span id="pl-loanable-val" style="color: var(--cyan-accent);">₱0</span></div>
-                        <div>• Downpayment Due Today: <span id="pl-downpayment-val" style="color: var(--neon-green);">₱0</span></div>
-                        <div>• Interest Charge: <span id="pl-interest-val" style="color: var(--gold-primary);">₱0</span></div>
-                        <div>• Total Balance Due at Maturity: <span id="pl-repay-val" style="color: var(--neon-red);">₱0</span></div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
-                            * Late Fee: ₱500 | Daily interest after commitment: <span id="pl-daily-int-val">5%</span>.
-                        </div>
-                    </div>
-
-                    <label style="font-size: 0.85rem; color: var(--gold-primary); display: block; margin-top: 12px; margin-bottom: 4px;">Proposed Collateral (Equivalent to Total Bill):</label>
-                    <input type="text" id="paylater-collateral-input" placeholder="e.g. iPhone 12 Pro Max, Serial/Details..." style="margin-bottom: 8px;">
-                </div>
+            <div class="scifi-panel" id="paylater-section" style="display: none; border-color: var(--purple-glow);">
+                <div class="panel-header"><div class="panel-header-title" style="color: var(--purple-glow);">⚡ PAYLATER FACILITY</div></div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Requires collateral description and owner verification.</p>
+                <input type="text" id="paylater-collateral-desc" placeholder="Collateral Description / Asset Serial #" style="margin-bottom: 10px;">
             </div>
 
             <!-- ORDER SUMMARY -->
             <div class="scifi-panel">
-                <div class="panel-header">
-                    <div class="panel-header-title">ORDER SUMMARY</div>
-                </div>
+                <div class="panel-header"><div class="panel-header-title">ORDER SUMMARY</div></div>
                 <div id="summary-list"></div>
                 <div class="summary-row summary-total">
-                    <span>TOTAL BILL:</span>
+                    <span>TOTAL:</span>
                     <span id="summary-total-val">₱0</span>
                 </div>
-                <div id="paylater-summary-breakdown"></div>
                 <button class="btn btn-red" style="margin-top: 12px;" onclick="resetSelections()">RESET ALL SELECTIONS</button>
             </div>
 
             <!-- PAYMENT SUBMISSION -->
             <div class="scifi-panel">
-                <div class="panel-header">
-                    <div class="panel-header-title">PAYMENT VIA INSTAPAY / BANK</div>
+                <div class="panel-header"><div class="panel-header-title">PAYMENT VIA INSTAPAY / BANK</div></div>
+                <div style="text-align: center; margin: 12px 0;">
+                    <img src="1000007082.jpg" alt="QR" style="max-width: 200px; border-radius: 8px; border: 2px solid var(--gold-primary);" onerror="this.src='1000007082.jpg'">
                 </div>
-                
-                <div style="text-align: center; margin: 16px 0;">
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Scan InstaPay QR Code below or use Bank Details:</p>
-                    <img src="1000007082.jpg" alt="QR" style="max-width: 220px; width: 100%; border-radius: 10px; border: 2px solid var(--gold-primary);" onerror="this.src='1000007082.jpg'">
+                <div style="background: rgba(0,0,0,0.6); padding: 10px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; border-left: 3px solid var(--gold-primary); margin-bottom: 12px;">
+                    UNION BANK | ACC: 109677812140 | NAME: FRED
                 </div>
+                <div>
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Amount Sent (₱):</label>
+                    <input type="number" id="payment-amount" placeholder="e.g. 1700" style="margin-bottom: 8px;">
 
-                <div style="background: rgba(0, 0, 0, 0.6); border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 0.9rem; margin-top: 12px; border-left: 3px solid var(--gold-primary);">
-                    <strong>BANK:</strong> UNION BANK<br>
-                    <strong>ACCOUNT NO.:</strong> 109677812140<br>
-                    <strong>NAME:</strong> FRED
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">First 3 Letters of First Name:</label>
+                    <input type="text" id="payment-initials" maxlength="3" placeholder="e.g. FRE" style="margin-bottom: 10px; text-transform: uppercase;">
                 </div>
-
-                <div style="margin-top: 16px;">
-                    <label style="font-size: 0.85rem; color: var(--text-muted);">Amount Sent Today (₱):</label>
-                    <input type="number" id="payment-amount" placeholder="e.g. 1700" style="margin-top: 4px; margin-bottom: 10px;">
-
-                    <label style="font-size: 0.85rem; color: var(--text-muted);">First 3 Letters of Sender's First Name:</label>
-                    <input type="text" id="payment-initials" maxlength="3" placeholder="e.g. FRE" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
-                </div>
-
-                <button class="btn" id="btn-submit-order" style="margin-top: 10px;" onclick="submitOrder()">SUBMIT ORDER & LOG PAYMENT</button>
+                <button class="btn" id="btn-submit-order" onclick="submitOrder()">SUBMIT ORDER & LOG PAYMENT</button>
             </div>
         </div>
 
         <!-- TAB 2: ORDER TRACKER -->
         <div id="tab-track-content" style="display: none;">
             <div class="scifi-panel">
-                <div class="panel-header">
-                    <div class="panel-header-title">LIVE ORDER TRACKER</div>
-                </div>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Enter your Order Reference Number to inspect real-time progress and dispatch stage.</p>
-                
+                <div class="panel-header"><div class="panel-header-title">LIVE ORDER TRACKER & REVISIONS</div></div>
                 <div style="display: flex; gap: 10px; margin-bottom: 16px;">
                     <input type="text" id="track-ref-input" placeholder="ENTER REF NO. (e.g. CL-84920-X)" style="text-transform: uppercase;">
                     <button class="btn btn-cyan" style="width: 110px;" onclick="searchOrderTrack()">TRACK</button>
                 </div>
-
                 <div id="track-result-container"></div>
             </div>
         </div>
 
     </div>
 
-    <!-- ORDER CONFIRMATION SCREEN -->
+    <!-- TERMINATED ACCESS SCREEN -->
+    <div id="terminated-view" class="scifi-panel" style="display: none; text-align: center; padding: 40px 20px;">
+        <div style="font-family: var(--font-title); font-size: 1.8rem; color: var(--neon-red); margin-bottom: 10px;">PORTAL ACCESS CLOSED</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Agreement terms were declined or session expired. Please contact official Telegram support.</p>
+        <button class="btn btn-cyan" onclick="openTelegramDirect()">CONTACT TELEGRAM SUPPORT (@hoe_no)</button>
+    </div>
+
+    <!-- ORDER CONFIRMATION INVOICE SCREEN -->
     <div id="ref-view" class="scifi-panel" style="display: none; text-align: center;">
         <div class="panel-header" style="justify-content: center;">ORDER CONFIRMED & INVOICE GENERATED</div>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Please copy your order reference code below to track your live status anytime.</p>
-
         <div class="ticket-card" id="ticket-content">
-            <div style="text-align: center; border-bottom: 1px solid var(--gold-primary); padding-bottom: 12px; margin-bottom: 12px;">
-                <div style="font-family: var(--font-title); font-weight: 900; color: var(--gold-primary); font-size: 1.1rem;">CELESTIAL LOBBY</div>
+            <div style="text-align: center; border-bottom: 1px solid var(--gold-primary); padding-bottom: 10px; margin-bottom: 10px;">
+                <div style="font-family: var(--font-title); font-weight: 900; color: var(--gold-primary);">CELESTIAL LOBBY</div>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">OFFICIAL TELEGRAM INVOICE</div>
             </div>
-
-            <div style="font-family: var(--font-title); font-size: 1.5rem; color: var(--cyan-accent); text-align: center; margin: 10px 0;" id="bill-ref-code">CL-00000</div>
-            
-            <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-client-type">CLIENT TYPE: REGULAR</div>
-            <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-rec-info">RECIPIENT: -</div>
-            <div style="font-size: 0.85rem; margin-bottom: 6px;" id="bill-rec-address">MANUAL ADDRESS: -</div>
-            <div style="font-size: 0.85rem; margin-bottom: 10px;" id="bill-rec-coords">GPS LOCATION: -</div>
-
-            <div style="border-bottom: 1px dashed #444; margin-bottom: 10px;"></div>
-
-            <div id="bill-items-list" style="font-size: 0.9rem; margin-bottom: 10px;"></div>
-
-            <div style="border-bottom: 1px dashed #444; margin-bottom: 10px;"></div>
-            
-            <div class="summary-row" style="color: var(--gold-primary); font-weight: bold; font-size: 1.1rem;">
-                <span>TOTAL AMOUNT:</span>
-                <span id="bill-grand-total">₱0</span>
+            <div style="font-family: var(--font-title); font-size: 1.4rem; color: var(--cyan-accent); margin: 8px 0;" id="bill-ref-code">CL-00000</div>
+            <div style="font-size: 0.85rem;" id="bill-client-type">CLIENT TYPE: REGULAR</div>
+            <div style="font-size: 0.85rem;" id="bill-rec-info">RECIPIENT: -</div>
+            <div style="font-size: 0.85rem;" id="bill-rec-address">ADDRESS: -</div>
+            <div style="font-size: 0.85rem; margin-bottom: 8px;" id="bill-rec-coords">GPS: -</div>
+            <div style="border-bottom: 1px dashed #444; margin-bottom: 8px;"></div>
+            <div id="bill-items-list" style="font-size: 0.85rem; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px dashed #444; margin-bottom: 8px;"></div>
+            <div class="summary-row" style="color: var(--gold-primary); font-weight: bold;">
+                <span>TOTAL:</span><span id="bill-grand-total">₱0</span>
             </div>
-            <div id="bill-paylater-details" style="font-size:0.85rem; color:var(--purple-glow);"></div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" id="bill-payment-info"></div>
-            <div style="font-size: 0.8rem; color: var(--cyan-accent); margin-top: 6px;" id="bill-eta-info"></div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;" id="bill-payment-info"></div>
+            <div style="font-size: 0.75rem; color: var(--cyan-accent); margin-top: 4px;" id="bill-eta-info"></div>
         </div>
-
-        <button class="btn btn-cyan" onclick="copyInvoiceText()" style="margin-bottom: 12px;">COPY INVOICE DETAILS</button>
-        <button class="btn btn-purple" onclick="goToTrackerFromRef()" style="margin-bottom: 12px;">VIEW IN ORDER TRACKER</button>
+        <button class="btn btn-cyan" onclick="copyInvoiceText()" style="margin-bottom: 10px;">COPY INVOICE DETAILS</button>
+        <button class="btn btn-purple" onclick="goToTrackerFromRef()" style="margin-bottom: 10px;">VIEW IN ORDER TRACKER</button>
         <button class="btn" onclick="openTelegramDirect()">OPEN TELEGRAM CHAT (@hoe_no)</button>
     </div>
 
 </div>
 
 <script>
-    // TELEGRAM WEB APP SDK INITIALIZATION
     let tg = window.Telegram ? window.Telegram.WebApp : null;
-    if (tg) {
-        tg.ready();
-        tg.expand();
-    }
+    if (tg) { tg.ready(); tg.expand(); }
 
     const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xeaaojak';
 
-    const ADMIN_CODE = "ADMIN888";
-    const MASTER_DISCOUNT_CODE = "CELESTIAL-MASTER";
+    // GALACTIC ARMY PASSCODES & CREDENTIALS
+    const ARMY_PASSCODES = {
+        'sales': 'OFFICER777',
+        'admin': 'COMMANDER888',
+        'owner': 'CAPTAIN999'
+    };
 
     const REGULAR_CODES = new Set([
         "REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105", 
         "REG8A106", "REG8A107", "REG8A108", "REG8A109", "REG8A110"
     ]);
 
-    const NEW_CODES = new Set([
-        "NEW8X101", "NEW8X102", "NEW8X103", "NEW8X104", "NEW8X105", 
-        "NEW8X106", "NEW8X107", "NEW8X108", "NEW8X109", "NEW8X110"
-    ]);
-
-    const STATIC_SPECIAL_CODES = {
-        'PAYLATER2026': { discount: 0.10, label: 'SPECIAL AUTHORIZED CLIENT (10% OFF)', paylater: true, piggyback: true, bonus: '' },
-        'VIPGOLD99': { discount: 0.20, label: 'GOLD VIP TIER (20% OFF)', paylater: true, piggyback: true, bonus: '' },
-        'CELESTIAL77': { discount: 0.15, label: 'CELESTIAL ELITE TIER (15% OFF)', paylater: true, piggyback: true, bonus: '' },
-        'BLACKCARD01': { discount: 0.25, label: 'BLACK TIER UNLOCKED (25% OFF)', paylater: true, piggyback: true, bonus: '' }
-    };
-
-    function getCombinedSpecialCodes() {
-        let ownerCustom = JSON.parse(localStorage.getItem('celestial_owner_custom_codes') || '{}');
-        return Object.assign({}, STATIC_SPECIAL_CODES, ownerCustom);
-    }
-
-    const VALID_6CODES = { 
-        'CL10A1': 0.10, 'CL10B2': 0.10, 'CL10C3': 0.10, 'CL10D4': 0.10, 'CL10E5': 0.10,
-        'STAR5A': 0.05, 'STAR5B': 0.05, 'STAR5C': 0.05,
-        'VIP3X1': 0.03, 'VIP3Y2': 0.03
+    let customPromoCodes = JSON.parse(localStorage.getItem('celestial_custom_promos')) || {
+        'CL10A1': { discount: 10, bonus: '' },
+        'WHOLESALE24': { discount: 0, bonus: 'Wholesale Grouping Piggyback Unlocked' },
+        'PAYLATER99': { discount: 0, bonus: 'Paylater Facility Unlocked' }
     };
 
     const MENU_ITEMS = [
@@ -907,8 +641,8 @@
         { id: 'nibiru', name: '🌑 NIBIRU — 25*', price: 2600, minTier: 'new' },
         { id: 'nemik', name: '⚫ NEMIK — 30*', price: 3100, minTier: 'new' },
         { id: 'vaelithar', name: '🌑 VAELITHAR — 40*', price: 3500, minTier: 'new' },
-        { id: 'vhaerion05', name: '🌑 Vhaerion 0.5 — 60*', price: 4450, freebie: 'Freebies: Lube & 5 Dagom', minTier: 'regular' },
-        { id: 'zhaevoryn10', name: '🌑 Zhaevoryn 1.0 — 110*', price: 6950, freebie: 'Freebies: Lube & 10 Dagom', minTier: 'regular' }
+        { id: 'vhaerion', name: '🌑 Vhaerion 0.5 — 60* (Freebies: Lube + 5 Dagom)', price: 4450, minTier: 'regular' },
+        { id: 'zhaevoryn', name: '🌑 Zhaevoryn 1.0 — 110* (Freebies: Lube + 10 Dagom)', price: 6950, minTier: 'regular' }
     ];
 
     const ADDON_ITEMS = [
@@ -917,279 +651,270 @@
     ];
 
     const STATUS_STAGES = [
-        "Pending / Paid",
-        "Confirmed (Inventory 1-2h)",
-        "Packaging (30m-1h)",
-        "Logistics Handover",
-        "In Route",
-        "Delivered"
+        "Pending / Paid", "Confirmed (Inventory 1-2h)", "Packaging (30m-1h)",
+        "Logistics Handover", "In Route", "Delivered"
     ];
 
-    let selectedClientType = 'new';
+    let currentPath = 'guest';
     let currentUserType = null;
     let currentClientCode = '';
+    let isOwnerProxyMode = false;
     let cart = {};
     let appliedDiscount = 0;
-    let activeBonusPerk = '';
+    let appliedBonusPerk = '';
+    let isPaylaterUnlocked = false;
     let currentRefCode = '';
-    let isSpecialCodeActive = false;
-    
+
+    // Guest Timer
+    let guestTimerSeconds = 1800;
+    let guestTimerInterval = null;
+
     let googleMap = null;
     let googleMarker = null;
 
     let stockCount = JSON.parse(localStorage.getItem('celestial_stock')) || {
         'cloud9': 50, 'mars': 40, 'venus': 30, 'saturn': 25, 
-        'nibiru': 20, 'nemik': 15, 'vaelithar': 10, 'vhaerion05': 8, 'zhaevoryn10': 5,
+        'nibiru': 20, 'nemik': 15, 'vaelithar': 10, 'vhaerion': 8, 'zhaevoryn': 5,
         'lube': 100, 'dagom': 100
     };
 
     window.addEventListener('DOMContentLoaded', () => {
         const boundCode = localStorage.getItem('celestial_device_code');
         const boundType = localStorage.getItem('celestial_device_type');
-
-        // Show reset device binding option if a device is bound
-        if (boundCode && boundType && boundType !== 'admin' && boundType !== 'new') {
-            document.getElementById('device-reset-box').style.display = 'block';
+        if (boundCode && boundType && boundType !== 'admin' && boundType !== 'sales' && boundType !== 'owner') {
             grantAccess(boundType, boundCode, true);
         }
     });
 
-    function selectClientType(type) {
-        selectedClientType = type;
-        document.getElementById('btn-type-new').classList.toggle('active', type === 'new');
-        document.getElementById('btn-type-reg').classList.toggle('active', type === 'regular');
-        document.getElementById('btn-type-admin').classList.toggle('active', type === 'admin');
-        
-        const codeBox = document.getElementById('access-code-box');
-        const adminRoleBox = document.getElementById('admin-role-box');
-        const codeLabelText = document.getElementById('code-label-text');
+    function setLandingPath(path) {
+        currentPath = path;
+        document.getElementById('btn-gate-guest').classList.toggle('active', path === 'guest');
+        document.getElementById('btn-gate-new').classList.toggle('active', path === 'new');
+        document.getElementById('btn-gate-reg').classList.toggle('active', path === 'regular');
 
-        if (type === 'new') {
-            codeBox.style.display = 'none';
-            adminRoleBox.style.display = 'none';
-        } else if (type === 'regular') {
-            codeBox.style.display = 'block';
-            adminRoleBox.style.display = 'none';
-            codeLabelText.innerText = '2. ENTER ACCESS CODE:';
-        } else if (type === 'admin') {
-            codeBox.style.display = 'block';
-            adminRoleBox.style.display = 'block';
-            codeLabelText.innerText = '3. ENTER ADMIN PASSCODE:';
+        document.getElementById('path-box-guest').style.display = path === 'guest' ? 'block' : 'none';
+        document.getElementById('path-box-new').style.display = path === 'new' ? 'block' : 'none';
+        document.getElementById('path-box-reg').style.display = path === 'regular' ? 'block' : 'none';
+        document.getElementById('landing-error-badge').style.display = 'none';
+    }
+
+    // GUEST WALKTHROUGH & TIMER
+    function startGuestWalkthrough() {
+        document.getElementById('landing-view').style.display = 'none';
+        document.getElementById('guest-onboarding-view').style.display = 'block';
+        startGuestTimer();
+    }
+
+    function startGuestTimer() {
+        if (guestTimerInterval) clearInterval(guestTimerInterval);
+        guestTimerInterval = setInterval(() => {
+            guestTimerSeconds--;
+            let mins = Math.floor(guestTimerSeconds / 60);
+            let secs = guestTimerSeconds % 60;
+            const timerElem = document.getElementById('guest-timer-display');
+            if (timerElem) {
+                timerElem.innerText = `⏱️ GUEST SESSION TIME REMAINING: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            if (guestTimerSeconds <= 0) {
+                clearInterval(guestTimerInterval);
+                terminatePortalAccess();
+            }
+        }, 1000);
+    }
+
+    function nextGuestStep(step) {
+        document.getElementById('guest-step-1').style.display = 'none';
+        document.getElementById('guest-step-2').style.display = 'none';
+        document.getElementById('guest-step-3').style.display = 'none';
+        document.getElementById('guest-step-4').style.display = 'none';
+        document.getElementById(`guest-step-${step}`).style.display = 'block';
+    }
+
+    function verifyFaqsAndContinue() {
+        const f1 = document.getElementById('faq-chk-1').checked;
+        const f2 = document.getElementById('faq-chk-2').checked;
+        const f3 = document.getElementById('faq-chk-3').checked;
+        const f4 = document.getElementById('faq-chk-4').checked;
+        const f5 = document.getElementById('faq-chk-5').checked;
+
+        if (!f1 || !f2 || !f3 || !f4 || !f5) {
+            alert("Please check and acknowledge all FAQs before continuing.");
+            return;
         }
-        
-        document.getElementById('error-badge').style.display = 'none';
+        nextGuestStep(4);
     }
 
-    function loadOrdersFromStorage() {
-        return JSON.parse(localStorage.getItem('celestial_orders') || '[]');
+    function finishGuestOnboarding() {
+        const nonNeg = document.getElementById('chk-non-neg').checked;
+        if (!nonNeg) {
+            alert("You must agree to the non-negotiables before entering.");
+            return;
+        }
+        document.getElementById('guest-onboarding-view').style.display = 'none';
+        grantAccess('guest', 'GUEST-SESSION', false);
     }
 
-    function saveOrdersToStorage(orders) {
-        localStorage.setItem('celestial_orders', JSON.stringify(orders));
+    function terminatePortalAccess() {
+        if (guestTimerInterval) clearInterval(guestTimerInterval);
+        document.getElementById('landing-view').style.display = 'none';
+        document.getElementById('guest-onboarding-view').style.display = 'none';
+        document.getElementById('portal-view').style.display = 'none';
+        document.getElementById('terminated-view').style.display = 'block';
     }
 
-    function initGoogleMap() {
-        const defaultLat = 7.1907;
-        const defaultLng = 125.4553;
+    // NEW CLIENT VERIFICATION
+    function verifyNewClientOrder() {
+        const orderNum = document.getElementById('new-client-order-num').value.trim().toUpperCase();
+        const errBadge = document.getElementById('landing-error-badge');
+        const orders = loadOrdersFromStorage();
 
-        const mapOptions = {
-            center: { lat: defaultLat, lng: defaultLng },
-            zoom: 15,
-            mapTypeId: 'roadmap',
-            disableDefaultUI: false
-        };
+        const match = orders.find(o => o.refCode === orderNum);
+        if (!match) {
+            errBadge.style.display = 'block';
+            errBadge.innerText = "✕ Order Record Not Found. Arbitrary numbers are not accepted as proof.";
+            return;
+        }
 
-        const mapContainer = document.getElementById('delivery-map');
-        if (!mapContainer) return;
-
-        googleMap = new google.maps.Map(mapContainer, mapOptions);
-
-        googleMarker = new google.maps.Marker({
-            position: { lat: defaultLat, lng: defaultLng },
-            map: googleMap,
-            draggable: true,
-            title: 'Drag to refine delivery location'
-        });
-
-        google.maps.event.addListener(googleMarker, 'dragend', function (event) {
-            updateMapCoordsInput(event.latLng.lat(), event.latLng.lng());
-        });
-
-        google.maps.event.addListener(googleMap, 'click', function (event) {
-            googleMarker.setPosition(event.latLng);
-            updateMapCoordsInput(event.latLng.lat(), event.latLng.lng());
-        });
-
-        fetchCurrentGPSLocation();
+        alert("Welcome on your fist ascension process");
+        grantAccess('new', `NEW-${orderNum}`, false);
     }
 
-    function fetchCurrentGPSLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                    if (googleMap && googleMarker) {
-                        googleMap.setCenter(pos);
-                        googleMarker.setPosition(pos);
-                    }
-                    updateMapCoordsInput(pos.lat, pos.lng);
-                },
-                (error) => {
-                    console.warn("Geolocation warning: ", error.message);
-                    updateMapCoordsInput(7.1907, 125.4553);
-                },
-                { timeout: 10000, enableHighAccuracy: true }
-            );
+    // REGULAR CLIENT LOGIN
+    function attemptRegularLogin() {
+        const clientId = document.getElementById('reg-client-id').value.trim().toUpperCase();
+        const code = document.getElementById('reg-access-code').value.trim().toUpperCase();
+        const errBadge = document.getElementById('landing-error-badge');
+
+        if (!code || !clientId) {
+            errBadge.style.display = 'block';
+            errBadge.innerText = "✕ Please enter both Client ID and 8-Digit Access Code.";
+            return;
+        }
+
+        const boundCode = localStorage.getItem('celestial_device_code');
+        if (boundCode && boundCode !== code) {
+            errBadge.style.display = 'block';
+            errBadge.innerText = "✕ Access Denied. Device is bound to another key.";
+            return;
+        }
+
+        if (REGULAR_CODES.has(code) || code.startsWith("REG")) {
+            alert("Get ready to warp");
+            grantAccess('regular', code, false);
         } else {
-            updateMapCoordsInput(7.1907, 125.4553);
+            errBadge.style.display = 'block';
+            errBadge.innerText = "✕ Invalid Regular Access Code.";
         }
     }
 
-    function updateMapCoordsInput(lat, lng) {
-        document.getElementById('rec-coords').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    // GALACTIC ARMY STAFF LOGIN
+    function showGalacticArmyLogin() {
+        document.getElementById('galactic-army-login-view').style.display = 'block';
     }
 
-    function attemptLogin() {
-        const agreed = document.getElementById('gate-terms-agree').checked;
-        const code = document.getElementById('gene-code-input').value.trim().toUpperCase();
-        const errBadge = document.getElementById('error-badge');
+    function closeGalacticArmyLogin() {
+        document.getElementById('galactic-army-login-view').style.display = 'none';
+    }
 
-        if (!agreed) {
-            alert('You must accept the terms and policies to proceed.');
+    function attemptGalacticArmyLogin() {
+        const empId = document.getElementById('army-emp-id').value.trim().toUpperCase();
+        const passcode = document.getElementById('army-passcode').value.trim().toUpperCase();
+        const role = document.getElementById('army-role-select').value;
+        const errBadge = document.getElementById('army-error-badge');
+
+        if (!empId || !passcode) {
+            errBadge.style.display = 'block';
+            errBadge.innerText = "✕ Enter Employee ID and Passcode.";
             return;
         }
 
-        if (tg && tg.HapticFeedback) {
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-
-        if (selectedClientType === 'new') {
-            alert("Welcome on your first ascension process");
-            grantAccess('new', 'NEW-CLIENT-DIRECT', false);
+        if (passcode !== ARMY_PASSCODES[role]) {
+            errBadge.style.display = 'block';
+            errBadge.innerText = "✕ Incorrect Employee Passcode for selected role.";
             return;
         }
 
-        if (selectedClientType === 'regular') {
-            if (!code) {
-                errBadge.style.display = 'block';
-                errBadge.innerText = '✕ Please enter your access code.';
-                return;
-            }
+        closeGalacticArmyLogin();
+        document.getElementById('landing-view').style.display = 'none';
+        document.getElementById('admin-view').style.display = 'block';
 
-            const specialCodes = getCombinedSpecialCodes();
-            if (specialCodes[code]) {
-                alert(`Special Access Granted! ${specialCodes[code].label}`);
-                appliedDiscount = specialCodes[code].discount;
-                activeBonusPerk = specialCodes[code].bonus || '';
-                enableSpecialFeatures();
-                grantAccess('special', code, false);
-                return;
-            }
+        currentUserType = role;
+        if (role === 'sales') {
+            alert("Welcome Officer");
+            document.getElementById('admin-welcome-heading').innerText = "Welcome Officer";
+            document.getElementById('admin-dashboard-title').innerText = "SALES TEAM | POS DASHBOARD";
+            document.getElementById('owner-proxy-order-box').style.display = 'none';
+            document.getElementById('admin-tab-promo-btn').style.display = 'none';
+        } else if (role === 'admin') {
+            alert("Welcome Commander One");
+            document.getElementById('admin-welcome-heading').innerText = "Welcome Commander One";
+            document.getElementById('admin-dashboard-title').innerText = "ADMIN STATION | INVENTORY CONTROL";
+            document.getElementById('owner-proxy-order-box').style.display = 'none';
+            document.getElementById('admin-tab-promo-btn').style.display = 'none';
+        } else if (role === 'owner') {
+            alert("Ready your command captain:");
+            document.getElementById('admin-welcome-heading').innerText = "Ready your command captain:";
+            document.getElementById('admin-dashboard-title').innerText = "OWNER | SUPER DASHBOARD WORKSPACE";
+            document.getElementById('owner-proxy-order-box').style.display = 'block';
+            document.getElementById('admin-tab-promo-btn').style.display = 'block';
+        }
 
-            const currentBoundCode = localStorage.getItem('celestial_device_code');
-            if (currentBoundCode && currentBoundCode !== code) {
-                errBadge.style.display = 'block';
-                errBadge.innerText = '✕ Access Denied. Device is bound to another key. Use "Forgot Code? Reset Device Binding" if needed.';
-                return;
-            }
+        renderAdminOrders();
+        renderInventoryTable();
+        renderOwnerPromoCodesList();
+    }
 
-            if (REGULAR_CODES.has(code) || code.startsWith("REG")) {
-                alert("Get ready to warp");
-                grantAccess('regular', code, false);
-            } else {
-                errBadge.style.display = 'block';
-                errBadge.innerText = '✕ Invalid Access Code. Please check your code.';
-            }
+    // OWNER PROXY ORDER FOR CUSTOMER
+    function openProxyCustomerOrder() {
+        const code = document.getElementById('proxy-customer-code').value.trim().toUpperCase();
+        if (!code) {
+            alert("Please enter a customer 8-digit access code.");
             return;
         }
+        if (!confirm(`Verify Proxy Access for Client Code [ ${code} ]?`)) return;
 
-        if (selectedClientType === 'admin') {
-            if (code !== ADMIN_CODE) {
-                errBadge.style.display = 'block';
-                errBadge.innerText = '✕ Incorrect Admin Passcode.';
-                return;
-            }
-
-            const adminRole = document.getElementById('admin-role-select').value;
-            alert("Welcome Commander One\nReady your command captain:");
-
-            currentUserType = (adminRole === 'owner') ? 'owner' : 'sales';
-            document.getElementById('gateway-view').style.display = 'none';
-            document.getElementById('admin-view').style.display = 'block';
-
-            if (adminRole === 'owner') {
-                document.getElementById('admin-dashboard-title').innerText = "OWNER | SUPER DASHBOARD WORKSPACE";
-                document.getElementById('owner-promo-tab-btn').style.display = 'block';
-            } else {
-                document.getElementById('admin-dashboard-title').innerText = "SALES TEAM / ADMIN | POS DASHBOARD";
-                document.getElementById('owner-promo-tab-btn').style.display = 'none';
-            }
-
-            renderAdminOrders();
-            renderInventoryTable();
-            renderOwnerPromoCodesList();
-        }
+        isOwnerProxyMode = true;
+        grantAccess('regular', code, true);
+        document.getElementById('user-badge-title').innerText = "OWNER ACCESS | PROXY ORDERING MODE";
+        document.getElementById('user-badge-sub').innerText = `MASKED CLIENT CODE: ${code.slice(0, 3)}****`;
     }
 
     function grantAccess(type, code, isAutoLogin) {
         currentUserType = type;
         currentClientCode = code;
 
-        // Save device binding securely for regular/special clients
-        if (!isAutoLogin && type !== 'sales' && type !== 'owner' && type !== 'new') {
+        if (!isAutoLogin && type !== 'sales' && type !== 'owner' && type !== 'admin') {
             localStorage.setItem('celestial_device_code', code);
             localStorage.setItem('celestial_device_type', type);
         }
 
-        document.getElementById('gateway-view').style.display = 'none';
+        document.getElementById('landing-view').style.display = 'none';
         document.getElementById('portal-view').style.display = 'block';
 
-        document.getElementById('user-badge-title').innerText = `CLIENT: ${type.toUpperCase()}`;
-        document.getElementById('user-badge-sub').innerText = `GENE PRINT: ${code}`;
+        if (!isOwnerProxyMode) {
+            document.getElementById('user-badge-title').innerText = `CLIENT: ${type.toUpperCase()}`;
+            document.getElementById('user-badge-sub').innerText = `GENE PRINT: ${code}`;
+        }
 
         renderMenu();
         updateCalculations();
         setTimeout(fetchCurrentGPSLocation, 500);
     }
 
-    function logout() {
-        // Return to gateway screen while maintaining device binding for security
-        document.getElementById('portal-view').style.display = 'none';
-        document.getElementById('admin-view').style.display = 'none';
-        document.getElementById('gateway-view').style.display = 'flex';
-        
-        // Clear active session inputs
-        cart = {};
-        appliedDiscount = 0;
-        activeBonusPerk = '';
-        document.getElementById('gene-code-input').value = '';
-        if (localStorage.getItem('celestial_device_code')) {
-            document.getElementById('device-reset-box').style.display = 'block';
-        }
-    }
-
     function resetDeviceBinding() {
-        if (confirm("Are you sure you want to reset device binding? This will unbind this phone from the previous access code.")) {
+        if (confirm("Reset device binding for this browser device?")) {
             localStorage.removeItem('celestial_device_code');
             localStorage.removeItem('celestial_device_type');
-            document.getElementById('device-reset-box').style.display = 'none';
-            alert("Device binding reset successfully. You can now enter a new access code.");
+            alert("Device binding reset successfully.");
+            location.reload();
         }
     }
 
-    function enableSpecialFeatures() {
-        isSpecialCodeActive = true;
-        document.getElementById('paylater-section').style.display = 'block';
-        document.getElementById('piggyback-container').style.display = 'flex';
-    }
+    function logout() { location.reload(); }
 
     function switchTab(tab) {
         document.getElementById('tab-btn-order').classList.toggle('active', tab === 'order');
         document.getElementById('tab-btn-track').classList.toggle('active', tab === 'track');
-        
         document.getElementById('tab-order-content').style.display = (tab === 'order') ? 'block' : 'none';
         document.getElementById('tab-track-content').style.display = (tab === 'track') ? 'block' : 'none';
         if (tab === 'order') setTimeout(fetchCurrentGPSLocation, 300);
@@ -1198,175 +923,43 @@
     function switchAdminTab(tab) {
         document.getElementById('admin-tab-orders-btn').classList.toggle('active', tab === 'orders');
         document.getElementById('admin-tab-stock-btn').classList.toggle('active', tab === 'stock');
-        const promoBtn = document.getElementById('owner-promo-tab-btn');
-        if (promoBtn && promoBtn.style.display !== 'none') {
-            promoBtn.classList.toggle('active', tab === 'promo');
-        }
+        const promoBtn = document.getElementById('admin-tab-promo-btn');
+        if (promoBtn) promoBtn.classList.toggle('active', tab === 'promo');
 
         document.getElementById('admin-orders-tab-content').style.display = (tab === 'orders') ? 'block' : 'none';
         document.getElementById('admin-stock-tab-content').style.display = (tab === 'stock') ? 'block' : 'none';
-        const promoContent = document.getElementById('admin-promo-tab-content');
-        if (promoContent) promoContent.style.display = (tab === 'promo') ? 'block' : 'none';
+        const promoTab = document.getElementById('admin-promo-tab-content');
+        if (promoTab) promoTab.style.display = (tab === 'promo') ? 'block' : 'none';
     }
 
-    function saveOwnerPromoCode() {
-        const codeInput = document.getElementById('new-promo-code').value.trim().toUpperCase();
-        const discInput = parseFloat(document.getElementById('new-promo-discount').value) || 0;
-        const bonusInput = document.getElementById('new-promo-bonus').value.trim();
-
-        if (!codeInput || discInput <= 0) {
-            alert("Please enter a valid code name and discount percentage.");
-            return;
-        }
-
-        let customCodes = JSON.parse(localStorage.getItem('celestial_owner_custom_codes') || '{}');
-        customCodes[codeInput] = {
-            discount: discInput / 100,
-            label: `CUSTOM PROMO (${discInput}% OFF)`,
-            paylater: true,
-            piggyback: true,
-            bonus: bonusInput
-        };
-
-        localStorage.setItem('celestial_owner_custom_codes', JSON.stringify(customCodes));
-        alert(`Promo code '${codeInput}' created successfully!`);
-        document.getElementById('new-promo-code').value = '';
-        document.getElementById('new-promo-discount').value = '';
-        document.getElementById('new-promo-bonus').value = '';
-        renderOwnerPromoCodesList();
-    }
-
-    function renderOwnerPromoCodesList() {
-        const container = document.getElementById('owner-codes-list');
-        const customCodes = JSON.parse(localStorage.getItem('celestial_owner_custom_codes') || '{}');
-        const keys = Object.keys(customCodes);
-
-        if (keys.length === 0) {
-            container.innerHTML = '<div style="color:var(--text-muted);">No custom promo codes generated yet.</div>';
-            return;
-        }
-
-        container.innerHTML = keys.map(k => `
-            <div style="background:rgba(0,0,0,0.5); padding:8px; border-radius:6px; margin-bottom:6px; border:1px solid var(--gold-primary); display:flex; justify-content:between; align-items:center;">
-                <div>
-                    <strong style="color:var(--cyan-accent);">${k}</strong> — ${(customCodes[k].discount * 100)}% OFF 
-                    ${customCodes[k].bonus ? `<br><span style="color:var(--neon-green);">Bonus: ${customCodes[k].bonus}</span>` : ''}
-                </div>
-                <button class="btn btn-red" style="width:auto; padding:4px 8px; font-size:0.7rem;" onclick="deleteOwnerPromoCode('${k}')">DELETE</button>
-            </div>
-        `).join('');
-    }
-
-    function deleteOwnerPromoCode(code) {
-        let customCodes = JSON.parse(localStorage.getItem('celestial_owner_custom_codes') || '{}');
-        delete customCodes[code];
-        localStorage.setItem('celestial_owner_custom_codes', JSON.stringify(customCodes));
-        renderOwnerPromoCodesList();
-    }
-
-    function toggleScheduledBox() {
-        const isChecked = document.getElementById('chk-handling-schedule').checked;
-        document.getElementById('scheduled-input-box').style.display = isChecked ? 'block' : 'none';
-        updateCalculations();
-    }
-
-    function togglePersonalizedBox() {
-        const isChecked = document.getElementById('chk-handling-personalized').checked;
-        document.getElementById('personalized-input-box').style.display = isChecked ? 'block' : 'none';
-        updateCalculations();
-    }
+    function loadOrdersFromStorage() { return JSON.parse(localStorage.getItem('celestial_orders') || '[]'); }
+    function saveOrdersToStorage(orders) { localStorage.setItem('celestial_orders', JSON.stringify(orders)); }
 
     function getCombinedStashBadge() {
-        let totalCurrent = 0;
-        let totalMax = 0;
-
+        let totalCurrent = 0, totalMax = 0;
         MENU_ITEMS.forEach(item => {
             const maxStock = 50;
             const currentQty = stockCount[item.id] !== undefined ? stockCount[item.id] : maxStock;
             totalCurrent += Math.max(0, currentQty);
             totalMax += maxStock;
         });
-
         const percentage = (totalCurrent / totalMax) * 100;
 
-        if (percentage > 50) {
-            return `<span style="color: var(--neon-green); font-family: var(--font-mono); font-weight: bold;">IN STASH: [ ON HAND ] 🟢</span>`;
-        } else if (percentage >= 25 && percentage <= 50) {
-            return `<span style="color: var(--gold-primary); font-family: var(--font-mono); font-weight: bold;">IN STASH: [ LIMITED ] 🟡</span>`;
-        } else if (percentage >= 10 && percentage < 25) {
-            return `<span style="color: #ffaa00; font-family: var(--font-mono); font-weight: bold;">IN STASH: [ RESUPPLYING ] 🟠</span>`;
-        } else if (percentage > 0 && percentage < 10) {
-            return `<span style="color: var(--neon-red); font-family: var(--font-mono); font-weight: bold;">IN STASH: [ LAST ITEM ] 🔴</span>`;
-        } else {
-            return `<span style="color: var(--purple-glow); font-family: var(--font-mono); font-weight: bold;">IN STASH: [ BY SUPPLIER ] 🔒</span>`;
-        }
-    }
-
-    function renderInventoryTable() {
-        const tbody = document.getElementById('inventory-table-body');
-        tbody.innerHTML = '';
-
-        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
-            const qty = stockCount[item.id] !== undefined ? stockCount[item.id] : 50;
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${item.name}</strong></td>
-                    <td>
-                        <input type="number" value="${qty}" id="stock-input-${item.id}" style="width: 100px; padding: 4px 8px;">
-                    </td>
-                </tr>
-            `;
-        });
-    }
-
-    function saveInventoryStock() {
-        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
-            const inputVal = document.getElementById(`stock-input-${item.id}`).value;
-            stockCount[item.id] = parseInt(inputVal) || 0;
-        });
-        localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
-        alert("Inventory counts updated and saved successfully!");
-        renderMenu();
-    }
-
-    function applySixCode() {
-        const code = document.getElementById('sixcode-input').value.trim().toUpperCase();
-        const status = document.getElementById('sixcode-status');
-        const specialCodes = getCombinedSpecialCodes();
-
-        if (code === MASTER_DISCOUNT_CODE) {
-            let customDisc = prompt("Master Code Verified! Enter discount percentage:", "15");
-            appliedDiscount = (parseFloat(customDisc) || 0) / 100;
-            activeBonusPerk = "Master Promo Perk Active";
-            enableSpecialFeatures();
-            status.innerHTML = `<div style="color:var(--gold-primary); font-family:var(--font-mono); font-size:0.85rem;">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT & SPECIAL OPTIONS UNLOCKED</div>`;
-        } else if (specialCodes[code]) {
-            appliedDiscount = specialCodes[code].discount;
-            activeBonusPerk = specialCodes[code].bonus || '';
-            enableSpecialFeatures();
-            status.innerHTML = `<div style="color:var(--neon-green); font-family:var(--font-mono); font-size:0.85rem;">★ SPECIAL CODE ACTIVE: ${specialCodes[code].label}${activeBonusPerk ? '<br>Bonus: ' + activeBonusPerk : ''}</div>`;
-        } else if (VALID_6CODES[code]) {
-            appliedDiscount = VALID_6CODES[code];
-            activeBonusPerk = '';
-            status.innerHTML = `<div style="color:var(--cyan-accent); font-family:var(--font-mono); font-size:0.85rem;">✓ 6CODE VERIFIED: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
-        } else {
-            appliedDiscount = 0;
-            activeBonusPerk = '';
-            status.innerHTML = `<div style="color:var(--neon-red); font-size:0.85rem;">✕ Invalid Code</div>`;
-        }
-        updateCalculations();
+        if (percentage > 50) return `<span style="color:var(--neon-green); font-weight:bold;">IN STASH: [ ON HAND ] 🟢</span>`;
+        if (percentage >= 25) return `<span style="color:var(--gold-primary); font-weight:bold;">IN STASH: [ LIMITED ] 🟡</span>`;
+        if (percentage >= 10) return `<span style="color:#ffaa00; font-weight:bold;">IN STASH: [ RESUPPLYING ] 🟠</span>`;
+        if (percentage > 0) return `<span style="color:var(--neon-red); font-weight:bold;">IN STASH: [ LAST ITEM ] 🔴</span>`;
+        return `<span style="color:var(--purple-glow); font-weight:bold;">IN STASH: [ BY SUPPLIER ] 🔒</span>`;
     }
 
     function renderMenu() {
+        const stashBanner = document.getElementById('in-stash-banner');
+        if (stashBanner) {
+            stashBanner.innerHTML = `<div style="background: rgba(0,0,0,0.6); border: 1px solid var(--border-glow); padding: 10px; border-radius: 8px; font-size: 0.95rem;">${getCombinedStashBadge()}</div>`;
+        }
+
         const menuContainer = document.getElementById('menu-container');
-        const combinedBadge = getCombinedStashBadge();
-
-        let html = `
-            <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--border-glow); padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 16px; font-size: 1rem;">
-                ${combinedBadge}
-            </div>
-        `;
-
+        let html = '';
         MENU_ITEMS.forEach(item => {
             cart[item.id] = cart[item.id] || 0;
             let isRestricted = (currentUserType === 'new' && item.minTier === 'regular');
@@ -1374,13 +967,8 @@
             html += `
                 <div class="menu-item ${isRestricted ? 'restricted' : ''}">
                     <div>
-                        <div style="font-weight:700; color:#fff;">
-                            ${item.name} ${isRestricted ? '🔒 (Locked)' : ''}
-                        </div>
-                        ${item.freebie ? `<div style="font-size:0.75rem; color:var(--neon-green); font-family:var(--font-mono);">${item.freebie}</div>` : ''}
-                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem; margin-top:2px;">
-                            ₱${item.price.toLocaleString()}
-                        </div>
+                        <div style="font-weight:700; color:#fff;">${item.name} ${isRestricted ? '🔒 (Locked)' : ''}</div>
+                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem;">₱${item.price.toLocaleString()}</div>
                     </div>
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="changeQty('${item.id}', -1)" ${isRestricted ? 'disabled' : ''}>-</button>
@@ -1390,21 +978,17 @@
                 </div>
             `;
         });
-
         menuContainer.innerHTML = html;
 
         const addonsContainer = document.getElementById('addons-container');
         addonsContainer.innerHTML = '';
         ADDON_ITEMS.forEach(item => {
             cart[item.id] = cart[item.id] || 0;
-
             addonsContainer.innerHTML += `
                 <div class="menu-item">
                     <div>
                         <div style="font-weight:700; color:#fff;">${item.name}</div>
-                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem; margin-top:2px;">
-                            ₱${item.price.toLocaleString()}
-                        </div>
+                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.9rem;">₱${item.price.toLocaleString()}</div>
                     </div>
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
@@ -1422,14 +1006,37 @@
         updateCalculations();
     }
 
-    function getMaxSelectedMenuBasePrice() {
-        let maxPrice = 0;
-        MENU_ITEMS.forEach(item => {
-            if ((cart[item.id] || 0) > 0) {
-                if (item.price > maxPrice) maxPrice = item.price;
+    function applySixCode() {
+        const code = document.getElementById('sixcode-input').value.trim().toUpperCase();
+        const status = document.getElementById('sixcode-status');
+        const piggybackContainer = document.getElementById('piggyback-container');
+        const paylaterSec = document.getElementById('paylater-section');
+
+        if (code === 'CELESTIAL-MASTER') {
+            let customDisc = prompt("Master Code Verified! Enter discount percentage:", "15");
+            appliedDiscount = (parseFloat(customDisc) || 0) / 100;
+            appliedBonusPerk = "Master Owner Privilege";
+            status.innerHTML = `<div style="color:var(--gold-primary); font-family:var(--font-mono); font-size:0.85rem;">⚡ MASTER CODE ACTIVE: ${(appliedDiscount * 100)}% DISCOUNT APPLIED</div>`;
+        } else if (customPromoCodes[code]) {
+            const promo = customPromoCodes[code];
+            appliedDiscount = promo.discount / 100;
+            appliedBonusPerk = promo.bonus;
+            status.innerHTML = `<div style="color:var(--cyan-accent); font-family:var(--font-mono); font-size:0.85rem;">✓ CODE VERIFIED: ${promo.discount}% DISCOUNT ${promo.bonus ? '| ' + promo.bonus : ''}</div>`;
+            if (code === 'WHOLESALE24' || promo.bonus.toLowerCase().includes('wholesale')) {
+                piggybackContainer.style.display = 'flex';
             }
-        });
-        return maxPrice;
+            if (code === 'PAYLATER99' || promo.bonus.toLowerCase().includes('paylater')) {
+                isPaylaterUnlocked = true;
+                paylaterSec.style.display = 'block';
+            }
+        } else {
+            appliedDiscount = 0; appliedBonusPerk = '';
+            status.innerHTML = `<div style="color:var(--neon-red); font-size:0.85rem;">✕ Invalid Special Code</div>`;
+            piggybackContainer.style.display = 'none';
+            paylaterSec.style.display = 'none';
+            isPaylaterUnlocked = false;
+        }
+        updateCalculations();
     }
 
     function updateCalculations() {
@@ -1441,225 +1048,88 @@
             if (qty > 0) {
                 const itemTotal = item.price * qty;
                 subtotal += itemTotal;
-                summaryHTML += `
-                    <div class="summary-row">
-                        <span>${item.name} x${qty}</span>
-                        <span>₱${itemTotal.toLocaleString()}</span>
-                    </div>
-                `;
+                summaryHTML += `<div class="summary-row"><span>${item.name} x${qty}</span><span>₱${itemTotal.toLocaleString()}</span></div>`;
             }
         });
 
         let discountAmount = subtotal * appliedDiscount;
         if (discountAmount > 0) {
-            summaryHTML += `
-                <div class="summary-row" style="color: var(--cyan-accent);">
-                    <span>Discount (${appliedDiscount * 100}%):</span>
-                    <span>-₱${discountAmount.toLocaleString()}</span>
-                </div>
-            `;
-        }
-
-        if (activeBonusPerk) {
-            summaryHTML += `
-                <div class="summary-row" style="color: var(--neon-green); font-size: 0.85rem;">
-                    <span>Bonus Volume Perk:</span>
-                    <span>${activeBonusPerk}</span>
-                </div>
-            `;
+            summaryHTML += `<div class="summary-row" style="color: var(--cyan-accent);"><span>Discount (${(appliedDiscount * 100)}%):</span><span>-₱${discountAmount.toLocaleString()}</span></div>`;
         }
 
         const deliveryMethod = document.getElementById('delivery-method').value;
-        let deliveryFee = 0;
-        if (deliveryMethod === 'meetup') {
-            deliveryFee = 150;
-            summaryHTML += `
-                <div class="summary-row">
-                    <span>Meet Up Fee:</span>
-                    <span>₱${deliveryFee}</span>
-                </div>
-            `;
+        let deliveryFee = deliveryMethod === 'meetup' ? 150 : 0;
+        if (deliveryFee > 0) {
+            summaryHTML += `<div class="summary-row"><span>Meet Up Fee:</span><span>₱${deliveryFee}</span></div>`;
         }
 
-        const gorushVal = document.getElementById('gorush-option').value;
-        let gorushSurcharge = 0;
-        if (gorushVal === 'gorush30') gorushSurcharge = 500;
-        else if (gorushVal === 'gorush60') gorushSurcharge = 350;
-        else if (gorushVal === 'gorush90') gorushSurcharge = 200;
+        const gorushSpeed = document.getElementById('gorush-option').value;
+        let gorushFee = 0;
+        if (gorushSpeed === 'gorush30') gorushFee = 500;
+        if (gorushSpeed === 'gorush60') gorushFee = 350;
+        if (gorushSpeed === 'gorush90') gorushFee = 200;
 
-        if (gorushSurcharge > 0) {
-            summaryHTML += `
-                <div class="summary-row" style="color: var(--cyan-accent);">
-                    <span>GoRush Speed Fee:</span>
-                    <span>+₱${gorushSurcharge}</span>
-                </div>
-            `;
+        if (gorushFee > 0) {
+            summaryHTML += `<div class="summary-row" style="color:var(--cyan-accent);"><span>GoRush Surcharge (${gorushSpeed.toUpperCase()}):</span><span>+₱${gorushFee}</span></div>`;
         }
 
-        let specialHandlingFee = 0;
-        if (document.getElementById('chk-handling-unitsplit').checked) {
-            specialHandlingFee += 100;
-            summaryHTML += `<div class="summary-row"><span>Unit Splitting:</span><span>+₱100</span></div>`;
-        }
-        if (document.getElementById('chk-handling-locchange').checked) {
-            specialHandlingFee += 100;
-            summaryHTML += `<div class="summary-row"><span>Location Change Fee:</span><span>+₱100</span></div>`;
-        }
-        if (document.getElementById('chk-handling-priority').checked) {
-            specialHandlingFee += 150;
-            summaryHTML += `<div class="summary-row"><span>Priority Dispatch:</span><span>+₱150</span></div>`;
-        }
-        if (document.getElementById('chk-handling-delay').checked) {
-            specialHandlingFee += 100;
-            summaryHTML += `<div class="summary-row"><span>Customer Delay Fee:</span><span>+₱100</span></div>`;
-        }
-        if (document.getElementById('chk-handling-schedule').checked) {
-            specialHandlingFee += 100;
-            summaryHTML += `<div class="summary-row"><span>Scheduled Delivery Hold:</span><span>+₱100</span></div>`;
-        }
-        if (document.getElementById('chk-handling-personalized').checked) {
-            summaryHTML += `<div class="summary-row" style="color: var(--gold-primary);"><span>Personalized Packaging:</span><span>Material Cost + 30%</span></div>`;
+        let specialHandlingTotal = 0;
+        if (document.getElementById('chk-handling-unitsplit').checked) specialHandlingTotal += 100;
+        if (document.getElementById('chk-handling-locchange').checked) specialHandlingTotal += 100;
+        if (document.getElementById('chk-handling-priority').checked) specialHandlingTotal += 150;
+        if (document.getElementById('chk-handling-delay').checked) specialHandlingTotal += 100;
+        if (document.getElementById('chk-handling-schedule').checked) specialHandlingTotal += 100;
+        if (document.getElementById('chk-handling-personalized').checked) specialHandlingTotal += 200;
+
+        if (specialHandlingTotal > 0) {
+            summaryHTML += `<div class="summary-row"><span>Special Handling Fees:</span><span>+₱${specialHandlingTotal}</span></div>`;
         }
 
-        const piggybackChk = document.getElementById('chk-handling-piggyback');
-        const piggybackMsg = document.getElementById('piggyback-status-msg');
-
-        if (isSpecialCodeActive) {
-            if (subtotal >= 1000 && subtotal <= 1500) {
-                piggybackChk.disabled = false;
-                piggybackMsg.style.color = "var(--neon-green)";
-                piggybackMsg.innerText = "✓ Subtotal qualifies for Piggyback (₱1,000–₱1,500). SLA: 24-hr.";
-            } else {
-                piggybackChk.checked = false;
-                piggybackChk.disabled = true;
-                piggybackMsg.style.color = "var(--neon-red)";
-                piggybackMsg.innerText = "✕ Piggyback requires subtotal between ₱1,000 and ₱1,500.";
-            }
-
-            if (piggybackChk.checked) {
-                summaryHTML += `<div class="summary-row" style="color: var(--neon-green);"><span>Wholesale Piggyback:</span><span>₱0 (24h SLA)</span></div>`;
-            }
-        }
-
-        const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee + gorushSurcharge + specialHandlingFee);
+        const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee + gorushFee + specialHandlingTotal);
         document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.9rem;">No items selected.</div>';
         document.getElementById('summary-total-val').innerText = `₱${grandTotal.toLocaleString()}`;
 
-        const maxBasePrice = getMaxSelectedMenuBasePrice();
-        const optPayday = document.getElementById('opt-payday');
-        const optPay3day = document.getElementById('opt-pay3day');
-        const optPaylater = document.getElementById('opt-paylater');
+        const etaTime = new Date(Date.now() + 120 * 60000);
+        document.getElementById('eta-display').innerText = `Estimated Arrival: ~${etaTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
 
-        if (optPayday && optPay3day && optPaylater) {
-            optPayday.disabled = maxBasePrice > 2600;
-            optPayday.text = maxBasePrice > 2600 
-                ? "1. PAY-DAY (Unavailable - Base price exceeds ₱2,600 Nibiru)"
-                : "1. PAY-DAY (24 Hours) — 20% Loanable | 20% Interest";
+    function toggleScheduledBox() {
+        const chk = document.getElementById('chk-handling-schedule').checked;
+        document.getElementById('scheduled-input-box').style.display = chk ? 'block' : 'none';
+        updateCalculations();
+    }
 
-            optPay3day.disabled = maxBasePrice > 2150;
-            optPay3day.text = maxBasePrice > 2150 
-                ? "2. PAY-3DAY (Unavailable - Base price exceeds ₱2,150 Saturn)"
-                : "2. PAY-3DAY (36 Hours) — 15% Loanable | 25% Interest";
-
-            optPaylater.disabled = maxBasePrice > 1700;
-            optPaylater.text = maxBasePrice > 1700 
-                ? "3. PAY-LATER (5 Days) — 10% Loanable | 30% Interest"
-                : "3. PAY-LATER (5 Days) — 10% Loanable | 30% Interest";
-
-            const planSelect = document.getElementById('paylater-plan-select');
-            if (planSelect.selectedOptions[0].disabled) {
-                planSelect.value = "none";
-            }
-        }
-
-        const plan = document.getElementById('paylater-plan-select').value;
-        const detailsBox = document.getElementById('paylater-details-box');
-        const summaryBreakdown = document.getElementById('paylater-summary-breakdown');
-
-        if (plan !== 'none' && grandTotal > 0) {
-            detailsBox.style.display = 'block';
-
-            let loanPct = 0, intPct = 0, dailyInt = "5%";
-            if (plan === 'payday') { loanPct = 0.20; intPct = 0.20; dailyInt = "5%"; }
-            else if (plan === 'pay3day') { loanPct = 0.15; intPct = 0.25; dailyInt = "4%"; }
-            else if (plan === 'paylater') { loanPct = 0.10; intPct = 0.30; dailyInt = "3%"; }
-
-            const loanableAmt = grandTotal * loanPct;
-            const interestAmt = loanableAmt * intPct;
-            const downpaymentAmt = grandTotal - loanableAmt;
-            const totalRepayBalance = loanableAmt + interestAmt;
-
-            document.getElementById('pl-loanable-val').innerText = `₱${loanableAmt.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            document.getElementById('pl-downpayment-val').innerText = `₱${downpaymentAmt.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            document.getElementById('pl-interest-val').innerText = `₱${interestAmt.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            document.getElementById('pl-repay-val').innerText = `₱${totalRepayBalance.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            document.getElementById('pl-daily-int-val').innerText = dailyInt;
-
-            summaryBreakdown.innerHTML = `
-                <div style="border-top: 1px dashed var(--purple-glow); margin-top: 8px; padding-top: 8px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--purple-glow);">
-                    <div>⚡ <strong>PAYLATER PLAN ACTIVE (${plan.toUpperCase()})</strong></div>
-                    <div>• Downpayment Due Today: <strong>₱${downpaymentAmt.toLocaleString()}</strong></div>
-                    <div>• Loan Balance + Interest Due: <strong>₱${totalRepayBalance.toLocaleString()}</strong></div>
-                    <div>• Status: <em style="color:var(--gold-primary);">Pending Owner Approval</em></div>
-                </div>
-            `;
-            document.getElementById('payment-amount').placeholder = `Min Downpayment: ₱${Math.ceil(downpaymentAmt)}`;
-        } else {
-            detailsBox.style.display = 'none';
-            summaryBreakdown.innerHTML = '';
-            document.getElementById('payment-amount').placeholder = 'e.g. 1700';
-        }
-
-        let minsToAdd = 120;
-        if (gorushVal === 'gorush30') minsToAdd = 30;
-        else if (gorushVal === 'gorush60') minsToAdd = 60;
-        else if (gorushVal === 'gorush90') minsToAdd = 90;
-
-        const etaTime = new Date(Date.now() + minsToAdd * 60000);
-        document.getElementById('eta-display').innerText = `Estimated Delivery: ~${etaTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    function togglePersonalizedBox() {
+        const chk = document.getElementById('chk-handling-personalized').checked;
+        document.getElementById('personalized-input-box').style.display = chk ? 'block' : 'none';
+        updateCalculations();
     }
 
     function resetSelections() {
         Object.keys(cart).forEach(k => cart[k] = 0);
-        appliedDiscount = 0;
-        activeBonusPerk = '';
-        document.getElementById('paylater-plan-select').value = 'none';
-        document.getElementById('gorush-option').value = 'standard';
-        document.getElementById('chk-handling-unitsplit').checked = false;
-        document.getElementById('chk-handling-locchange').checked = false;
-        document.getElementById('chk-handling-priority').checked = false;
-        document.getElementById('chk-handling-delay').checked = false;
-        document.getElementById('chk-handling-schedule').checked = false;
-        document.getElementById('chk-handling-personalized').checked = false;
-        document.getElementById('chk-handling-piggyback').checked = false;
-        toggleScheduledBox();
-        togglePersonalizedBox();
-        renderMenu();
-        updateCalculations();
+        appliedDiscount = 0; appliedBonusPerk = '';
+        renderMenu(); updateCalculations();
     }
 
     async function submitOrder() {
+        if (isOwnerProxyMode && !confirm("OWNER PROXY CONFIRMATION: Confirm submitting order on behalf of customer?")) {
+            return;
+        }
+
         const amount = document.getElementById('payment-amount').value;
         const initials = document.getElementById('payment-initials').value;
         const recName = document.getElementById('rec-name').value.trim();
         const recPhone = document.getElementById('rec-phone').value.trim();
         const recAddress = document.getElementById('rec-address').value.trim();
         const recCoords = document.getElementById('rec-coords').value.trim();
-        const plan = document.getElementById('paylater-plan-select').value;
-        const collateral = document.getElementById('paylater-collateral-input').value.trim();
 
         if (!recName || !recPhone || !recAddress) {
-            alert("Please fill out the Receiver's Full Name, Phone Number, and Street Address / Landmarks.");
+            alert("Please fill out Receiver Name, Phone Number, and Complete Address.");
             return;
         }
 
-        if (plan !== 'none' && !collateral) {
-            alert("PayLater option selected! Please specify your proposed collateral.");
-            return;
-        }
-
-        if (!amount || !initials) {
-            alert('Please fill out the Payment Amount and First 3 Letters of First Name.');
+        if (!isPaylaterUnlocked && (!amount || !initials)) {
+            alert("Please fill out Payment Amount and First 3 Letters of First Name.");
             return;
         }
 
@@ -1675,57 +1145,28 @@
             const qty = cart[item.id] || 0;
             if (qty > 0) {
                 const currentStock = stockCount[item.id] !== undefined ? stockCount[item.id] : 50;
-                let tag = "";
-                if (currentStock <= 0) {
-                    tag = " ⚠️ [BY SUPPLIER - Backordered]";
-                }
-
-                let freebieNote = item.freebie ? ` (${item.freebie})` : '';
-                itemsSummary.push(`${item.name}${freebieNote} x${qty}${tag}`);
-                if (stockCount[item.id] !== undefined) {
-                    stockCount[item.id] = stockCount[item.id] - qty;
-                }
+                let tag = currentStock <= 0 ? " ⚠️ [BY SUPPLIER - Backordered]" : "";
+                itemsSummary.push(`${item.name} x${qty}${tag}`);
+                if (stockCount[item.id] !== undefined) stockCount[item.id] -= qty;
             }
         });
         localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
 
-        let selectedHandling = [];
-        if (document.getElementById('chk-handling-unitsplit').checked) selectedHandling.push("Unit Splitting (+₱100)");
-        if (document.getElementById('chk-handling-locchange').checked) selectedHandling.push("Location Change (+₱100)");
-        if (document.getElementById('chk-handling-priority').checked) selectedHandling.push("Priority Queue (+₱150)");
-        if (document.getElementById('chk-handling-delay').checked) selectedHandling.push("Customer Delay (+₱100)");
-        if (document.getElementById('chk-handling-schedule').checked) {
-            const dt = document.getElementById('scheduled-datetime').value;
-            selectedHandling.push(`Scheduled Delivery (+₱100, Time: ${dt || 'Unspecified'})`);
-        }
-        if (document.getElementById('chk-handling-personalized').checked) {
-            const details = document.getElementById('personalized-details').value;
-            selectedHandling.push(`Personalized Packaging (Markup 30%, Req: ${details || 'None'})`);
-        }
-        if (document.getElementById('chk-handling-piggyback').checked) {
-            selectedHandling.push("Wholesale Grouping Piggyback (24-hr SLA)");
-        }
+        const paymentInfoStr = isPaylaterUnlocked ? `[ PAYLATER ] Collateral: ${document.getElementById('paylater-collateral-desc').value}` : `Payment Sent: ₱${amount} | Sender: ${initials.toUpperCase()}`;
 
         const newOrder = {
             refCode: currentRefCode,
-            clientCode: currentClientCode,
+            clientCode: isOwnerProxyMode ? `PROXY-${currentClientCode}` : currentClientCode,
             clientType: currentUserType,
-            recName: recName,
-            recPhone: recPhone,
-            recAddress: recAddress,
-            recCoords: recCoords,
+            recName: recName, recPhone: recPhone, recAddress: recAddress, recCoords: recCoords,
             items: itemsSummary,
-            bonusPerk: activeBonusPerk || 'None',
-            specialHandling: selectedHandling.length > 0 ? selectedHandling.join(', ') : 'None',
             totalAmount: document.getElementById('summary-total-val').innerText,
-            amountPaid: amount,
-            senderInitials: initials.toUpperCase(),
-            payLaterPlan: plan,
-            collateral: collateral || "N/A",
+            amountPaid: isPaylaterUnlocked ? 'PAYLATER' : amount,
+            senderInitials: isPaylaterUnlocked ? 'PL' : initials.toUpperCase(),
             timestamp: new Date().toLocaleString(),
             statusIndex: 0,
-            statusLabel: plan !== 'none' ? "Pending Owner Approval (PayLater)" : "Pending / Paid",
-            eta: document.getElementById('eta-display').innerText
+            eta: document.getElementById('eta-display').innerText,
+            revisionPending: false, revisionNotes: ""
         };
 
         const orders = loadOrdersFromStorage();
@@ -1737,29 +1178,15 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    _subject: `New Order [${currentRefCode}] ${plan !== 'none' ? '- PAYLATER REQUEST' : ''}`,
-                    Order_Reference: currentRefCode,
-                    Client_Code: currentClientCode,
-                    Client_Type: currentUserType,
-                    Receiver_Name: recName,
-                    Receiver_Phone: recPhone,
-                    Receiver_Address: recAddress,
-                    Map_Coordinates: recCoords,
-                    Items_Ordered: itemsSummary.join(', '),
-                    Bonus_Volume_Perk: newOrder.bonusPerk,
-                    Special_Handling: newOrder.specialHandling,
-                    Total_Amount: newOrder.totalAmount,
-                    Amount_Paid: `₱${amount}`,
-                    PayLater_Plan: plan.toUpperCase(),
-                    Proposed_Collateral: collateral || "None",
-                    Approval_Status: plan !== 'none' ? "PENDING OWNER APPROVAL" : "STANDARD",
-                    Sender_Initials: initials.toUpperCase(),
+                    _subject: `New Order [${currentRefCode}] ${isOwnerProxyMode ? '(OWNER PROXY)' : ''}`,
+                    Order_Reference: currentRefCode, Client_Code: currentClientCode,
+                    Receiver_Name: recName, Receiver_Phone: recPhone, Receiver_Address: recAddress,
+                    Map_Coordinates: recCoords, Items_Ordered: itemsSummary.join(', '),
+                    Total_Amount: newOrder.totalAmount, Payment_Info: paymentInfoStr,
                     Timestamp: newOrder.timestamp
                 })
             });
-        } catch (err) {
-            console.error("Formspree dispatch error:", err);
-        }
+        } catch (err) { console.error(err); }
 
         document.getElementById('bill-ref-code').innerText = currentRefCode;
         document.getElementById('bill-client-type').innerText = `CLIENT TYPE: ${currentUserType.toUpperCase()}`;
@@ -1767,24 +1194,8 @@
         document.getElementById('bill-rec-address').innerText = `ADDRESS: ${recAddress}`;
         document.getElementById('bill-rec-coords').innerText = `GPS LOCATION: ${recCoords}`;
         document.getElementById('bill-items-list').innerHTML = itemsSummary.map(i => `<div>• ${i}</div>`).join('');
-        if (activeBonusPerk) {
-            document.getElementById('bill-items-list').innerHTML += `<div style="color:var(--neon-green);">• Bonus Volume Perk: ${activeBonusPerk}</div>`;
-        }
         document.getElementById('bill-grand-total').innerText = newOrder.totalAmount;
-        
-        if (plan !== 'none') {
-            document.getElementById('bill-paylater-details').innerHTML = `
-                <div style="margin-top:6px; padding:6px; background:rgba(176,38,255,0.15); border-radius:6px;">
-                    <strong>PAYLATER PLAN:</strong> ${plan.toUpperCase()}<br>
-                    <strong>COLLATERAL:</strong> ${collateral}<br>
-                    <strong>STATUS:</strong> PENDING OWNER APPROVAL
-                </div>
-            `;
-        } else {
-            document.getElementById('bill-paylater-details').innerHTML = '';
-        }
-
-        document.getElementById('bill-payment-info').innerText = `Payment Sent Today: ₱${amount} | Sender: ${initials.toUpperCase()}`;
+        document.getElementById('bill-payment-info').innerText = paymentInfoStr;
         document.getElementById('bill-eta-info').innerText = newOrder.eta;
 
         submitBtn.disabled = false;
@@ -1798,7 +1209,6 @@
     function renderAdminOrders() {
         const orders = loadOrdersFromStorage();
         const container = document.getElementById('admin-orders-container');
-        
         document.getElementById('admin-stat-total').innerText = orders.length;
         document.getElementById('admin-stat-active').innerText = orders.filter(o => o.statusIndex < 5).length;
 
@@ -1807,6 +1217,8 @@
             return;
         }
 
+        const isOwner = (currentUserType === 'owner');
+
         container.innerHTML = orders.slice().reverse().map(o => `
             <div class="order-card">
                 <div class="order-card-header">
@@ -1814,44 +1226,65 @@
                         <strong style="color:var(--cyan-accent);">${o.refCode}</strong>
                         <span style="font-size:0.75rem; color:var(--text-muted);"> (${o.timestamp})</span>
                     </div>
-                    <span class="status-badge status-pending">${o.statusLabel || STATUS_STAGES[o.statusIndex]}</span>
+                    <span class="status-badge status-pending">${STATUS_STAGES[o.statusIndex]}</span>
                 </div>
                 <div><strong>Client Mode:</strong> ${o.clientCode} (${o.clientType})</div>
-                <div><strong>Recipient:</strong> <input type="text" value="${o.recName || ''}" id="edit-rec-name-${o.refCode}" style="padding:2px 6px; width:140px; font-size:0.8rem;"> | <strong>Phone:</strong> <input type="text" value="${o.recPhone || ''}" id="edit-rec-phone-${o.refCode}" style="padding:2px 6px; width:130px; font-size:0.8rem;"></div>
-                <div><strong>Manual Address:</strong> <input type="text" value="${o.recAddress || ''}" id="edit-rec-address-${o.refCode}" style="padding:2px 6px; width:100%; font-size:0.8rem; margin-top:4px;"></div>
-                <div><strong>GPS Coordinates:</strong> <span style="color:var(--cyan-accent);">${o.recCoords || 'N/A'}</span></div>
-                <div><strong>Items:</strong> ${o.items.join(', ')}</div>
-                ${o.bonusPerk && o.bonusPerk !== 'None' ? `<div style="color:var(--neon-green);"><strong>Bonus Volume Perk:</strong> ${o.bonusPerk}</div>` : ''}
-                ${o.specialHandling && o.specialHandling !== 'None' ? `<div style="color:var(--gold-primary);"><strong>Special Handling:</strong> ${o.specialHandling}</div>` : ''}
-                <div><strong>Total Bill:</strong> ${o.totalAmount} | <strong>Paid Today:</strong> ₱${o.amountPaid} (${o.senderInitials})</div>
-                ${o.payLaterPlan && o.payLaterPlan !== 'none' ? `
-                    <div style="color: var(--purple-glow); font-size:0.85rem; margin-top:4px;">
-                        <strong>⚡ PayLater Plan:</strong> ${o.payLaterPlan.toUpperCase()} | <strong>Collateral:</strong> ${o.collateral}
-                    </div>
-                ` : ''}
+                <div><strong>Recipient:</strong> <input type="text" value="${o.recName || ''}" id="edit-rec-name-${o.refCode}" style="padding:2px; width:130px;" ${!isOwner ? 'readonly' : ''}> | <strong>Phone:</strong> <input type="text" value="${o.recPhone || ''}" id="edit-rec-phone-${o.refCode}" style="padding:2px; width:120px;" ${!isOwner ? 'readonly' : ''}></div>
+                <div><strong>Manual Address:</strong> <input type="text" value="${o.recAddress || ''}" id="edit-rec-address-${o.refCode}" style="padding:2px; width:100%; margin-top:2px;" ${!isOwner ? 'readonly' : ''}></div>
+                <div><strong>GPS:</strong> <span style="color:var(--cyan-accent);">${o.recCoords || 'N/A'}</span></div>
                 
-                <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <label style="font-size:0.80rem; color: var(--gold-primary);">Update Status:</label>
+                ${isOwner ? `
+                    <div style="margin-top:6px;">
+                        <strong>Owner Edit Items:</strong>
+                        <textarea id="edit-items-${o.refCode}" rows="2" style="width:100%; font-size:0.8rem;">${o.items.join(', ')}</textarea>
+                    </div>
+                    <div style="margin-top:4px; display:flex; gap:10px;">
+                        <div style="flex:1;"><strong>Total Price:</strong> <input type="text" value="${o.totalAmount}" id="edit-total-${o.refCode}" style="padding:2px;"></div>
+                        <div style="flex:1;"><strong>Client Note:</strong> <span style="color:var(--gold-primary);">${o.revisionNotes || 'None'}</span></div>
+                    </div>
+                ` : `
+                    <div><strong>Items:</strong> ${o.items.join(', ')}</div>
+                    <div><strong>Total Bill:</strong> ${o.totalAmount}</div>
+                `}
+
+                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <label style="font-size:0.8rem; color: var(--gold-primary);">Status:</label>
                     <select style="font-size:0.85rem; padding:4px;" onchange="updateOrderStatus('${o.refCode}', this.value)">
-                        ${STATUS_STAGES.map((st, idx) => `
-                            <option value="${idx}" ${o.statusIndex === idx ? 'selected' : ''}>${st}</option>
-                        `).join('')}
+                        ${STATUS_STAGES.map((st, idx) => `<option value="${idx}" ${o.statusIndex === idx ? 'selected' : ''}>${st}</option>`).join('')}
                     </select>
-                    <button class="btn btn-cyan" style="width: auto; padding: 4px 8px; font-size: 0.75rem;" onclick="saveEditedRecipient('${o.refCode}')">Save Delivery Edits</button>
+                    ${isOwner ? `
+                        <button class="btn btn-cyan" style="width: auto; padding: 4px 8px; font-size: 0.75rem;" onclick="saveOwnerEdits('${o.refCode}')">Save Edits</button>
+                        <button class="btn btn-purple" style="width: auto; padding: 4px 8px; font-size: 0.75rem;" onclick="sendOwnerRevision('${o.refCode}')">SEND REVISION NOTICE</button>
+                    ` : ''}
                 </div>
             </div>
         `).join('');
     }
 
-    function saveEditedRecipient(refCode) {
+    function saveOwnerEdits(refCode) {
         const orders = loadOrdersFromStorage();
         const target = orders.find(o => o.refCode === refCode);
         if (target) {
             target.recName = document.getElementById(`edit-rec-name-${refCode}`).value.trim();
             target.recPhone = document.getElementById(`edit-rec-phone-${refCode}`).value.trim();
             target.recAddress = document.getElementById(`edit-rec-address-${refCode}`).value.trim();
+            target.totalAmount = document.getElementById(`edit-total-${refCode}`).value.trim();
+            const rawItems = document.getElementById(`edit-items-${refCode}`).value.trim();
+            target.items = rawItems.split(',').map(i => i.trim());
             saveOrdersToStorage(orders);
-            alert(`Delivery details for ${refCode} updated.`);
+            alert(`Order ${refCode} updated successfully.`);
+            renderAdminOrders();
+        }
+    }
+
+    function sendOwnerRevision(refCode) {
+        const orders = loadOrdersFromStorage();
+        const target = orders.find(o => o.refCode === refCode);
+        if (target) {
+            saveOwnerEdits(refCode);
+            target.revisionPending = true;
+            saveOrdersToStorage(orders);
+            alert(`Revision notice sent to client for ${refCode}!`);
             renderAdminOrders();
         }
     }
@@ -1861,11 +1294,58 @@
         const target = orders.find(o => o.refCode === refCode);
         if (target) {
             target.statusIndex = parseInt(newIndex);
-            target.statusLabel = STATUS_STAGES[newIndex];
             saveOrdersToStorage(orders);
             renderAdminOrders();
-            alert(`Order ${refCode} updated to: ${STATUS_STAGES[newIndex]}`);
+            alert(`Order ${refCode} status updated to: ${STATUS_STAGES[newIndex]}`);
         }
+    }
+
+    function renderInventoryTable() {
+        const tbody = document.getElementById('inventory-table-body');
+        tbody.innerHTML = '';
+        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
+            const qty = stockCount[item.id] !== undefined ? stockCount[item.id] : 50;
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${item.name}</strong></td>
+                    <td><input type="number" value="${qty}" id="stock-input-${item.id}" style="width: 100px; padding: 4px 8px;"></td>
+                </tr>
+            `;
+        });
+    }
+
+    function saveInventoryStock() {
+        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
+            const inputVal = document.getElementById(`stock-input-${item.id}`).value;
+            stockCount[item.id] = parseInt(inputVal) || 0;
+        });
+        localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
+        alert("Inventory updated successfully!");
+        renderMenu();
+    }
+
+    function saveOwnerPromoCode() {
+        const code = document.getElementById('new-promo-code').value.trim().toUpperCase();
+        const disc = parseFloat(document.getElementById('new-promo-discount').value) || 0;
+        const bonus = document.getElementById('new-promo-bonus').value.trim();
+
+        if (!code) { alert("Enter valid code name."); return; }
+        customPromoCodes[code] = { discount: disc, bonus: bonus };
+        localStorage.setItem('celestial_custom_promos', JSON.stringify(customPromoCodes));
+        alert(`Promo code ${code} created!`);
+        renderOwnerPromoCodesList();
+    }
+
+    function renderOwnerPromoCodesList() {
+        const container = document.getElementById('owner-codes-list');
+        if (!container) return;
+        let html = '';
+        for (const [code, data] of Object.entries(customPromoCodes)) {
+            html += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid rgba(243,206,114,0.2);">
+                <span><strong>${code}</strong> (${data.discount}% off) ${data.bonus ? '— ' + data.bonus : ''}</span>
+            </div>`;
+        }
+        container.innerHTML = html || '<div>No promo codes active.</div>';
     }
 
     function searchOrderTrack() {
@@ -1874,19 +1354,35 @@
         const orders = loadOrdersFromStorage();
 
         const match = orders.find(o => o.refCode === inputRef);
-
         if (!match) {
-            container.innerHTML = `<div style="color:var(--neon-red); font-family:var(--font-mono); margin-top:10px;">✕ Order Reference "${inputRef}" not found. Please verify code.</div>`;
+            container.innerHTML = `<div style="color:var(--neon-red); font-family:var(--font-mono); margin-top:10px;">✕ Order Reference "${inputRef}" not found.</div>`;
             return;
+        }
+
+        let revisionNoticeHTML = "";
+        if (match.revisionPending) {
+            revisionNoticeHTML = `
+                <div style="background: rgba(243,206,114,0.15); border: 1px solid var(--gold-primary); padding: 12px; border-radius: 8px; margin: 12px 0;">
+                    <div style="font-family:var(--font-title); color:var(--gold-primary); font-size:0.9rem;">⚠️ ORDER REVISION NOTICE FROM OWNER</div>
+                    <p style="font-size:0.85rem; color:#fff; margin:6px 0;">The owner has updated your order details, items, or pricing.</p>
+                    <div style="margin: 8px 0;">
+                        <label><input type="checkbox" id="agree-revision-${match.refCode}"> I agree to the revised order changes and pricing.</label>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-cyan" style="padding:6px; font-size:0.8rem;" onclick="approveRevision('${match.refCode}')">APPROVE CHANGES</button>
+                        <button class="btn btn-red" style="padding:6px; font-size:0.8rem;" onclick="requestRevisionFeedback('${match.refCode}')">REQUEST REVISION / REVISE</button>
+                    </div>
+                </div>
+            `;
         }
 
         container.innerHTML = `
             <div class="order-card" style="margin-top: 16px;">
                 <div class="order-card-header">
                     <strong style="color:var(--cyan-accent); font-size:1.2rem;">${match.refCode}</strong>
-                    <span class="status-badge status-confirmed">${match.statusLabel || STATUS_STAGES[match.statusIndex]}</span>
+                    <span class="status-badge status-confirmed">${STATUS_STAGES[match.statusIndex]}</span>
                 </div>
-
+                ${revisionNoticeHTML}
                 <div class="pipeline-tracker">
                     ${STATUS_STAGES.map((st, idx) => `
                         <div class="pipeline-step ${idx === match.statusIndex ? 'active' : ''} ${idx < match.statusIndex ? 'completed' : ''}">
@@ -1895,39 +1391,77 @@
                         </div>
                     `).join('')}
                 </div>
-
                 <div><strong>Recipient:</strong> ${match.recName} (${match.recPhone})</div>
                 <div><strong>Manual Address:</strong> ${match.recAddress || 'N/A'}</div>
                 <div><strong>GPS Location:</strong> ${match.recCoords}</div>
                 <div><strong>Items Ordered:</strong> ${match.items.join(', ')}</div>
-                ${match.bonusPerk && match.bonusPerk !== 'None' ? `<div style="color:var(--neon-green);"><strong>Bonus Volume Perk:</strong> ${match.bonusPerk}</div>` : ''}
-                ${match.specialHandling && match.specialHandling !== 'None' ? `<div><strong>Special Handling:</strong> ${match.specialHandling}</div>` : ''}
                 <div><strong>Total Amount:</strong> ${match.totalAmount}</div>
-                ${match.payLaterPlan && match.payLaterPlan !== 'none' ? `
-                    <div style="color:var(--purple-glow);"><strong>PayLater Plan:</strong> ${match.payLaterPlan.toUpperCase()} (Pending Owner Approval)</div>
-                ` : ''}
                 <div><strong>Schedule / ETA:</strong> ${match.eta}</div>
             </div>
         `;
     }
 
-    function goToTrackerFromRef() {
-        document.getElementById('ref-view').style.display = 'none';
-        document.getElementById('portal-view').style.display = 'block';
-        switchTab('track');
-        document.getElementById('track-ref-input').value = currentRefCode;
-        searchOrderTrack();
+    function approveRevision(refCode) {
+        const agreed = document.getElementById(`agree-revision-${refCode}`).checked;
+        if (!agreed) { alert("You must check the agreement box before approving."); return; }
+        const orders = loadOrdersFromStorage();
+        const target = orders.find(o => o.refCode === refCode);
+        if (target) {
+            target.revisionPending = false;
+            saveOrdersToStorage(orders);
+            alert("Order revision approved successfully!");
+            searchOrderTrack();
+        }
     }
 
-    function copyInvoiceText() {
-        const txt = document.getElementById('ticket-content').innerText;
-        navigator.clipboard.writeText(txt);
-        alert('Invoice copied to clipboard!');
+    function requestRevisionFeedback(refCode) {
+        const reason = prompt("Please enter the reasons or details you want changed:");
+        if (reason) {
+            const orders = loadOrdersFromStorage();
+            const target = orders.find(o => o.refCode === refCode);
+            if (target) {
+                target.revisionNotes = reason;
+                saveOrdersToStorage(orders);
+                alert("Your feedback has been sent to the owner for review.");
+                searchOrderTrack();
+            }
+        }
     }
 
-    function openTelegramDirect() {
-        window.open('https://t.me/hoe_no', '_blank');
+    function initGoogleMap() {
+        const defaultLat = 7.1907; const defaultLng = 125.4553;
+        const mapContainer = document.getElementById('delivery-map');
+        if (!mapContainer) return;
+
+        googleMap = new google.maps.Map(mapContainer, { center: { lat: defaultLat, lng: defaultLng }, zoom: 15 });
+        googleMarker = new google.maps.Marker({ position: { lat: defaultLat, lng: defaultLng }, map: googleMap, draggable: true });
+
+        google.maps.event.addListener(googleMarker, 'dragend', (event) => updateMapCoordsInput(event.latLng.lat(), event.latLng.lng()));
+        google.maps.event.addListener(googleMap, 'click', (event) => {
+            googleMarker.setPosition(event.latLng);
+            updateMapCoordsInput(event.latLng.lat(), event.latLng.lng());
+        });
+        fetchCurrentGPSLocation();
     }
+
+    function fetchCurrentGPSLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+                    if (googleMap && googleMarker) { googleMap.setCenter(pos); googleMarker.setPosition(pos); }
+                    updateMapCoordsInput(pos.lat, pos.lng);
+                },
+                () => updateMapCoordsInput(7.1907, 125.4553),
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        } else { updateMapCoordsInput(7.1907, 125.4553); }
+    }
+
+    function updateMapCoordsInput(lat, lng) { document.getElementById('rec-coords').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`; }
+    function goToTrackerFromRef() { document.getElementById('ref-view').style.display = 'none'; document.getElementById('portal-view').style.display = 'block'; switchTab('track'); document.getElementById('track-ref-input').value = currentRefCode; searchOrderTrack(); }
+    function copyInvoiceText() { navigator.clipboard.writeText(document.getElementById('ticket-content').innerText); alert('Invoice copied to clipboard!'); }
+    function openTelegramDirect() { window.open('https://t.me/hoe_no', '_blank'); }
 </script>
 
 </body>
