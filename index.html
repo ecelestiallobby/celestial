@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <!-- Google Maps API & Telegram WebApp -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initGoogleMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY" async defer></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
@@ -115,7 +115,15 @@
             color: var(--cyan-accent); font-weight: bold;
         }
 
-        #delivery-map { height: 240px; width: 100%; border-radius: 8px; border: 1px solid var(--cyan-accent); margin: 10px 0; }
+        #delivery-map { 
+            height: 280px; 
+            width: 100%; 
+            border-radius: 8px; 
+            border: 1px solid var(--cyan-accent); 
+            margin: 10px 0; 
+            background: #000;
+        }
+
         .tab-nav { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn {
             flex: 1; padding: 12px; background: rgba(13, 17, 33, 0.8);
@@ -148,6 +156,30 @@
 
         .handling-checkbox-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(243, 206, 114, 0.15); font-size: 0.85rem; }
         .timer-badge { background: rgba(255, 42, 109, 0.2); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); text-align: center; margin-bottom: 12px; font-weight: bold; }
+
+        /* GALACTIC ARMY FULL MODAL OVERLAY STYLES */
+        #army-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 99998;
+        }
+
+        #galactic-army-login-view {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 92%; max-width: 480px;
+            z-index: 99999;
+            background: rgba(10, 14, 28, 0.98);
+            border: 2px solid var(--purple-glow);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 0 40px rgba(176, 38, 255, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -298,10 +330,11 @@
         </div>
     </div>
 
-    <!-- 3. GALACTIC ARMY LOGIN MODAL / PANEL -->
-    <div id="galactic-army-login-view" class="scifi-panel" style="display: none; border-color: var(--purple-glow);">
+    <!-- 3. GALACTIC ARMY LOGIN FULL-SCREEN MODAL & BACKDROP -->
+    <div id="army-modal-backdrop" onclick="closeGalacticArmyLogin()"></div>
+    <div id="galactic-army-login-view" class="scifi-panel">
         <div class="panel-header">
-            <div class="panel-header-title" style="color: var(--purple-glow);">GALACTIC ARMY | EMPLOYEE AUTHENTICATION</div>
+            <div class="panel-header-title" style="color: var(--purple-glow);">GALACTIC ARMY | AUTHENTICATION</div>
             <button class="btn btn-red" style="width: auto; padding: 4px 10px; font-size: 0.75rem;" onclick="closeGalacticArmyLogin()">CLOSE</button>
         </div>
 
@@ -615,7 +648,7 @@
 
     const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xeaaojak';
 
-    // GALACTIC ARMY PASSCODES & CREDENTIALS
+    // GALACTIC ARMY PASSCODES
     const ARMY_PASSCODES = {
         'sales': 'OFFICER777',
         'admin': 'COMMANDER888',
@@ -651,8 +684,12 @@
     ];
 
     const STATUS_STAGES = [
-        "Pending / Paid", "Confirmed (Inventory 1-2h)", "Packaging (30m-1h)",
-        "Logistics Handover", "In Route", "Delivered"
+        "Payment Unverified / Pending",
+        "Confirmed & Verified (1-2h)",
+        "Packaging (30m-1h)",
+        "Logistics Handover",
+        "In Route",
+        "Delivered"
     ];
 
     let currentPath = 'guest';
@@ -681,7 +718,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         const boundCode = localStorage.getItem('celestial_device_code');
         const boundType = localStorage.getItem('celestial_device_type');
-        if (boundCode && boundType && boundType !== 'admin' && boundType !== 'sales' && boundType !== 'owner') {
+        if (boundCode && boundType && boundType === 'regular') {
             grantAccess(boundType, boundCode, true);
         }
     });
@@ -698,7 +735,6 @@
         document.getElementById('landing-error-badge').style.display = 'none';
     }
 
-    // GUEST WALKTHROUGH & TIMER
     function startGuestWalkthrough() {
         document.getElementById('landing-view').style.display = 'none';
         document.getElementById('guest-onboarding-view').style.display = 'block';
@@ -762,7 +798,6 @@
         document.getElementById('terminated-view').style.display = 'block';
     }
 
-    // NEW CLIENT VERIFICATION
     function verifyNewClientOrder() {
         const orderNum = document.getElementById('new-client-order-num').value.trim().toUpperCase();
         const errBadge = document.getElementById('landing-error-badge');
@@ -779,7 +814,6 @@
         grantAccess('new', `NEW-${orderNum}`, false);
     }
 
-    // REGULAR CLIENT LOGIN
     function attemptRegularLogin() {
         const clientId = document.getElementById('reg-client-id').value.trim().toUpperCase();
         const code = document.getElementById('reg-access-code').value.trim().toUpperCase();
@@ -807,12 +841,14 @@
         }
     }
 
-    // GALACTIC ARMY STAFF LOGIN
+    // GALACTIC ARMY MODAL CONTROL FIX
     function showGalacticArmyLogin() {
+        document.getElementById('army-modal-backdrop').style.display = 'block';
         document.getElementById('galactic-army-login-view').style.display = 'block';
     }
 
     function closeGalacticArmyLogin() {
+        document.getElementById('army-modal-backdrop').style.display = 'none';
         document.getElementById('galactic-army-login-view').style.display = 'none';
     }
 
@@ -836,6 +872,7 @@
 
         closeGalacticArmyLogin();
         document.getElementById('landing-view').style.display = 'none';
+        document.getElementById('portal-view').style.display = 'none';
         document.getElementById('admin-view').style.display = 'block';
 
         currentUserType = role;
@@ -864,13 +901,9 @@
         renderOwnerPromoCodesList();
     }
 
-    // OWNER PROXY ORDER FOR CUSTOMER
     function openProxyCustomerOrder() {
         const code = document.getElementById('proxy-customer-code').value.trim().toUpperCase();
-        if (!code) {
-            alert("Please enter a customer 8-digit access code.");
-            return;
-        }
+        if (!code) { alert("Please enter a customer 8-digit access code."); return; }
         if (!confirm(`Verify Proxy Access for Client Code [ ${code} ]?`)) return;
 
         isOwnerProxyMode = true;
@@ -883,7 +916,7 @@
         currentUserType = type;
         currentClientCode = code;
 
-        if (!isAutoLogin && type !== 'sales' && type !== 'owner' && type !== 'admin') {
+        if (!isAutoLogin && type === 'regular' && !isOwnerProxyMode) {
             localStorage.setItem('celestial_device_code', code);
             localStorage.setItem('celestial_device_type', type);
         }
@@ -898,7 +931,11 @@
 
         renderMenu();
         updateCalculations();
-        setTimeout(fetchCurrentGPSLocation, 500);
+        
+        // Map sizing fix delay
+        setTimeout(() => {
+            initOrRefreshMap();
+        }, 300);
     }
 
     function resetDeviceBinding() {
@@ -917,7 +954,7 @@
         document.getElementById('tab-btn-track').classList.toggle('active', tab === 'track');
         document.getElementById('tab-order-content').style.display = (tab === 'order') ? 'block' : 'none';
         document.getElementById('tab-track-content').style.display = (tab === 'track') ? 'block' : 'none';
-        if (tab === 'order') setTimeout(fetchCurrentGPSLocation, 300);
+        if (tab === 'order') setTimeout(initOrRefreshMap, 300);
     }
 
     function switchAdminTab(tab) {
@@ -1428,19 +1465,33 @@
         }
     }
 
-    function initGoogleMap() {
+    // MAP INITIALIZATION & REFRESH FIX
+    function initOrRefreshMap() {
         const defaultLat = 7.1907; const defaultLng = 125.4553;
         const mapContainer = document.getElementById('delivery-map');
-        if (!mapContainer) return;
+        if (!mapContainer || typeof google === 'undefined' || !google.maps) return;
 
-        googleMap = new google.maps.Map(mapContainer, { center: { lat: defaultLat, lng: defaultLng }, zoom: 15 });
-        googleMarker = new google.maps.Marker({ position: { lat: defaultLat, lng: defaultLng }, map: googleMap, draggable: true });
+        if (!googleMap) {
+            googleMap = new google.maps.Map(mapContainer, { 
+                center: { lat: defaultLat, lng: defaultLng }, 
+                zoom: 15,
+                disableDefaultUI: false
+            });
+            googleMarker = new google.maps.Marker({ 
+                position: { lat: defaultLat, lng: defaultLng }, 
+                map: googleMap, 
+                draggable: true 
+            });
 
-        google.maps.event.addListener(googleMarker, 'dragend', (event) => updateMapCoordsInput(event.latLng.lat(), event.latLng.lng()));
-        google.maps.event.addListener(googleMap, 'click', (event) => {
-            googleMarker.setPosition(event.latLng);
-            updateMapCoordsInput(event.latLng.lat(), event.latLng.lng());
-        });
+            google.maps.event.addListener(googleMarker, 'dragend', (event) => updateMapCoordsInput(event.latLng.lat(), event.latLng.lng()));
+            google.maps.event.addListener(googleMap, 'click', (event) => {
+                googleMarker.setPosition(event.latLng);
+                updateMapCoordsInput(event.latLng.lat(), event.latLng.lng());
+            });
+        }
+
+        // Trigger map resize event so tiles display properly even if loaded inside hidden tabs
+        google.maps.event.trigger(googleMap, 'resize');
         fetchCurrentGPSLocation();
     }
 
@@ -1449,7 +1500,11 @@
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
-                    if (googleMap && googleMarker) { googleMap.setCenter(pos); googleMarker.setPosition(pos); }
+                    if (googleMap && googleMarker) { 
+                        googleMap.setCenter(pos); 
+                        googleMarker.setPosition(pos); 
+                        google.maps.event.trigger(googleMap, 'resize');
+                    }
                     updateMapCoordsInput(pos.lat, pos.lng);
                 },
                 () => updateMapCoordsInput(7.1907, 125.4553),
