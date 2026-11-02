@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CELESTIAL LOBBY | Secure Gateway</title>
+    
+    <!-- Sci-Fi Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #05070f;
+            --panel-bg: rgba(13, 17, 33, 0.95);
+            --gold-primary: #f3ce72;
+            --gold-dark: #8a6a1f;
+            --cyan-accent: #00f0ff;
+            --neon-red: #ff2a6d;
+            --neon-green: #05ffa1;
+            --purple-glow: #b026ff;
+            --text-main: #e2e8f0;
+            --text-muted: #8a99ad;
+            --border-glow: rgba(243, 206, 114, 0.3);
+            --font-title: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(20, 30, 60, 0.7) 0%, transparent 70%),
+                radial-gradient(circle at 100% 100%, rgba(138, 106, 31, 0.2) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            font-size: 16px;
+            padding: 12px 8px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: " "; display: block; position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px; z-index: 1000; pointer-events: none; opacity: 0.35;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; position: relative; z-index: 10; }
+
+        .scifi-panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(243, 206, 114, 0.2);
+            border-radius: 12px; padding: 16px; margin-bottom: 16px;
+            backdrop-filter: blur(8px);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .panel-header {
+            font-family: var(--font-title); font-size: 1rem; color: var(--gold-primary);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px dashed rgba(243, 206, 114, 0.2); padding-bottom: 8px;
+        }
+
+        .panel-header-title::before { content: '◈ '; color: var(--cyan-accent); }
+
+        .nav-link {
+            font-family: var(--font-title); font-size: 0.7rem; color: var(--text-main);
+            text-decoration: none; letter-spacing: 1px; transition: all 0.2s ease; cursor: pointer;
+        }
+        .nav-link:hover { color: var(--cyan-accent); text-shadow: 0 0 8px var(--cyan-accent); }
+
+        /* RESPONSIVE LANDING GRID (2 SQUARES + 1 RECTANGLE) */
+        .landing-grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .square-panel {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+
+        .full-width-panel {
+            grid-column: span 2;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 420px) {
+            .square-panel { aspect-ratio: auto; min-height: 160px; }
+        }
+
+        input[type="text"], input[type="password"], input[type="number"], input[type="datetime-local"], select, textarea {
+            width: 100%; background: rgba(5, 7, 15, 0.85);
+            border: 1px solid rgba(243, 206, 114, 0.4); border-radius: 8px;
+            padding: 12px 14px; color: #fff; font-family: var(--font-mono); font-size: 1rem;
+            outline: none; transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--cyan-accent); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+            color: #000; font-family: var(--font-title); font-weight: 800;
+            text-transform: uppercase; letter-spacing: 2px; border: none;
+            border-radius: 8px; padding: 14px 20px; cursor: pointer;
+            transition: all 0.2s ease; display: inline-block; text-align: center; width: 100%;
+            box-shadow: 0 0 15px rgba(243, 206, 114, 0.2); text-decoration: none;
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(243, 206, 114, 0.5); }
+        .btn-cyan { background: linear-gradient(135deg, #0072ff, var(--cyan-accent)); color: #000; }
+        .btn-purple { background: linear-gradient(135deg, #6a0ded, var(--purple-glow)); color: #fff; }
+        .btn-red { background: linear-gradient(135deg, #8a1f1f, var(--neon-red)); color: #fff; }
+
+        /* CAROUSEL */
+        .swipe-carousel {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+            gap: 12px; padding: 10px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+        }
+        .swipe-carousel::-webkit-scrollbar { display: none; }
+
+        .swipe-card {
+            flex: 0 0 88%; scroll-snap-align: center; background: var(--panel-bg);
+            border: 1px solid rgba(243, 206, 114, 0.3); border-radius: 16px; padding: 18px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 380px; box-shadow: 0 8px 25px rgba(0,0,0,0.6); position: relative;
+        }
+
+        .swipe-card.restricted { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+
+        .type-selector { display: flex; gap: 8px; margin-bottom: 14px; }
+        .type-btn {
+            flex: 1; padding: 10px 4px; background: rgba(5, 7, 15, 0.85);
+            border: 1px solid rgba(243, 206, 114, 0.3); border-radius: 8px;
+            color: var(--text-muted); font-family: var(--font-title); font-size: 0.7rem;
+            cursor: pointer; text-align: center;
+        }
+        .type-btn.active {
+            border-color: var(--cyan-accent); background: rgba(0, 240, 255, 0.15);
+            color: var(--cyan-accent); font-weight: bold;
+        }
+
+        .tab-nav { display: flex; gap: 8px; margin-bottom: 16px; }
+        .tab-btn {
+            flex: 1; padding: 10px; background: rgba(13, 17, 33, 0.8);
+            border: 1px solid rgba(243, 206, 114, 0.3); color: var(--text-muted);
+            font-family: var(--font-title); font-size: 0.75rem; border-radius: 8px; cursor: pointer; text-align: center; text-decoration: none;
+        }
+        .tab-btn.active { background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary)); color: #000; font-weight: bold; }
+
+        .qty-controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0; }
+        .qty-btn { background: rgba(243, 206, 114, 0.15); border: 1px solid var(--gold-primary); color: var(--gold-primary); width: 42px; height: 42px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        .qty-val { font-family: var(--font-mono); width: 40px; text-align: center; font-size: 1.3rem; color: #fff; }
+
+        .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-family: var(--font-mono); font-size: 0.9rem; }
+        .summary-total { border-top: 1px solid var(--gold-primary); padding-top: 10px; margin-top: 10px; font-size: 1.2rem; color: var(--gold-primary); font-weight: bold; }
+
+        .ticket-card { background: #000; border: 2px dashed var(--gold-primary); border-radius: 12px; padding: 16px; font-family: var(--font-mono); text-align: left; margin: 16px 0; font-size: 0.85rem; }
+        
+        .handling-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(243, 206, 114, 0.15); font-size: 0.8rem; }
+        .tooltip-icon { color: var(--cyan-accent); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; margin-left: 6px; }
+
+        .timer-badge { background: rgba(255, 42, 109, 0.2); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); text-align: center; margin-bottom: 12px; font-weight: bold; font-size: 0.85rem; }
+
+        #security-lockout-screen {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 999999; padding: 40px 20px; text-align: center;
+        }
+
+        #army-modal-backdrop, .info-modal-backdrop {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99998;
+        }
+        #galactic-army-login-view, .info-modal-box {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 92%; max-width: 440px;
+            max-height: 85vh; overflow-y: auto; z-index: 99999;
+            background: rgba(10, 14, 28, 0.98); border: 2px solid var(--cyan-accent);
+            border-radius: 14px; padding: 20px; box-shadow: 0 0 40px rgba(0, 240, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div id="security-lockout-screen">
+    <div style="font-family: var(--font-title); font-size: 1.6rem; color: var(--neon-red); margin-bottom: 12px; margin-top: 60px;">🛡️ SECURITY LOCKOUT TRIGGERED</div>
+    <p style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; line-height: 1.5;">
+        Active Sentinel detected unauthorized activity, AFK timeout (>20s), screen shutdown, capture attempt, or decryption signature.
+    </p>
+    <div style="background: rgba(255, 42, 109, 0.1); border: 1px solid var(--neon-red); padding: 12px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: #fff; margin-bottom: 24px;">
+        STATUS: SESSION SEVERED // DEVICE ACCESS TERMINATED
+    </div>
+    <button class="btn btn-cyan" style="font-size: 0.75rem;" onclick="location.reload()">RE-INITIALIZE HANDSHAKE</button>
+</div>
+
+<div class="container">
+
+    <!-- PRE-LANDING DEFENSIVE SHIELD VIEW -->
+    <div id="shield-view" class="scifi-panel" style="text-align: center; padding: 40px 16px; margin-top: 40px;">
+        <div style="font-family: var(--font-title); font-size: 1.4rem; color: var(--cyan-accent); margin-bottom: 8px;">⚡ SYSTEM NODE 404</div>
+        <p style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Sub-network gateway is private and restricted to authorized sessions.</p>
+        <div id="shield-error-badge" style="background: rgba(255, 42, 109, 0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 12px; display: none;"></div>
+        <div style="max-width: 320px; margin: 0 auto;">
+            <input type="password" id="shield-passphrase" placeholder="ENTER ACCESS GATEWAY KEY" style="text-align: center; margin-bottom: 10px; text-transform: uppercase;">
+            <button class="btn btn-cyan" onclick="verifyShieldKey()">INITIALIZE HANDSHAKE ➔</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="main-app-container" style="display: none;">
+
+        <!-- TOP HEADER -->
+        <div class="scifi-panel" id="main-header-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-family: var(--font-title); font-size: 1rem; color: var(--gold-primary); font-weight: 900;">CELESTIAL LOBBY</span>
+            </div>
+            
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <a href="#home" class="nav-link">🏠 HOME</a>
+                <a class="nav-link" onclick="openInfoModal('core-values')">⚡ VALUES</a>
+                <a class="nav-link" onclick="openInfoModal('non-negotiables')">📜 RULES</a>
+                <a class="nav-link" onclick="openInfoModal('faqs')">❓ FAQS</a>
+                <button class="btn btn-purple" style="width: auto; padding: 4px 10px; font-size: 0.65rem;" onclick="showGalacticArmyLogin()">ARMY ⚡</button>
+            </div>
+        </div>
+
+        <!-- 1. LANDING PAGE VIEW (2 SQUARES + 1 RECTANGLE GRID) -->
+        <div id="landing-view" class="view-section" style="display: none;">
+            <div class="landing-grid-container">
+                <!-- SQUARE 1: FOUNDERS -->
+                <div class="scifi-panel square-panel">
+                    <div class="panel-header"><div class="panel-header-title">THE FOUNDERS</div></div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Stardust Mechanics division foundation & operations.</p>
+                    <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(243,206,114,0.2); border-radius: 8px; padding: 8px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold-primary);">
+                        ✦ Division: Stardust Mechanics<br>
+                        ✦ Mandate: Discrete Fulfillment
+                    </div>
+                </div>
+
+                <!-- SQUARE 2: THE CELESTIALS -->
+                <div class="scifi-panel square-panel">
+                    <div class="panel-header"><div class="panel-header-title">THE CELESTIALS</div></div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Explore the lore and cosmic foundation realm.</p>
+                    <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(243,206,114,0.2); border-radius: 8px; padding: 8px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--cyan-accent);">
+                        ✦ Origin: High Celestial Sector<br>
+                        ✦ Protocol: Sentinel Shield
+                    </div>
+                </div>
+
+                <!-- RECTANGULAR PANEL: CLIENT ACCESS PORTAL -->
+                <div class="scifi-panel full-width-panel">
+                    <div class="panel-header"><div class="panel-header-title">CLIENT ACCESS PORTAL</div></div>
+                    <label style="font-size: 0.75rem; color: var(--gold-primary); display: block; margin-bottom: 6px;">SELECT PATHWAY:</label>
+                    <div class="type-selector">
+                        <div class="type-btn active" id="btn-gate-guest" onclick="setLandingPath('guest')">GUEST</div>
+                        <div class="type-btn" id="btn-gate-new" onclick="setLandingPath('new')">NEW CLIENT</div>
+                        <div class="type-btn" id="btn-gate-reg" onclick="setLandingPath('regular')">REGULAR</div>
+                    </div>
+
+                    <div id="path-box-guest">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">Begin 30-minute timed onboarding and process agreement walkthrough.</p>
+                        <button class="btn" onclick="window.location.hash = '#onboarding'">BEGIN GUEST ASCENSION 🚀</button>
+                    </div>
+
+                    <div id="path-box-new" style="display: none;">
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">Enter First-Ever Order Number:</label>
+                        <input type="text" id="new-client-order-num" placeholder="e.g. CL-84920-X" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
+                        <button class="btn btn-cyan" onclick="verifyNewClientOrder()">VERIFY & ASCEND 🚀</button>
+                    </div>
+
+                    <div id="path-box-reg" style="display: none;">
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">Account ID / Client Username:</label>
+                        <input type="text" id="reg-account-id" placeholder="ENTER ACCOUNT ID" style="margin-top: 4px; margin-bottom: 8px; text-transform: uppercase;">
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">8-Digit Access Code:</label>
+                        <input type="text" id="reg-access-code" placeholder="ENTER 8-DIGIT CODE" maxlength="8" style="margin-top: 4px; margin-bottom: 12px; text-transform: uppercase;">
+                        <button class="btn" onclick="attemptRegularLogin()">WARP TO STORE 🚀</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. GUEST TIMED ONBOARDING VIEW -->
+        <div id="guest-onboarding-view" class="view-section" style="display: none;">
+            <div class="scifi-panel">
+                <div class="timer-badge" id="guest-timer-display">⏱️ SESSION TIME: 30:00</div>
+
+                <div id="guest-step-1">
+                    <div class="panel-header"><div class="panel-header-title">STEP 1: INTENT & GPS RADIUS CHECK</div></div>
+                    <p style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px;">Verify location telemetry to confirm eligibility within the 8km Davao operational radius.</p>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <button class="btn btn-cyan" style="font-size: 0.75rem;" onclick="captureEarlyGPS()">📍 CAPTURE GPS LOCATION</button>
+                        <input type="text" id="onboarding-gps-coords" placeholder="7.19070, 125.45530" readonly style="margin-top: 8px; text-align: center; color: var(--cyan-accent); font-weight: bold;">
+                    </div>
+                    <button class="btn" onclick="nextGuestStep(2)">CONTINUE ➔</button>
+                </div>
+
+                <div id="guest-step-2" style="display: none;">
+                    <div class="panel-header"><div class="panel-header-title">STEP 2: SIMPLE PROCESS FLOW</div></div>
+                    <ul style="font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 14px; padding-left: 18px; color: var(--text-main);">
+                        <li>1. Swipe items & add-ons horizontally.</li>
+                        <li>2. Provide manual address & pin GPS location.</li>
+                        <li>3. Submit InstaPay payment reference.</li>
+                        <li>4. Await dispatch tracking approval.</li>
+                    </ul>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-red" onclick="terminatePortalAccess()">DECLINE</button>
+                        <button class="btn" onclick="nextGuestStep(3)">AGREE ➔</button>
+                    </div>
+                </div>
+
+                <div id="guest-step-3" style="display: none;">
+                    <div class="panel-header"><div class="panel-header-title">STEP 3: GENERAL POLICIES & FAQS</div></div>
+                    <div style="font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 10px;">
+                        <label><input type="checkbox" id="faq-chk-1"> FAQ 1: Scale-verified prior to dispatch.</label><br>
+                        <label><input type="checkbox" id="faq-chk-2"> FAQ 2: GoRush night options apply after 10PM.</label><br>
+                        <label><input type="checkbox" id="faq-chk-3"> FAQ 3: Zero internal handling absorption.</label><br>
+                        <label><input type="checkbox" id="faq-chk-4"> FAQ 4: GPS must match manual address text.</label><br>
+                        <label><input type="checkbox" id="faq-chk-5"> FAQ 5: Revisions approved on tracker screen.</label>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-red" onclick="terminatePortalAccess()">DECLINE</button>
+                        <button class="btn" onclick="nextGuestStep(4)">AGREE ➔</button>
+                    </div>
+                </div>
+
+                <div id="guest-step-4" style="display: none;">
+                    <div class="panel-header"><div class="panel-header-title">STEP 4: SPECIAL HANDLING MODULES</div></div>
+                    
+                    <div class="handling-item">
+                        <label><input type="checkbox" id="sh-split"> Unit Splitting</label>
+                        <span class="tooltip-icon" onclick="alert('Explains order modifications & income/cost impact.')">ⓘ INFO</span>
+                    </div>
+                    <div class="handling-item">
+                        <label><input type="checkbox" id="sh-loc"> Sudden Location Change</label>
+                        <span class="tooltip-icon" onclick="alert('Covers routing adjustments after order submission.')">ⓘ INFO</span>
+                    </div>
+                    <div class="handling-item">
+                        <label><input type="checkbox" id="sh-priority"> Priority Queue</label>
+                        <span class="tooltip-icon" onclick="alert('Expedited dispatch handling slot.')">ⓘ INFO</span>
+                    </div>
+                    <div class="handling-item">
+                        <label><input type="checkbox" id="sh-penalty"> Delay Penalty</label>
+                        <span class="tooltip-icon" onclick="alert('Terms regarding recipient pickup delays.')">ⓘ INFO</span>
+                    </div>
+                    <div class="handling-item">
+                        <label><input type="checkbox" id="sh-wrap"> Personalized Wrap</label>
+                        <span class="tooltip-icon" onclick="alert('Discreet customized outer wrap option.')">ⓘ INFO</span>
+                    </div>
+
+                    <div style="margin: 12px 0; font-size: 0.8rem;">
+                        <label><input type="checkbox" id="chk-non-neg"> Confirm non-negotiable handling rules.</label>
+                    </div>
+
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-red" onclick="terminatePortalAccess()">DECLINE</button>
+                        <button class="btn btn-cyan" onclick="finishGuestOnboarding()">COMPLETE & ENTER 🚀</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. CLIENT STOREFRONT & CATALOG PORTAL -->
+        <div id="portal-view" class="view-section" style="display: none;">
+            <div class="scifi-panel" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-family: var(--font-title); color: var(--gold-primary); font-size: 0.85rem;" id="user-badge-title">CLIENT</div>
+                    <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);" id="user-badge-sub">GENE PRINT</div>
+                </div>
+                <button class="btn btn-red" style="width: 70px; padding: 4px; font-size: 0.65rem;" onclick="logout()">LOGOUT</button>
+            </div>
+
+            <div class="tab-nav">
+                <a href="#catalog" class="tab-btn active" id="tab-btn-order">1. CATALOG CAROUSEL</a>
+                <a href="#track" class="tab-btn" id="tab-btn-track">2. TRACK</a>
+            </div>
+
+            <div id="tab-order-content">
+                <div style="text-align: center; font-family: var(--font-mono); font-size: 0.7rem; color: var(--cyan-accent); margin-bottom: 6px;">◄ SWIPE CARDS LEFT / RIGHT TO BROWSE ►</div>
+                
+                <div class="swipe-carousel" id="menu-swipe-carousel"></div>
+
+                <!-- CHECKOUT & DELIVERY OPTIONS PANEL -->
+                <div class="scifi-panel" id="checkout-section" style="margin-top: 16px;">
+                    <div class="panel-header"><div class="panel-header-title">DELIVERY METHOD & LOCATION</div></div>
+                    
+                    <label style="font-size: 0.75rem; color: var(--gold-primary); display: block; margin-bottom: 6px;">DELIVERY FEE OPTION:</label>
+                    <div class="type-selector">
+                        <div class="type-btn active" id="btn-fee-flat" onclick="setDeliveryFeeOption('flat')">₱200 FLAT RATE</div>
+                        <div class="type-btn" id="btn-fee-direct" onclick="setDeliveryFeeOption('direct')">DIRECT TO RIDER</div>
+                    </div>
+                    <div id="gorush-night-badge" style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--cyan-accent); color: var(--cyan-accent); padding: 6px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.7rem; margin-bottom: 10px; display: none;">
+                        🌙 GoRush Night Delivery Active (Post-10:00 PM)
+                    </div>
+
+                    <label style="font-size: 0.75rem; color: var(--text-muted);">Full Name:</label>
+                    <input type="text" id="rec-name" placeholder="John Doe" style="margin-top: 4px; margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted);">Phone Number:</label>
+                    <input type="text" id="rec-phone" placeholder="+63 912 345 6789" style="margin-top: 4px; margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem; color: var(--gold-primary);">Complete Address:</label>
+                    <textarea id="rec-address" rows="2" placeholder="House No. 123, Celestial St." style="margin-top: 4px; margin-bottom: 10px;"></textarea>
+                    
+                    <label style="font-size: 0.75rem; color: var(--gold-primary);">📍 GPS Coords (Verified):</label>
+                    <input type="text" id="rec-coords" placeholder="7.19070, 125.45530" readonly style="margin-bottom: 10px; color: var(--cyan-accent); font-weight: bold;">
+                </div>
+
+                <div class="scifi-panel">
+                    <div class="panel-header"><div class="panel-header-title">ORDER SUMMARY</div></div>
+                    <div id="summary-list"></div>
+                    <div class="summary-row summary-total"><span>TOTAL:</span><span id="summary-total-val">₱0</span></div>
+                </div>
+
+                <div class="scifi-panel">
+                    <div class="panel-header"><div class="panel-header-title">INSTAPAY PAYMENT</div></div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">Amount Sent (₱):</label>
+                        <input type="number" id="payment-amount" placeholder="1700" style="margin-bottom: 6px;">
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">First 3 Letters of First Name:</label>
+                        <input type="text" id="payment-initials" maxlength="3" placeholder="FRE" style="margin-bottom: 10px; text-transform: uppercase;">
+                    </div>
+                    <button class="btn" id="btn-submit-order" onclick="submitOrder()">SUBMIT ORDER 🚀</button>
+                </div>
+            </div>
+
+            <div id="tab-track-content" style="display: none;">
+                <div class="scifi-panel">
+                    <div class="panel-header"><div class="panel-header-title">ORDER TRACKER</div></div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <input type="text" id="track-ref-input" placeholder="REF NO. (CL-00000-X)" style="text-transform: uppercase;">
+                        <button class="btn btn-cyan" style="width: 90px; font-size: 0.75rem;" onclick="searchOrderTrack()">TRACK</button>
+                    </div>
+                    <div id="track-result-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. TERMINATED / PORTAL CLOSED VIEW -->
+        <div id="terminated-view" class="scifi-panel view-section" style="display: none; text-align: center; padding: 30px 16px;">
+            <div style="font-family: var(--font-title); font-size: 1.4rem; color: var(--neon-red); margin-bottom: 8px;">PORTAL CLOSED</div>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 16px;">Session expired or terms declined.</p>
+            <button class="btn btn-cyan" style="font-size: 0.75rem;" onclick="openTelegramDirect()">TELEGRAM SUPPORT (@HOE_NO)</button>
+        </div>
+
+        <!-- 5. GALACTIC ARMY MODAL & DASHBOARD -->
+        <div id="army-modal-backdrop" onclick="closeGalacticArmyLogin()"></div>
+        <div id="galactic-army-login-view" class="scifi-panel">
+            <div class="panel-header">
+                <div class="panel-header-title" style="color: var(--purple-glow);">GALACTIC ARMY | AUTH</div>
+                <button class="btn btn-red" style="width: auto; padding: 2px 8px; font-size: 0.65rem;" onclick="closeGalacticArmyLogin()">X</button>
+            </div>
+            <input type="text" id="army-emp-id" placeholder="EMPLOYEE ID" style="margin-bottom: 8px; text-transform: uppercase;">
+            <input type="password" id="army-passcode" placeholder="ENTER PASSCODE" style="margin-bottom: 10px;">
+            <button class="btn btn-purple" onclick="attemptGalacticArmyLogin()">AUTHENTICATE ⚡</button>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    let afkTimer = null;
+    const AFK_LIMIT_MS = 20000;
+    let selectedDeliveryFee = 200;
+
+    const MENU_ITEMS = [
+        { id: 'cloud9', name: '☁️ CLOUD9 — 5*', price: 700, minTier: 'guest', desc: 'Pure celestial grade stardust procurement.' },
+        { id: 'mars', name: '🔴 MARS — 10*', price: 1200, minTier: 'guest', desc: 'High potency Martian batch.' },
+        { id: 'venus', name: '🟣 VENUS — 15*', price: 1700, minTier: 'guest', desc: 'Deep cosmic aura blend.' },
+        { id: 'saturn', name: '🪐 SATURN — 20*', price: 2150, minTier: 'new', desc: 'Ring-grade concentrated extract.' },
+        { id: 'vhaerion', name: '🌑 VHAERION 0.5 — 60*', price: 4450, minTier: 'regular', desc: 'Regular tier exclusive reserve.' }
+    ];
+
+    let cart = {};
+
+    window.addEventListener('DOMContentLoaded', () => {
+        resetAfkTimer();
+        window.addEventListener('hashchange', handleRoute);
+        if (sessionStorage.getItem('celestial_shield_passed') === 'true') {
+            unlockMainApp();
+            handleRoute();
+        }
+    });
+
+    function handleRoute() {
+        const hash = window.location.hash || '#home';
+        document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+
+        if (hash === '#home') document.getElementById('landing-view').style.display = 'block';
+        else if (hash === '#onboarding') document.getElementById('guest-onboarding-view').style.display = 'block';
+        else if (hash === '#catalog' || hash === '#track') {
+            document.getElementById('portal-view').style.display = 'block';
+            document.getElementById('tab-order-content').style.display = (hash === '#catalog') ? 'block' : 'none';
+            document.getElementById('tab-track-content').style.display = (hash === '#track') ? 'block' : 'none';
+        }
+        else if (hash === '#terminated') document.getElementById('terminated-view').style.display = 'block';
+    }
+
+    function verifyShieldKey() {
+        const key = document.getElementById('shield-passphrase').value.trim().toUpperCase();
+        if (key === 'ASCEND' || key === 'CELESTIAL2026') {
+            sessionStorage.setItem('celestial_shield_passed', 'true');
+            unlockMainApp();
+            handleRoute();
+        }
+    }
+
+    function unlockMainApp() {
+        document.getElementById('shield-view').style.display = 'none';
+        document.getElementById('main-app-container').style.display = 'block';
+    }
+
+    function resetAfkTimer() {
+        if (document.getElementById('security-lockout-screen').style.display === 'block') return;
+        clearTimeout(afkTimer);
+        afkTimer = setTimeout(() => { triggerSecurityLockout("AFK Timeout (>20s)"); }, AFK_LIMIT_MS);
+    }
+
+    function triggerSecurityLockout(reason) {
+        document.getElementById('security-lockout-screen').style.display = 'block';
+        sessionStorage.clear();
+    }
+
+    ['mousemove', 'touchstart', 'scroll', 'keydown', 'click'].forEach(evt => window.addEventListener(evt, resetAfkTimer, { passive: true }));
+    document.addEventListener('visibilitychange', () => { if (document.hidden) triggerSecurityLockout("Screen Timeout / App Backgrounded"); });
+    window.addEventListener('blur', () => triggerSecurityLockout("Window Blur"));
+    window.addEventListener('keyup', (e) => { if (e.key === 'PrintScreen' || e.keyCode === 44) triggerSecurityLockout("Screenshot Attempt"); });
+
+    function setLandingPath(path) {
+        document.getElementById('path-box-guest').style.display = (path === 'guest') ? 'block' : 'none';
+        document.getElementById('path-box-new').style.display = (path === 'new') ? 'block' : 'none';
+        document.getElementById('path-box-reg').style.display = (path === 'regular') ? 'block' : 'none';
+
+        document.getElementById('btn-gate-guest').classList.toggle('active', path === 'guest');
+        document.getElementById('btn-gate-new').classList.toggle('active', path === 'new');
+        document.getElementById('btn-gate-reg').classList.toggle('active', path === 'regular');
+    }
+
+    function attemptRegularLogin() {
+        const accId = document.getElementById('reg-account-id').value.trim();
+        const code = document.getElementById('reg-access-code').value.trim();
+
+        if (!accId) {
+            alert("SECURITY CHECK: Please enter your Account ID.");
+            return;
+        }
+        if (!code || code.length !== 8) {
+            alert("SECURITY CHECK: Please enter a valid 8-Digit Access Code.");
+            return;
+        }
+
+        // Authenticate & Warp to Store
+        sessionStorage.setItem('celestial_client_id', accId);
+        sessionStorage.setItem('celestial_access_code', code);
+        window.location.hash = '#catalog';
+        renderSwipeCarousel();
+    }
+
+    function captureEarlyGPS() {
+        document.getElementById('onboarding-gps-coords').value = "7.19070, 125.45530";
+        document.getElementById('rec-coords').value = "7.19070, 125.45530";
+        alert("GPS Telemetry Verified: Within 8km Davao Operational Radius.");
+    }
+
+    function nextGuestStep(step) {
+        [1,2,3,4].forEach(s => document.getElementById(`guest-step-${s}`).style.display = 'none');
+        document.getElementById(`guest-step-${step}`).style.display = 'block';
+    }
+
+    function finishGuestOnboarding() {
+        if (!document.getElementById('chk-non-neg').checked) { alert("Please confirm non-negotiable rules."); return; }
+        window.location.hash = '#catalog';
+        renderSwipeCarousel();
+        checkGoRushTime();
+    }
+
+    function terminatePortalAccess() { window.location.hash = '#terminated'; }
+
+    function setDeliveryFeeOption(type) {
+        selectedDeliveryFee = (type === 'flat') ? 200 : 0;
+        document.getElementById('btn-fee-flat').classList.toggle('active', type === 'flat');
+        document.getElementById('btn-fee-direct').classList.toggle('active', type === 'direct');
+        updateCalculations();
+    }
+
+    function checkGoRushTime() {
+        const hour = new Date().getHours();
+        if (hour >= 22 || hour < 5) {
+            document.getElementById('gorush-night-badge').style.display = 'block';
+        }
+    }
+
+    function renderSwipeCarousel() {
+        const container = document.getElementById('menu-swipe-carousel');
+        let html = '';
+
+        MENU_ITEMS.forEach((item, index) => {
+            cart[item.id] = cart[item.id] || 0;
+            html += `
+                <div class="swipe-card">
+                    <div>
+                        <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--gold-primary); text-align: right;">CARD ${index + 1} OF ${MENU_ITEMS.length + 1}</div>
+                        <div style="font-family: var(--font-title); font-size: 1.1rem; color: #fff; margin-top: 6px;">${item.name}</div>
+                        <div style="font-family: var(--font-mono); color: var(--cyan-accent); font-size: 1.2rem; font-weight: bold; margin-top: 4px;">₱${item.price.toLocaleString()}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;">${item.desc}</div>
+                    </div>
+                    <div>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                            <span class="qty-val" id="qty-${item.id}">${cart[item.id]}</span>
+                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // END OF CAROUSEL JUMP CARD
+        html += `
+            <div class="swipe-card" style="border-color: var(--cyan-accent); text-align: center; justify-content: center;">
+                <div style="font-family: var(--font-title); font-size: 1.2rem; color: var(--cyan-accent); margin-bottom: 12px;">READY TO CHECKOUT?</div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">Proceed to delivery selection and InstaPay submission.</p>
+                <a href="#checkout-section" class="btn btn-cyan" style="font-size: 0.75rem;">JUMP TO DELIVERY ➔</a>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    function changeQty(id, delta) {
+        cart[id] = Math.max(0, (cart[id] || 0) + delta);
+        document.getElementById(`qty-${id}`).innerText = cart[id];
+        updateCalculations();
+    }
+
+    function updateCalculations() {
+        let subtotal = 0;
+        let summaryHTML = '';
+
+        MENU_ITEMS.forEach(item => {
+            const qty = cart[item.id] || 0;
+            if (qty > 0) {
+                const itemTotal = item.price * qty;
+                subtotal += itemTotal;
+                summaryHTML += `<div class="summary-row"><span>${item.name} x${qty}</span><span>₱${itemTotal.toLocaleString()}</span></div>`;
+            }
+        });
+
+        if (selectedDeliveryFee > 0) {
+            summaryHTML += `<div class="summary-row"><span>Delivery Fee (Flat Rate)</span><span>₱${selectedDeliveryFee}</span></div>`;
+        }
+
+        const grandTotal = subtotal + selectedDeliveryFee;
+        document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.8rem;">No items selected yet.</div>';
+        document.getElementById('summary-total-val').innerText = `₱${grandTotal.toLocaleString()}`;
+    }
+
+    function openTelegramDirect() { window.open('https://t.me/hoe_no', '_blank'); }
+    function showGalacticArmyLogin() { document.getElementById('army-modal-backdrop').style.display = 'block'; document.getElementById('galactic-army-login-view').style.display = 'block'; }
+    function closeGalacticArmyLogin() { document.getElementById('army-modal-backdrop').style.display = 'none'; document.getElementById('galactic-army-login-view').style.display = 'none'; }
+    function openInfoModal(type) { alert(`Opening ${type} policy.`); }
+    function logout() { sessionStorage.clear(); window.location.hash = '#home'; location.reload(); }
+</script>
+
+</body>
+</html>
