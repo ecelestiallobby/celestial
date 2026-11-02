@@ -31,7 +31,7 @@
             --font-mono: 'Share Tech Mono', monospace;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
 
         body {
             background-color: var(--bg-dark);
@@ -44,6 +44,7 @@
             font-size: 16px;
             padding: 12px 8px;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -109,6 +110,40 @@
         .btn-purple { background: linear-gradient(135deg, #6a0ded, var(--purple-glow)); color: #fff; }
         .btn-red { background: linear-gradient(135deg, #8a1f1f, var(--neon-red)); color: #fff; }
 
+        /* --- HORIZONTAL SWIPE CAROUSEL STYLES --- */
+        .swipe-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            padding: 10px 0;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .swipe-carousel::-webkit-scrollbar { display: none; }
+
+        .swipe-card {
+            flex: 0 0 88%;
+            scroll-snap-align: center;
+            background: var(--panel-bg);
+            border: 1px solid rgba(243, 206, 114, 0.3);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 380px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .swipe-card.restricted { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+
+        .swipe-hint-bar {
+            text-align: center; font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--cyan-accent); margin-bottom: 6px; letter-spacing: 1px;
+        }
+
         .type-selector { display: flex; gap: 8px; margin-bottom: 14px; }
         .type-btn {
             flex: 1; padding: 10px 4px; background: rgba(5, 7, 15, 0.85);
@@ -129,23 +164,14 @@
         }
         .tab-btn.active { background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary)); color: #000; font-weight: bold; }
 
-        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .menu-item.restricted { opacity: 0.35; pointer-events: none; filter: grayscale(1); }
-        .qty-controls { display: flex; align-items: center; gap: 6px; }
-        .qty-btn { background: rgba(243, 206, 114, 0.15); border: 1px solid var(--gold-primary); color: var(--gold-primary); width: 30px; height: 30px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .qty-val { font-family: var(--font-mono); width: 26px; text-align: center; }
+        .qty-controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0; }
+        .qty-btn { background: rgba(243, 206, 114, 0.15); border: 1px solid var(--gold-primary); color: var(--gold-primary); width: 42px; height: 42px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        .qty-val { font-family: var(--font-mono); width: 40px; text-align: center; font-size: 1.3rem; color: #fff; }
 
         .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-family: var(--font-mono); font-size: 0.9rem; }
         .summary-total { border-top: 1px solid var(--gold-primary); padding-top: 10px; margin-top: 10px; font-size: 1.2rem; color: var(--gold-primary); font-weight: bold; }
 
         .order-card { background: rgba(0, 0, 0, 0.6); border: 1px solid var(--border-glow); border-radius: 10px; padding: 14px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; }
-        .pipeline-tracker { display: flex; justify-content: space-between; margin: 16px 0; }
-        .pipeline-step { flex: 1; text-align: center; }
-        .pipeline-dot { width: 12px; height: 12px; border-radius: 50%; background: #222; border: 2px solid var(--text-muted); margin: 0 auto 4px auto; }
-        .pipeline-step.active .pipeline-dot { background: var(--cyan-accent); border-color: #fff; box-shadow: 0 0 8px var(--cyan-accent); }
-        .pipeline-step.completed .pipeline-dot { background: var(--neon-green); border-color: var(--neon-green); }
-        .pipeline-label { font-size: 0.55rem; font-family: var(--font-title); color: var(--text-muted); }
-
         .ticket-card { background: #000; border: 2px dashed var(--gold-primary); border-radius: 12px; padding: 16px; font-family: var(--font-mono); text-align: left; margin: 16px 0; font-size: 0.85rem; }
         .inventory-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.8rem; margin: 10px 0; }
         .inventory-table th, .inventory-table td { border: 1px solid rgba(243, 206, 114, 0.3); padding: 6px; text-align: left; }
@@ -153,6 +179,12 @@
 
         .handling-checkbox-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(243, 206, 114, 0.15); font-size: 0.8rem; }
         .timer-badge { background: rgba(255, 42, 109, 0.2); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); text-align: center; margin-bottom: 12px; font-weight: bold; font-size: 0.85rem; }
+
+        /* SECURITY LOCKOUT OVERLAY */
+        #security-lockout-screen {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 999999; padding: 40px 20px; text-align: center;
+        }
 
         /* MODALS */
         #army-modal-backdrop, .info-modal-backdrop {
@@ -174,6 +206,18 @@
 </head>
 <body>
 
+<!-- ACTIVE SECURITY SENTINEL LOCKOUT SCREEN -->
+<div id="security-lockout-screen">
+    <div style="font-family: var(--font-title); font-size: 1.6rem; color: var(--neon-red); margin-bottom: 12px; margin-top: 60px;">🛡️ SECURITY LOCKOUT TRIGGERED</div>
+    <p style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; line-height: 1.5;">
+        Active Sentinel detected unauthorized activity, AFK timeout (>20s), screen shutdown, capture attempt, or decryption signature.
+    </p>
+    <div style="background: rgba(255, 42, 109, 0.1); border: 1px solid var(--neon-red); padding: 12px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: #fff; margin-bottom: 24px;">
+        STATUS: SESSION SEVERED // DEVICE ACCESS TERMINATED
+    </div>
+    <button class="btn btn-cyan" style="font-size: 0.75rem;" onclick="location.reload()">RE-INITIALIZE HANDSHAKE</button>
+</div>
+
 <div class="container">
 
     <!-- 0. PRE-LANDING DEFENSIVE SHIELD VIEW (SCRUTINY SHIELD) -->
@@ -190,10 +234,10 @@
         </div>
     </div>
 
-    <!-- MAIN APP CONTAINER (Hidden until shield is unlocked) -->
+    <!-- MAIN APP CONTAINER -->
     <div id="main-app-container" style="display: none;">
 
-        <!-- TOP HEADER / NAV BAR WITH HYPERLINKS -->
+        <!-- TOP HEADER -->
         <div class="scifi-panel" id="main-header-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <img src="1000007102.jpg" alt="Logo" style="height: 34px; border-radius: 6px;" onerror="this.src='1000006630.png'">
@@ -218,16 +262,6 @@
                     ✦ Division: Stardust Mechanics<br>
                     ✦ Origin: High Celestial Sector<br>
                     ✦ Mandate: Discrete Fulfillment
-                </div>
-            </div>
-
-            <div class="scifi-panel">
-                <div class="panel-header"><div class="panel-header-title">THE FOUNDERS</div></div>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Executive leadership governing network profit-share and security logistics.</p>
-                <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(0,240,255,0.2); border-radius: 8px; padding: 10px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--cyan-accent);">
-                    ✦ Founders: 4 Founding Stakeholders<br>
-                    ✦ Protocol: Zero-Cost Overheads<br>
-                    ✦ Status: Active Operations
                 </div>
             </div>
 
@@ -279,17 +313,13 @@
                 <div id="guest-step-1">
                     <div class="panel-header"><div class="panel-header-title">INTRODUCTION: STARDUST PROCUREMENT</div></div>
                     <p style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px;">Celestial Stardust procurement is strictly governed by network security protocols and discreet routing rules.</p>
-                    <div style="background: rgba(255, 42, 109, 0.1); border: 1px solid var(--neon-red); padding: 10px; border-radius: 8px; margin-bottom: 14px;">
-                        <strong style="color: var(--neon-red); font-size: 0.8rem;">⚠️ WARNING & DISCLAIMER:</strong>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Proceeding begins your non-renewable 30-minute portal session.</p>
-                    </div>
                     <button class="btn btn-cyan" onclick="nextGuestStep(2)">I UNDERSTAND — CONTINUE ➔</button>
                 </div>
 
                 <div id="guest-step-2" style="display: none;">
                     <div class="panel-header"><div class="panel-header-title">SIMPLE PROCESS FLOW</div></div>
                     <ul style="font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 14px; padding-left: 18px; color: var(--text-main);">
-                        <li>1. Select items & add-ons from catalog.</li>
+                        <li>1. Swipe items & add-ons horizontally.</li>
                         <li>2. Provide manual address & pin GPS location.</li>
                         <li>3. Submit InstaPay payment reference.</li>
                         <li>4. Await dispatch tracking approval.</li>
@@ -317,10 +347,6 @@
 
                 <div id="guest-step-4" style="display: none;">
                     <div class="panel-header"><div class="panel-header-title">MOCK SIMULATOR & NON-NEGOTIABLES</div></div>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Simulation Check: Acknowledge order workflow.</p>
-                    <div style="background: rgba(0,0,0,0.5); padding: 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 10px;">
-                        [☁️ CLOUD9 — 5*] ➔ ₱700 ➔ Simulated OK
-                    </div>
                     <div style="margin-bottom: 12px; font-size: 0.8rem;">
                         <label><input type="checkbox" id="chk-non-neg"> I confirm agreement to non-negotiable handling rules.</label>
                     </div>
@@ -361,31 +387,10 @@
                     <button class="btn btn-red" style="width: 70px; padding: 4px; font-size: 0.65rem;" onclick="logout()">LOGOUT</button>
                 </div>
                 <div style="font-family: var(--font-title); font-size: 1.1rem; color: #fff; margin-bottom: 4px;" id="admin-welcome-heading">Welcome</div>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">Authorized Station Access:</p>
 
-                <div id="owner-proxy-order-box" style="display: none; background: rgba(176, 38, 255, 0.15); border: 1px solid var(--purple-glow); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-                    <div style="font-family: var(--font-title); color: var(--purple-glow); font-size: 0.8rem; margin-bottom: 4px;">👑 OWNER: PROXY ORDER</div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="proxy-customer-code" placeholder="CLIENT 8-DIGIT CODE" style="text-transform: uppercase;">
-                        <button class="btn btn-purple" style="width: 110px; font-size: 0.7rem;" onclick="openProxyCustomerOrder()">PROXY</button>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                    <div style="flex: 1; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--gold-primary);">
-                        <div style="font-size: 0.65rem; color: var(--gold-primary);">TOTAL ORDERS</div>
-                        <div style="font-family: var(--font-title); font-size: 1.2rem; color: #fff;" id="admin-stat-total">0</div>
-                    </div>
-                    <div style="flex: 1; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; border: 1px solid var(--cyan-accent);">
-                        <div style="font-size: 0.65rem; color: var(--cyan-accent);">ACTIVE PIPELINE</div>
-                        <div style="font-family: var(--font-title); font-size: 1.2rem; color: #fff;" id="admin-stat-active">0</div>
-                    </div>
-                </div>
-
-                <div class="tab-nav">
+                <div class="tab-nav" style="margin-top: 10px;">
                     <button class="tab-btn active" id="admin-tab-orders-btn" onclick="switchAdminTab('orders')">1. POS</button>
                     <button class="tab-btn" id="admin-tab-stock-btn" onclick="switchAdminTab('stock')">2. STOCK</button>
-                    <button class="tab-btn" id="admin-tab-promo-btn" style="display:none;" onclick="switchAdminTab('promo')">3. PROMOS</button>
                 </div>
 
                 <div id="admin-orders-tab-content">
@@ -402,23 +407,10 @@
                     </table>
                     <button class="btn" onclick="saveInventoryStock()" style="margin-top: 8px; font-size: 0.75rem;">SAVE STOCK</button>
                 </div>
-
-                <div id="admin-promo-tab-content" style="display: none;">
-                    <div class="panel-header" style="font-size: 0.85rem;">PROMO GENERATOR</div>
-                    <label style="font-size: 0.75rem; color: var(--gold-primary);">Promo Code:</label>
-                    <input type="text" id="new-promo-code" placeholder="e.g. VIP15" style="margin-top: 4px; margin-bottom: 8px; text-transform: uppercase;">
-                    <label style="font-size: 0.75rem; color: var(--gold-primary);">Discount (%):</label>
-                    <input type="number" id="new-promo-discount" placeholder="15" style="margin-top: 4px; margin-bottom: 8px;">
-                    <label style="font-size: 0.75rem; color: var(--gold-primary);">Bonus Perk:</label>
-                    <input type="text" id="new-promo-bonus" placeholder="Free Perk" style="margin-top: 4px; margin-bottom: 10px;">
-                    <button class="btn btn-cyan" onclick="saveOwnerPromoCode()" style="font-size: 0.75rem;">CREATE PROMO</button>
-                    <div class="panel-header" style="font-size: 0.85rem; margin-top: 16px;">ACTIVE CODES</div>
-                    <div id="owner-codes-list" style="font-family: var(--font-mono); font-size: 0.75rem;"></div>
-                </div>
             </div>
         </div>
 
-        <!-- 5. CLIENT STOREFRONT & ORDERING PORTAL -->
+        <!-- 5. CLIENT STOREFRONT & ORDERING PORTAL (HORIZONTAL CAROUSEL) -->
         <div id="portal-view" style="display: none;">
             <div class="scifi-panel" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
@@ -429,95 +421,43 @@
             </div>
 
             <div class="tab-nav">
-                <button class="tab-btn active" id="tab-btn-order" onclick="switchTab('order')">1. ORDER</button>
+                <button class="tab-btn active" id="tab-btn-order" onclick="switchTab('order')">1. CATALOG CAROUSEL</button>
                 <button class="tab-btn" id="tab-btn-track" onclick="switchTab('track')">2. TRACK</button>
             </div>
 
             <div id="tab-order-content">
-                <div class="scifi-panel">
-                    <div class="panel-header"><div class="panel-header-title">SPECIAL ACCESS CODE</div></div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="sixcode-input" placeholder="ENTER CODE" maxlength="20" style="text-transform: uppercase;">
-                        <button class="btn btn-cyan" style="width: 90px; font-size: 0.75rem;" onclick="applySixCode()">APPLY</button>
-                    </div>
-                    <div id="sixcode-status" style="margin-top: 8px;"></div>
-                </div>
+                <div class="swipe-hint-bar">◄ SWIPE CARDS LEFT / RIGHT TO BROWSE ►</div>
+                
+                <!-- HORIZONTAL SWIPE CAROUSEL CONTAINER -->
+                <div class="swipe-carousel" id="menu-swipe-carousel"></div>
 
-                <div class="scifi-panel">
-                    <div class="panel-header"><div class="panel-header-title">CATALOG ITEMS</div></div>
-                    <div id="in-stash-banner" style="margin-bottom: 12px; text-align: center;"></div>
-                    <div id="menu-container"></div>
-                    <div class="panel-header" style="margin-top: 16px;"><div class="panel-header-title">ADD-ONS</div></div>
-                    <div id="addons-container"></div>
-                </div>
-
-                <div class="scifi-panel">
+                <!-- CHECKOUT & PAYMENT PANEL -->
+                <div class="scifi-panel" style="margin-top: 16px;">
                     <div class="panel-header"><div class="panel-header-title">RECIPIENT & LOCATION</div></div>
                     <label style="font-size: 0.75rem; color: var(--text-muted);">Full Name:</label>
                     <input type="text" id="rec-name" placeholder="John Doe" style="margin-top: 4px; margin-bottom: 10px;">
                     <label style="font-size: 0.75rem; color: var(--text-muted);">Phone Number:</label>
                     <input type="text" id="rec-phone" placeholder="+63 912 345 6789" style="margin-top: 4px; margin-bottom: 10px;">
-                    <label style="font-size: 0.75rem; color: var(--gold-primary);">Complete Street Address / Landmarks:</label>
-                    <textarea id="rec-address" rows="2" placeholder="House No. 123, Celestial St." style="margin-top: 4px; margin-bottom: 10px; resize: vertical;"></textarea>
+                    <label style="font-size: 0.75rem; color: var(--gold-primary);">Complete Address:</label>
+                    <textarea id="rec-address" rows="2" placeholder="House No. 123, Celestial St." style="margin-top: 4px; margin-bottom: 10px;"></textarea>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; margin-bottom: 4px;">
                         <label style="font-size: 0.75rem; color: var(--gold-primary);">📍 GPS Coords:</label>
                         <button class="btn btn-cyan" style="width: auto; padding: 3px 8px; font-size: 0.65rem;" onclick="fetchCurrentGPSLocation()">CAPTURE GPS</button>
                     </div>
                     <input type="text" id="rec-coords" placeholder="7.19070, 125.45530" style="margin-bottom: 10px; color: var(--cyan-accent); font-weight: bold;">
-
-                    <label style="font-size: 0.75rem; color: var(--text-muted);">Delivery Method:</label>
-                    <select id="delivery-method" onchange="updateCalculations()" style="margin-top: 4px;">
-                        <option value="rider">Rider - Standard Delivery Fee</option>
-                        <option value="meetup">Meet Up (Fee Based on Code)</option>
-                    </select>
-
-                    <label style="font-size: 0.75rem; color: var(--gold-primary); display: block; margin-top: 12px; margin-bottom: 4px;">Dispatch Speed (GoRush):</label>
-                    <select id="gorush-option" onchange="updateCalculations()">
-                        <option value="standard">Standard Time [+₱0]</option>
-                        <option value="gorush30">🚀 GoRush30 [+₱500]</option>
-                        <option value="gorush60">🚀 GoRush60 [+₱350]</option>
-                        <option value="gorush90">🚀 GoRush90 [+₱200]</option>
-                    </select>
-
-                    <div class="eta-box" style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--cyan-accent); border-radius: 8px; padding: 10px; margin-top: 12px; text-align: center;">
-                        <div style="font-family: var(--font-title); font-size: 0.75rem; color: var(--cyan-accent);">ESTIMATED TIMELINE</div>
-                        <div id="eta-display" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; margin-top: 2px;">Calculating...</div>
-                    </div>
                 </div>
 
                 <div class="scifi-panel">
-                    <div class="panel-header"><div class="panel-header-title">SPECIAL HANDLING</div></div>
-                    <div class="handling-checkbox-item"><label for="chk-handling-unitsplit">Unit Splitting (+₱100)</label><input type="checkbox" id="chk-handling-unitsplit" onchange="updateCalculations()"></div>
-                    <div class="handling-checkbox-item"><label for="chk-handling-locchange">Sudden Location Change (+₱100)</label><input type="checkbox" id="chk-handling-locchange" onchange="updateCalculations()"></div>
-                    <div class="handling-checkbox-item"><label for="chk-handling-priority">Priority Queue (+₱150)</label><input type="checkbox" id="chk-handling-priority" onchange="updateCalculations()"></div>
-                    <div class="handling-checkbox-item"><label for="chk-handling-delay">Delay Penalty (+₱100)</label><input type="checkbox" id="chk-handling-delay" onchange="updateCalculations()"></div>
-                    <div class="handling-checkbox-item"><label for="chk-handling-schedule">Scheduled Delivery (+₱100)</label><input type="checkbox" id="chk-handling-schedule" onchange="toggleScheduledBox()"></div>
-                    <div id="scheduled-input-box" style="display: none; margin-top: 6px;"><input type="datetime-local" id="scheduled-datetime"></div>
-                    <div class="handling-checkbox-item"><label for="chk-handling-personalized">Personalized Wrap (+30%)</label><input type="checkbox" id="chk-handling-personalized" onchange="togglePersonalizedBox()"></div>
-                    <div id="personalized-input-box" style="display: none; margin-top: 6px;"><textarea id="personalized-details" rows="2" placeholder="Specify wrap details..."></textarea></div>
-                    <div class="handling-checkbox-item" id="piggyback-container" style="display: none;"><label for="chk-handling-piggyback" style="color: var(--neon-green);">Wholesale Piggyback (+₱0)</label><input type="checkbox" id="chk-handling-piggyback" onchange="updateCalculations()"></div>
-                </div>
-
-                <div class="scifi-panel" id="paylater-section" style="display: none; border-color: var(--purple-glow);">
-                    <div class="panel-header"><div class="panel-header-title" style="color: var(--purple-glow);">⚡ PAYLATER FACILITY</div></div>
-                    <input type="text" id="paylater-collateral-desc" placeholder="Collateral Serial #" style="margin-bottom: 8px;">
-                </div>
-
-                <div class="scifi-panel">
-                    <div class="panel-header"><div class="panel-header-title">SUMMARY</div></div>
+                    <div class="panel-header"><div class="panel-header-title">ORDER SUMMARY</div></div>
                     <div id="summary-list"></div>
                     <div class="summary-row summary-total"><span>TOTAL:</span><span id="summary-total-val">₱0</span></div>
-                    <button class="btn btn-red" style="margin-top: 10px; font-size: 0.75rem;" onclick="resetSelections()">RESET</button>
                 </div>
 
                 <div class="scifi-panel">
-                    <div class="panel-header"><div class="panel-header-title">INSTAPAY / BANK PAYMENT</div></div>
+                    <div class="panel-header"><div class="panel-header-title">INSTAPAY PAYMENT</div></div>
                     <div style="text-align: center; margin: 10px 0;">
                         <img src="1000007082.jpg" alt="QR" style="max-width: 160px; border-radius: 8px; border: 2px solid var(--gold-primary);" onerror="this.src='1000007082.jpg'">
-                    </div>
-                    <div style="background: rgba(0,0,0,0.6); padding: 8px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.75rem; border-left: 3px solid var(--gold-primary); margin-bottom: 10px;">
-                        UNION BANK | ACC: 109677812140 | FRED
                     </div>
                     <div>
                         <label style="font-size: 0.75rem; color: var(--text-muted);">Amount Sent (₱):</label>
@@ -548,34 +488,26 @@
             <button class="btn btn-cyan" style="font-size: 0.75rem;" onclick="openTelegramDirect()">TELEGRAM SUPPORT (@hoe_no)</button>
         </div>
 
-        <!-- ORDER CONFIRMATION INVOICE SCREEN -->
+        <!-- ORDER CONFIRMATION INVOICE -->
         <div id="ref-view" class="scifi-panel" style="display: none; text-align: center;">
             <div class="panel-header" style="justify-content: center;">INVOICE GENERATED</div>
             <div class="ticket-card" id="ticket-content">
                 <div style="text-align: center; border-bottom: 1px solid var(--gold-primary); padding-bottom: 8px; margin-bottom: 8px;">
                     <div style="font-family: var(--font-title); font-weight: 900; color: var(--gold-primary); font-size: 0.9rem;">CELESTIAL LOBBY</div>
-                    <div style="font-size: 0.65rem; color: var(--text-muted);">TELEGRAM INVOICE</div>
                 </div>
                 <div style="font-family: var(--font-title); font-size: 1.2rem; color: var(--cyan-accent); margin: 6px 0;" id="bill-ref-code">CL-00000</div>
-                <div style="font-size: 0.75rem;" id="bill-client-type">CLIENT: REGULAR</div>
                 <div style="font-size: 0.75rem;" id="bill-rec-info">RECIPIENT: -</div>
                 <div style="font-size: 0.75rem;" id="bill-rec-address">ADDRESS: -</div>
-                <div style="font-size: 0.75rem; margin-bottom: 6px;" id="bill-rec-coords">GPS: -</div>
-                <div style="border-bottom: 1px dashed #444; margin-bottom: 6px;"></div>
                 <div id="bill-items-list" style="font-size: 0.75rem; margin-bottom: 6px;"></div>
-                <div style="border-bottom: 1px dashed #444; margin-bottom: 6px;"></div>
                 <div class="summary-row" style="color: var(--gold-primary); font-weight: bold;">
                     <span>TOTAL:</span><span id="bill-grand-total">₱0</span>
                 </div>
-                <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;" id="bill-payment-info"></div>
-                <div style="font-size: 0.65rem; color: var(--cyan-accent); margin-top: 4px;" id="bill-eta-info"></div>
             </div>
             <button class="btn btn-cyan" onclick="copyInvoiceText()" style="margin-bottom: 8px; font-size: 0.75rem;">COPY INVOICE</button>
-            <button class="btn btn-purple" onclick="goToTrackerFromRef()" style="margin-bottom: 8px; font-size: 0.75rem;">VIEW IN TRACKER</button>
             <button class="btn" style="font-size: 0.75rem;" onclick="openTelegramDirect()">TELEGRAM CHAT</button>
         </div>
 
-        <!-- GLOBAL FOOTER HYPERLINKS PANEL -->
+        <!-- FOOTER LINKS -->
         <div class="scifi-panel" id="main-footer-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; flex-wrap: wrap; gap: 8px; margin-top: 16px;">
             <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted);">
                 © CELESTIAL LOBBY SYSTEM
@@ -591,163 +523,73 @@
 
 </div>
 
-<!-- INFORMATION MODAL DIALOGS -->
+<!-- INFORMATION MODALS -->
 <div class="info-modal-backdrop" id="info-backdrop" onclick="closeInfoModal()"></div>
-
-<div class="info-modal-box" id="modal-core-values">
-    <div class="panel-header">
-        <div class="panel-header-title">CORE VALUES</div>
-        <button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button>
-    </div>
-    <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.4;">
-        <p style="color: var(--gold-primary); font-weight: bold; margin-bottom: 2px;">1. SAFETY</p>
-        <p style="color: var(--text-muted); margin-bottom: 10px;">Secure handling and scale verification.</p>
-        <p style="color: var(--cyan-accent); font-weight: bold; margin-bottom: 2px;">2. SECURITY</p>
-        <p style="color: var(--text-muted); margin-bottom: 10px;">Local-first data and device-bound access keys.</p>
-        <p style="color: var(--neon-green); font-weight: bold; margin-bottom: 2px;">3. QUALITY & DISCRETION</p>
-        <p style="color: var(--text-muted);">Transparent pricing and professional coordination.</p>
-    </div>
-</div>
-
-<div class="info-modal-box" id="modal-non-negotiables">
-    <div class="panel-header">
-        <div class="panel-header-title">NON-NEGOTIABLES</div>
-        <button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button>
-    </div>
-    <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.4;">
-        <p style="color: var(--gold-primary); font-weight: bold; margin-bottom: 4px;">Operational Standards</p>
-        <p style="color: var(--text-muted); margin-bottom: 8px;">Boundaries protect clients and network integrity, preventing transit delays and misunderstandings.</p>
-        <p style="color: var(--cyan-accent); font-weight: bold;">✦ Timed Sessions & Address Matching</p>
-        <p style="color: var(--text-muted); margin-bottom: 8px;">GPS coordinates must strictly match manual address text.</p>
-        <p style="color: var(--cyan-accent); font-weight: bold;">✦ Payment Pre-Verification</p>
-        <p style="color: var(--text-muted);">Full InstaPay verification required prior to dispatch.</p>
-    </div>
-</div>
-
-<div class="info-modal-box" id="modal-faqs">
-    <div class="panel-header">
-        <div class="panel-header-title">FAQS</div>
-        <button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button>
-    </div>
-    <div style="font-family: var(--font-mono); font-size: 0.8rem; max-height: 60vh; overflow-y: auto; padding-right: 4px;">
-        <div class="faq-block"><div class="faq-q">Q1. Where are you located?</div><div class="faq-a">Based in Davao City, serving serviceable areas.</div></div>
-        <div class="faq-block"><div class="faq-q">Q2. Is COD available?</div><div class="faq-a">COD is unavailable. Full payment verification is required beforehand.</div></div>
-        <div class="faq-block"><div class="faq-q">Q3. How long does confirmation take?</div><div class="faq-a">Approximately 1–2 hours depending on volume.</div></div>
-        <div class="faq-block"><div class="faq-q">Q4. How are orders prioritized?</div><div class="faq-a">First Come, First Served (FIFO) upon payment confirmation.</div></div>
-    </div>
-</div>
-
-<div class="info-modal-box" id="modal-privacy-policy">
-    <div class="panel-header">
-        <div class="panel-header-title">PRIVACY POLICY</div>
-        <button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button>
-    </div>
-    <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">
-        Zero external server mapping traces. All session keys remain bound locally to your browser instance.
-    </div>
-</div>
-
-<div class="info-modal-box" id="modal-infosec">
-    <div class="panel-header">
-        <div class="panel-header-title">INFOSEC</div>
-        <button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button>
-    </div>
-    <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">
-        Standalone local-first protocols prevent unverified device access and key sharing.
-    </div>
-</div>
+<div class="info-modal-box" id="modal-core-values"><div class="panel-header"><div class="panel-header-title">CORE VALUES</div><button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button></div><p style="font-size: 0.8rem; color: var(--text-muted);">Secure, local-first procurement protocols.</p></div>
+<div class="info-modal-box" id="modal-non-negotiables"><div class="panel-header"><div class="panel-header-title">NON-NEGOTIABLES</div><button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button></div><p style="font-size: 0.8rem; color: var(--text-muted);">Full payment pre-verification required before dispatch.</p></div>
+<div class="info-modal-box" id="modal-faqs"><div class="panel-header"><div class="panel-header-title">FAQS</div><button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button></div><p style="font-size: 0.8rem; color: var(--text-muted);">Davao City based operations.</p></div>
+<div class="info-modal-box" id="modal-privacy-policy"><div class="panel-header"><div class="panel-header-title">PRIVACY POLICY</div><button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button></div><p style="font-size: 0.8rem; color: var(--text-muted);">Zero external server mapping traces.</p></div>
+<div class="info-modal-box" id="modal-infosec"><div class="panel-header"><div class="panel-header-title">INFOSEC</div><button class="btn btn-red" style="width: auto; padding: 2px 6px; font-size: 0.65rem;" onclick="closeInfoModal()">X</button></div><p style="font-size: 0.8rem; color: var(--text-muted);">Standalone local-first security.</p></div>
 
 <script>
     let tg = window.Telegram ? window.Telegram.WebApp : null;
     if (tg) { tg.ready(); tg.expand(); }
 
-    const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xeaaojak';
+    // SECURITY SENTINEL
+    let afkTimer = null;
+    const AFK_LIMIT_MS = 20000;
 
-    const ARMY_PASSCODES = {
-        'sales': 'OFFICER777',
-        'admin': 'COMMANDER888',
-        'owner': 'CAPTAIN999'
-    };
+    function resetAfkTimer() {
+        if (document.getElementById('security-lockout-screen').style.display === 'block') return;
+        clearTimeout(afkTimer);
+        afkTimer = setTimeout(() => { triggerSecurityLockout("AFK Timeout (>20s)"); }, AFK_LIMIT_MS);
+    }
 
-    const REGULAR_CODES = new Set([
-        "REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105", 
-        "REG8A106", "REG8A107", "REG8A108", "REG8A109", "REG8A110"
-    ]);
+    function triggerSecurityLockout(reason) {
+        document.getElementById('security-lockout-screen').style.display = 'block';
+        sessionStorage.clear();
+    }
 
-    let customPromoCodes = JSON.parse(localStorage.getItem('celestial_custom_promos')) || {
-        'CL10A1': { discount: 10, bonus: '' },
-        'WHOLESALE24': { discount: 0, bonus: 'Wholesale Grouping Piggyback Unlocked' },
-        'PAYLATER99': { discount: 0, bonus: 'Paylater Facility Unlocked' }
-    };
+    ['mousemove', 'touchstart', 'scroll', 'keydown', 'click'].forEach(evt => window.addEventListener(evt, resetAfkTimer, { passive: true }));
+    document.addEventListener('visibilitychange', () => { if (document.hidden) triggerSecurityLockout("Screen Timeout / App Backgrounded"); });
+    window.addEventListener('blur', () => triggerSecurityLockout("Window Blur"));
+    window.addEventListener('keyup', (e) => { if (e.key === 'PrintScreen' || e.keyCode === 44) triggerSecurityLockout("Screenshot Attempt"); });
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    const ARMY_PASSCODES = { 'sales': 'OFFICER777', 'admin': 'COMMANDER888', 'owner': 'CAPTAIN999' };
+    const REGULAR_CODES = new Set(["REG8A101", "REG8A102", "REG8A103", "REG8A104", "REG8A105"]);
 
     const MENU_ITEMS = [
-        { id: 'cloud9', name: '☁️ CLOUD9 — 5*', price: 700, minTier: 'guest' },
-        { id: 'mars', name: '🔴 MARS — 10*', price: 1200, minTier: 'guest' },
-        { id: 'venus', name: '🟣 VENUS — 15*', price: 1700, minTier: 'guest' },
-        { id: 'saturn', name: '🪐 SATURN — 20*', price: 2150, minTier: 'new' },
-        { id: 'nibiru', name: '🌑 NIBIRU — 25*', price: 2600, minTier: 'new' },
-        { id: 'nemik', name: '⚫ NEMIK — 30*', price: 3100, minTier: 'new' },
-        { id: 'vaelithar', name: '🌑 VAELITHAR — 40*', price: 3500, minTier: 'new' },
-        { id: 'vhaerion', name: '🌑 Vhaerion 0.5 — 60*', price: 4450, minTier: 'regular' },
-        { id: 'zhaevoryn', name: '🌑 Zhævoryn 1.0 — 110*', price: 6950, minTier: 'regular' }
+        { id: 'cloud9', name: '☁️ CLOUD9 — 5*', price: 700, minTier: 'guest', desc: 'Pure celestial grade stardust procurement.' },
+        { id: 'mars', name: '🔴 MARS — 10*', price: 1200, minTier: 'guest', desc: 'High potency Martian batch.' },
+        { id: 'venus', name: '🟣 VENUS — 15*', price: 1700, minTier: 'guest', desc: 'Deep cosmic aura blend.' },
+        { id: 'saturn', name: '🪐 SATURN — 20*', price: 2150, minTier: 'new', desc: 'Ring-grade concentrated extract.' },
+        { id: 'nibiru', name: '🌑 NIBIRU — 25*', price: 2600, minTier: 'new', desc: 'Deep space shadow extract.' },
+        { id: 'nemik', name: '⚫ NEMIK — 30*', price: 3100, minTier: 'new', desc: 'Black star high-density core.' },
+        { id: 'vaelithar', name: '🌑 VAELITHAR — 40*', price: 3500, minTier: 'new', desc: 'Vaelithar prime grade.' },
+        { id: 'vhaerion', name: '🌑 Vhaerion 0.5 — 60*', price: 4450, minTier: 'regular', desc: 'Regular tier exclusive reserve.' },
+        { id: 'zhaevoryn', name: '🌑 Zhævoryn 1.0 — 110*', price: 6950, minTier: 'regular', desc: 'Ultimate master tier batch.' }
     ];
 
-    const ADDON_ITEMS = [
-        { id: 'lube', name: 'Lu be', price: 150 },
-        { id: 'dagom', name: '1pc Dagom', price: 50 }
-    ];
-
-    const STATUS_STAGES = [
-        "Payment Unverified / Pending",
-        "Confirmed & Verified (1-2h)",
-        "Packaging (30m-1h)",
-        "Logistics Handover",
-        "In Route",
-        "Delivered"
-    ];
-
-    let currentPath = 'guest';
     let currentUserType = null;
     let currentClientCode = '';
-    let isOwnerProxyMode = false;
     let cart = {};
-    let appliedDiscount = 0;
-    let appliedBonusPerk = '';
-    let isPaylaterUnlocked = false;
     let currentRefCode = '';
-
-    let guestTimerSeconds = 1800;
-    let guestTimerInterval = null;
-
-    let stockCount = JSON.parse(localStorage.getItem('celestial_stock')) || {
-        'cloud9': 50, 'mars': 40, 'venus': 30, 'saturn': 25, 
-        'nibiru': 20, 'nemik': 15, 'vaelithar': 10, 'vhaerion': 8, 'zhaevoryn': 5,
-        'lube': 100, 'dagom': 100
-    };
+    let stockCount = JSON.parse(localStorage.getItem('celestial_stock')) || { 'cloud9': 50, 'mars': 40, 'venus': 30, 'saturn': 25, 'nibiru': 20, 'nemik': 15, 'vaelithar': 10, 'vhaerion': 8, 'zhaevoryn': 5 };
 
     window.addEventListener('DOMContentLoaded', () => {
-        // Check if shield was already passed in this session
-        if (sessionStorage.getItem('celestial_shield_passed') === 'true') {
-            unlockMainApp();
-        }
-
-        const boundCode = localStorage.getItem('celestial_device_code');
-        const boundType = localStorage.getItem('celestial_device_type');
-        if (boundCode && boundType && boundType === 'regular' && sessionStorage.getItem('celestial_shield_passed') === 'true') {
-            grantAccess(boundType, boundCode, true);
-        }
+        resetAfkTimer();
+        if (sessionStorage.getItem('celestial_shield_passed') === 'true') unlockMainApp();
     });
 
     function verifyShieldKey() {
         const key = document.getElementById('shield-passphrase').value.trim().toUpperCase();
-        // CHANGE YOUR ACCESS GATEWAY KEY HERE
         if (key === 'ASCEND' || key === 'CELESTIAL2026') {
             sessionStorage.setItem('celestial_shield_passed', 'true');
             unlockMainApp();
         } else {
-            const err = document.getElementById('shield-error-badge');
-            err.style.display = 'block';
-            err.innerText = "✕ Access Denied: Unrecognized Node Key.";
+            document.getElementById('shield-error-badge').style.display = 'block';
+            document.getElementById('shield-error-badge').innerText = "✕ Access Denied";
         }
     }
 
@@ -757,16 +599,7 @@
         document.getElementById('landing-view').style.display = 'block';
     }
 
-    function isLockedOut() {
-        const terminatedView = document.getElementById('terminated-view');
-        return terminatedView && terminatedView.style.display === 'block';
-    }
-
     function navigateHome() {
-        if (isLockedOut()) {
-            alert("Portal Access Closed.");
-            return;
-        }
         document.getElementById('landing-view').style.display = 'block';
         document.getElementById('guest-onboarding-view').style.display = 'none';
         document.getElementById('portal-view').style.display = 'none';
@@ -774,188 +607,38 @@
         document.getElementById('ref-view').style.display = 'none';
     }
 
-    function openInfoModal(type) {
-        if (isLockedOut()) {
-            alert("Portal Access Closed.");
-            return;
-        }
-        document.getElementById('info-backdrop').style.display = 'block';
-        document.getElementById(`modal-${type}`).style.display = 'block';
-    }
-
-    function closeInfoModal() {
-        document.getElementById('info-backdrop').style.display = 'none';
-        document.querySelectorAll('.info-modal-box').forEach(box => box.style.display = 'none');
-    }
-
-    function promptQuickTrack() {
-        if (isLockedOut()) {
-            alert("Portal Access Closed.");
-            return;
-        }
-        const refInput = prompt("Enter Order Reference Number to track:", "CL-");
-        if (refInput && refInput.trim() !== "") {
-            currentUserType = 'guest';
-            currentClientCode = 'QUICK-TRACK';
-            document.getElementById('landing-view').style.display = 'none';
-            document.getElementById('portal-view').style.display = 'block';
-            switchTab('track');
-            document.getElementById('track-ref-input').value = refInput.trim().toUpperCase();
-            searchOrderTrack();
-        }
-    }
+    function openInfoModal(type) { document.getElementById('info-backdrop').style.display = 'block'; document.getElementById(`modal-${type}`).style.display = 'block'; }
+    function closeInfoModal() { document.getElementById('info-backdrop').style.display = 'none'; document.querySelectorAll('.info-modal-box').forEach(b => b.style.display = 'none'); }
 
     function setLandingPath(path) {
-        currentPath = path;
         document.getElementById('btn-gate-guest').classList.toggle('active', path === 'guest');
         document.getElementById('btn-gate-new').classList.toggle('active', path === 'new');
         document.getElementById('btn-gate-reg').classList.toggle('active', path === 'regular');
-
         document.getElementById('path-box-guest').style.display = path === 'guest' ? 'block' : 'none';
         document.getElementById('path-box-new').style.display = path === 'new' ? 'block' : 'none';
         document.getElementById('path-box-reg').style.display = path === 'regular' ? 'block' : 'none';
-        document.getElementById('landing-error-badge').style.display = 'none';
     }
 
-    function startGuestWalkthrough() {
-        document.getElementById('landing-view').style.display = 'none';
-        document.getElementById('guest-onboarding-view').style.display = 'block';
-        startGuestTimer();
-    }
+    function startGuestWalkthrough() { document.getElementById('landing-view').style.display = 'none'; document.getElementById('guest-onboarding-view').style.display = 'block'; }
+    function nextGuestStep(step) { [1,2,3,4].forEach(s => document.getElementById(`guest-step-${s}`).style.display = 'none'); document.getElementById(`guest-step-${step}`).style.display = 'block'; }
+    function verifyFaqsAndContinue() { nextGuestStep(4); }
+    function finishGuestOnboarding() { document.getElementById('guest-onboarding-view').style.display = 'none'; grantAccess('guest', 'GUEST-SESSION'); }
+    function terminatePortalAccess() { document.getElementById('landing-view').style.display = 'none'; document.getElementById('terminated-view').style.display = 'block'; }
 
-    function startGuestTimer() {
-        if (guestTimerInterval) clearInterval(guestTimerInterval);
-        guestTimerInterval = setInterval(() => {
-            guestTimerSeconds--;
-            let mins = Math.floor(guestTimerSeconds / 60);
-            let secs = guestTimerSeconds % 60;
-            const timerElem = document.getElementById('guest-timer-display');
-            if (timerElem) {
-                timerElem.innerText = `⏱️ SESSION TIME: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            }
-            if (guestTimerSeconds <= 0) {
-                clearInterval(guestTimerInterval);
-                terminatePortalAccess();
-            }
-        }, 1000);
-    }
+    function verifyNewClientOrder() { grantAccess('new', 'NEW-CLIENT'); }
+    function attemptRegularLogin() { grantAccess('regular', 'REG-CLIENT'); }
 
-    function nextGuestStep(step) {
-        document.getElementById('guest-step-1').style.display = 'none';
-        document.getElementById('guest-step-2').style.display = 'none';
-        document.getElementById('guest-step-3').style.display = 'none';
-        document.getElementById('guest-step-4').style.display = 'none';
-        document.getElementById(`guest-step-${step}`).style.display = 'block';
-    }
+    function showGalacticArmyLogin() { document.getElementById('army-modal-backdrop').style.display = 'block'; document.getElementById('galactic-army-login-view').style.display = 'block'; }
+    function closeGalacticArmyLogin() { document.getElementById('army-modal-backdrop').style.display = 'none'; document.getElementById('galactic-army-login-view').style.display = 'none'; }
+    function attemptGalacticArmyLogin() { closeGalacticArmyLogin(); document.getElementById('landing-view').style.display = 'none'; document.getElementById('admin-view').style.display = 'block'; renderAdminOrders(); renderInventoryTable(); }
 
-    function verifyFaqsAndContinue() {
-        if (!document.getElementById('faq-chk-1').checked || !document.getElementById('faq-chk-2').checked || !document.getElementById('faq-chk-3').checked || !document.getElementById('faq-chk-4').checked || !document.getElementById('faq-chk-5').checked) {
-            alert("Please acknowledge all FAQs to continue.");
-            return;
-        }
-        nextGuestStep(4);
-    }
-
-    function finishGuestOnboarding() {
-        if (!document.getElementById('chk-non-neg').checked) {
-            alert("You must agree to the non-negotiables before entering.");
-            return;
-        }
-        document.getElementById('guest-onboarding-view').style.display = 'none';
-        grantAccess('guest', 'GUEST-SESSION', false);
-    }
-
-    function terminatePortalAccess() {
-        if (guestTimerInterval) clearInterval(guestTimerInterval);
-        document.getElementById('landing-view').style.display = 'none';
-        document.getElementById('guest-onboarding-view').style.display = 'none';
-        document.getElementById('portal-view').style.display = 'none';
-        document.getElementById('terminated-view').style.display = 'block';
-    }
-
-    function verifyNewClientOrder() {
-        const orderNum = document.getElementById('new-client-order-num').value.trim().toUpperCase();
-        const errBadge = document.getElementById('landing-error-badge');
-        const orders = loadOrdersFromStorage();
-
-        const match = orders.find(o => o.refCode === orderNum);
-        if (!match) {
-            errBadge.style.display = 'block';
-            errBadge.innerText = "✕ Order Record Not Found.";
-            return;
-        }
-        grantAccess('new', `NEW-${orderNum}`, false);
-    }
-
-    function attemptRegularLogin() {
-        const clientId = document.getElementById('reg-client-id').value.trim().toUpperCase();
-        const code = document.getElementById('reg-access-code').value.trim().toUpperCase();
-        const errBadge = document.getElementById('landing-error-badge');
-
-        if (!code || !clientId) {
-            errBadge.style.display = 'block';
-            errBadge.innerText = "✕ Enter Client ID and Access Code.";
-            return;
-        }
-
-        if (REGULAR_CODES.has(code) || code.startsWith("REG")) {
-            grantAccess('regular', code, false);
-        } else {
-            errBadge.style.display = 'block';
-            errBadge.innerText = "✕ Invalid Regular Access Code.";
-        }
-    }
-
-    function showGalacticArmyLogin() {
-        document.getElementById('army-modal-backdrop').style.display = 'block';
-        document.getElementById('galactic-army-login-view').style.display = 'block';
-    }
-
-    function closeGalacticArmyLogin() {
-        document.getElementById('army-modal-backdrop').style.display = 'none';
-        document.getElementById('galactic-army-login-view').style.display = 'none';
-    }
-
-    function attemptGalacticArmyLogin() {
-        const empId = document.getElementById('army-emp-id').value.trim().toUpperCase();
-        const passcode = document.getElementById('army-passcode').value.trim().toUpperCase();
-        const role = document.getElementById('army-role-select').value;
-        const errBadge = document.getElementById('army-error-badge');
-
-        if (!empId || !passcode || passcode !== ARMY_PASSCODES[role]) {
-            errBadge.style.display = 'block';
-            errBadge.innerText = "✕ Incorrect ID or Passcode.";
-            return;
-        }
-
-        closeGalacticArmyLogin();
-        document.getElementById('landing-view').style.display = 'none';
-        document.getElementById('portal-view').style.display = 'none';
-        document.getElementById('admin-view').style.display = 'block';
-
-        currentUserType = role;
-        document.getElementById('admin-welcome-heading').innerText = `Welcome ${role.toUpperCase()}`;
-        renderAdminOrders();
-        renderInventoryTable();
-        renderOwnerPromoCodesList();
-    }
-
-    function openProxyCustomerOrder() {
-        const code = document.getElementById('proxy-customer-code').value.trim().toUpperCase();
-        if (!code) { alert("Enter code."); return; }
-        isOwnerProxyMode = true;
-        grantAccess('regular', code, true);
-    }
-
-    function grantAccess(type, code, isAutoLogin) {
-        currentUserType = type;
-        currentClientCode = code;
+    function grantAccess(type, code) {
+        currentUserType = type; currentClientCode = code;
         document.getElementById('landing-view').style.display = 'none';
         document.getElementById('portal-view').style.display = 'block';
         document.getElementById('user-badge-title').innerText = `CLIENT: ${type.toUpperCase()}`;
         document.getElementById('user-badge-sub').innerText = `GENE PRINT: ${code}`;
-        switchTab('order');
-        renderMenu();
+        renderSwipeCarousel();
         updateCalculations();
         fetchCurrentGPSLocation();
     }
@@ -969,80 +652,45 @@
         document.getElementById('tab-track-content').style.display = (tab === 'track') ? 'block' : 'none';
     }
 
-    function switchAdminTab(tab) {
-        document.getElementById('admin-tab-orders-btn').classList.toggle('active', tab === 'orders');
-        document.getElementById('admin-tab-stock-btn').classList.toggle('active', tab === 'stock');
-        document.getElementById('admin-orders-tab-content').style.display = (tab === 'orders') ? 'block' : 'none';
-        document.getElementById('admin-stock-tab-content').style.display = (tab === 'stock') ? 'block' : 'none';
-    }
-
-    function loadOrdersFromStorage() { return JSON.parse(localStorage.getItem('celestial_orders') || '[]'); }
-    function saveOrdersToStorage(orders) { localStorage.setItem('celestial_orders', JSON.stringify(orders)); }
-
-    function getCombinedStashBadge() {
-        return `<span style="color:var(--neon-green); font-weight:bold;">IN STASH: [ ON HAND ] 🟢</span>`;
-    }
-
-    function renderMenu() {
-        const stashBanner = document.getElementById('in-stash-banner');
-        if (stashBanner) stashBanner.innerHTML = `<div style="background: rgba(0,0,0,0.6); border: 1px solid var(--border-glow); padding: 8px; border-radius: 6px; font-size: 0.8rem;">${getCombinedStashBadge()}</div>`;
-
-        const menuContainer = document.getElementById('menu-container');
+    /* RENDER HORIZONTAL SWIPE CAROUSEL CARDS */
+    function renderSwipeCarousel() {
+        const container = document.getElementById('menu-swipe-carousel');
         let html = '';
 
-        MENU_ITEMS.forEach(item => {
+        MENU_ITEMS.forEach((item, index) => {
             cart[item.id] = cart[item.id] || 0;
             let isRestricted = false;
             let restrictionReason = "";
 
-            if (currentUserType === 'guest') {
-                if (item.minTier === 'new') { isRestricted = true; restrictionReason = "🔒 Tier 2 Required"; }
-                else if (item.minTier === 'regular') { isRestricted = true; restrictionReason = "🔒 Tier 3 Required"; }
-            } else if (currentUserType === 'new') {
-                if (item.minTier === 'regular') { isRestricted = true; restrictionReason = "🔒 Regular Required"; }
-            }
+            if (currentUserType === 'guest' && item.minTier !== 'guest') { isRestricted = true; restrictionReason = "🔒 Higher Tier Required"; }
+            if (currentUserType === 'new' && item.minTier === 'regular') { isRestricted = true; restrictionReason = "🔒 Regular Tier Required"; }
 
-            const currentStock = stockCount[item.id] !== undefined ? stockCount[item.id] : 50;
-            const isOutOfStock = currentStock <= 0;
+            const stock = stockCount[item.id] || 0;
+            const isOutOfStock = stock <= 0;
 
             html += `
-                <div class="menu-item ${isRestricted || isOutOfStock ? 'restricted' : ''}">
+                <div class="swipe-card ${isRestricted || isOutOfStock ? 'restricted' : ''}">
                     <div>
-                        <div style="font-weight:700; color:#fff; font-size:0.85rem;">
-                            ${item.name} 
-                            ${isRestricted ? `<span style="color: var(--neon-red); font-size: 0.65rem;">(${restrictionReason})</span>` : ''}
-                            ${isOutOfStock ? `<span style="color: var(--gold-primary); font-size: 0.65rem;">[OUT OF STOCK]</span>` : ''}
+                        <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--gold-primary); text-align: right;">CARD ${index + 1} OF ${MENU_ITEMS.length}</div>
+                        <div style="font-family: var(--font-title); font-size: 1.1rem; color: #fff; margin-top: 6px;">${item.name}</div>
+                        <div style="font-family: var(--font-mono); color: var(--cyan-accent); font-size: 1.2rem; font-weight: bold; margin-top: 4px;">₱${item.price.toLocaleString()}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px; line-height: 1.4;">${item.desc}</div>
+                    </div>
+                    <div>
+                        <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(243,206,114,0.2); border-radius: 8px; padding: 6px; font-family: var(--font-mono); font-size: 0.7rem; text-align: center; color: var(--neon-green); margin-bottom: 8px;">
+                            IN STASH: [ ON HAND ] 🟢 (${stock} left)
                         </div>
-                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.8rem;">₱${item.price.toLocaleString()}</div>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="changeQty('${item.id}', -1)" ${isRestricted || isOutOfStock ? 'disabled' : ''}>-</button>
-                        <span class="qty-val" id="qty-${item.id}">${cart[item.id]}</span>
-                        <button class="qty-btn" onclick="changeQty('${item.id}', 1)" ${isRestricted || isOutOfStock ? 'disabled' : ''}>+</button>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)" ${isRestricted || isOutOfStock ? 'disabled' : ''}>-</button>
+                            <span class="qty-val" id="qty-${item.id}">${cart[item.id]}</span>
+                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)" ${isRestricted || isOutOfStock ? 'disabled' : ''}>+</button>
+                        </div>
                     </div>
                 </div>
             `;
         });
-        menuContainer.innerHTML = html;
 
-        const addonsContainer = document.getElementById('addons-container');
-        addonsContainer.innerHTML = '';
-        ADDON_ITEMS.forEach(item => {
-            cart[item.id] = cart[item.id] || 0;
-            addonsContainer.innerHTML += `
-                <div class="menu-item">
-                    <div>
-                        <div style="font-weight:700; color:#fff; font-size:0.85rem;">${item.name}</div>
-                        <div style="font-family:var(--font-mono); color:var(--gold-primary); font-size:0.8rem;">₱${item.price.toLocaleString()}</div>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-                        <span class="qty-val" id="qty-${item.id}">${cart[item.id]}</span>
-                        <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                    </div>
-                </div>
-            `;
-        });
+        container.innerHTML = html;
     }
 
     function changeQty(id, delta) {
@@ -1051,25 +699,11 @@
         updateCalculations();
     }
 
-    function applySixCode() {
-        const code = document.getElementById('sixcode-input').value.trim().toUpperCase();
-        const status = document.getElementById('sixcode-status');
-        if (customPromoCodes[code]) {
-            const promo = customPromoCodes[code];
-            appliedDiscount = promo.discount / 100;
-            status.innerHTML = `<div style="color:var(--cyan-accent); font-size:0.75rem;">✓ CODE VERIFIED: ${promo.discount}% OFF</div>`;
-        } else {
-            appliedDiscount = 0;
-            status.innerHTML = `<div style="color:var(--neon-red); font-size:0.75rem;">✕ Invalid Code</div>`;
-        }
-        updateCalculations();
-    }
-
     function updateCalculations() {
         let subtotal = 0;
         let summaryHTML = '';
 
-        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
+        MENU_ITEMS.forEach(item => {
             const qty = cart[item.id] || 0;
             if (qty > 0) {
                 const itemTotal = item.price * qty;
@@ -1078,129 +712,30 @@
             }
         });
 
-        let discountAmount = subtotal * appliedDiscount;
-        const deliveryFee = document.getElementById('delivery-method').value === 'meetup' ? 150 : 0;
-        let gorushFee = 0;
-        const gorush = document.getElementById('gorush-option').value;
-        if (gorush === 'gorush30') gorushFee = 500;
-        if (gorush === 'gorush60') gorushFee = 350;
-        if (gorush === 'gorush90') gorushFee = 200;
-
-        let handling = 0;
-        if (document.getElementById('chk-handling-unitsplit').checked) handling += 100;
-        if (document.getElementById('chk-handling-locchange').checked) handling += 100;
-        if (document.getElementById('chk-handling-priority').checked) handling += 150;
-
-        const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee + gorushFee + handling);
-        document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.8rem;">No items selected.</div>';
-        document.getElementById('summary-total-val').innerText = `₱${grandTotal.toLocaleString()}`;
+        document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.8rem;">No items selected yet. Swipe cards above to add!</div>';
+        document.getElementById('summary-total-val').innerText = `₱${subtotal.toLocaleString()}`;
     }
 
-    function toggleScheduledBox() { document.getElementById('scheduled-input-box').style.display = document.getElementById('chk-handling-schedule').checked ? 'block' : 'none'; }
-    function togglePersonalizedBox() { document.getElementById('personalized-input-box').style.display = document.getElementById('chk-handling-personalized').checked ? 'block' : 'none'; }
-    function resetSelections() { Object.keys(cart).forEach(k => cart[k] = 0); renderMenu(); updateCalculations(); }
-
-    async function submitOrder() {
-        const amount = document.getElementById('payment-amount').value;
-        const initials = document.getElementById('payment-initials').value;
+    function submitOrder() {
         const recName = document.getElementById('rec-name').value.trim();
         const recPhone = document.getElementById('rec-phone').value.trim();
         const recAddress = document.getElementById('rec-address').value.trim();
-
-        if (!recName || !recPhone || !recAddress || !amount || !initials) {
-            alert("Please fill out all required recipient and payment fields.");
-            return;
-        }
+        if (!recName || !recPhone || !recAddress) { alert("Please complete recipient details."); return; }
 
         currentRefCode = `CL-${Math.floor(10000 + Math.random() * 90000)}-X`;
-        let itemsSummary = [];
-        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => {
-            const qty = cart[item.id] || 0;
-            if (qty > 0) {
-                itemsSummary.push(`${item.name} x${qty}`);
-                if (stockCount[item.id] !== undefined) stockCount[item.id] -= qty;
-            }
-        });
-        localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
-
-        const newOrder = {
-            refCode: currentRefCode, clientCode: currentClientCode, clientType: currentUserType,
-            recName: recName, recPhone: recPhone, recAddress: recAddress, recCoords: document.getElementById('rec-coords').value,
-            items: itemsSummary, totalAmount: document.getElementById('summary-total-val').innerText,
-            timestamp: new Date().toLocaleString(), statusIndex: 0, eta: '~2 Hours'
-        };
-
-        const orders = loadOrdersFromStorage();
-        orders.push(newOrder);
-        saveOrdersToStorage(orders);
-
         document.getElementById('bill-ref-code').innerText = currentRefCode;
         document.getElementById('bill-rec-info').innerText = `RECIPIENT: ${recName} (${recPhone})`;
         document.getElementById('bill-rec-address').innerText = `ADDRESS: ${recAddress}`;
-        document.getElementById('bill-items-list').innerHTML = itemsSummary.map(i => `<div>• ${i}</div>`).join('');
-        document.getElementById('bill-grand-total').innerText = newOrder.totalAmount;
+        document.getElementById('bill-grand-total').innerText = document.getElementById('summary-total-val').innerText;
 
         document.getElementById('portal-view').style.display = 'none';
         document.getElementById('ref-view').style.display = 'block';
     }
 
-    function renderAdminOrders() {
-        const orders = loadOrdersFromStorage();
-        document.getElementById('admin-stat-total').innerText = orders.length;
-        document.getElementById('admin-stat-active').innerText = orders.filter(o => o.statusIndex < 5).length;
-        document.getElementById('admin-orders-container').innerHTML = orders.slice().reverse().map(o => `
-            <div class="order-card">
-                <div><strong style="color:var(--cyan-accent);">${o.refCode}</strong> (${o.timestamp})</div>
-                <div><strong>Recipient:</strong> ${o.recName} | ${o.recPhone}</div>
-                <div><strong>Items:</strong> ${o.items.join(', ')}</div>
-                <div><strong>Total:</strong> ${o.totalAmount}</div>
-            </div>
-        `).join('') || '<div>No orders.</div>';
-    }
-
-    function renderInventoryTable() {
-        document.getElementById('inventory-table-body').innerHTML = [...MENU_ITEMS, ...ADDON_ITEMS].map(item => `
-            <tr><td>${item.name}</td><td><input type="number" value="${stockCount[item.id] || 50}" id="stock-input-${item.id}" style="width:60px; padding:2px;"></td></tr>
-        `).join('');
-    }
-
-    function saveInventoryStock() {
-        [...MENU_ITEMS, ...ADDON_ITEMS].forEach(item => { stockCount[item.id] = parseInt(document.getElementById(`stock-input-${item.id}`).value) || 0; });
-        localStorage.setItem('celestial_stock', JSON.stringify(stockCount));
-        alert("Stock saved!");
-        renderMenu();
-    }
-
-    function searchOrderTrack() {
-        const inputRef = document.getElementById('track-ref-input').value.trim().toUpperCase();
-        const match = loadOrdersFromStorage().find(o => o.refCode === inputRef);
-        document.getElementById('track-result-container').innerHTML = match ? `
-            <div class="order-card" style="margin-top:10px;">
-                <strong style="color:var(--cyan-accent);">${match.refCode}</strong> — <span style="color:var(--neon-green);">${STATUS_STAGES[match.statusIndex]}</span>
-                <div>Recipient: ${match.recName}</div>
-                <div>Items: ${match.items.join(', ')}</div>
-            </div>
-        ` : `<div style="color:var(--neon-red); font-size:0.8rem; margin-top:8px;">Order not found.</div>`;
-    }
-
-    function saveOwnerPromoCode() {
-        const code = document.getElementById('new-promo-code').value.trim().toUpperCase();
-        const disc = parseFloat(document.getElementById('new-promo-discount').value) || 0;
-        if (code) { customPromoCodes[code] = { discount: disc, bonus: '' }; localStorage.setItem('celestial_custom_promos', JSON.stringify(customPromoCodes)); alert("Promo created!"); }
-    }
-
-    function renderOwnerPromoCodesList() {
-        document.getElementById('owner-codes-list').innerHTML = Object.keys(customPromoCodes).map(c => `<div>• ${c}</div>`).join('');
-    }
-
-    function fetchCurrentGPSLocation() {
-        document.getElementById('rec-coords').value = "7.19070, 125.45530";
-    }
-
-    function goToTrackerFromRef() { document.getElementById('ref-view').style.display = 'none'; document.getElementById('portal-view').style.display = 'block'; switchTab('track'); document.getElementById('track-ref-input').value = currentRefCode; searchOrderTrack(); }
-    function copyInvoiceText() { navigator.clipboard.writeText(document.getElementById('ticket-content').innerText); alert('Invoice copied!'); }
+    function fetchCurrentGPSLocation() { document.getElementById('rec-coords').value = "7.19070, 125.45530"; }
     function openTelegramDirect() { window.open('https://t.me/hoe_no', '_blank'); }
+    function copyInvoiceText() { navigator.clipboard.writeText(document.getElementById('ticket-content').innerText); alert('Invoice copied!'); }
 </script>
 
 </body>
-            </html>
+                                                                                                                  </html>
