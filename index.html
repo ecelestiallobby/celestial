@@ -3,566 +3,816 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CELESTIAL LOBBY | Secure Gateway</title>
-    
-    <!-- Sci-Fi Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    
-    <!-- Telegram WebApp -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <title>CELESTIAL LOBBY — Portal Index</title>
     <style>
         :root {
-            --bg-dark: #05070f;
-            --panel-bg: rgba(13, 17, 33, 0.95);
-            --gold-primary: #f3ce72;
-            --gold-dark: #8a6a1f;
-            --cyan-accent: #00f0ff;
-            --neon-red: #ff2a6d;
-            --neon-green: #05ffa1;
-            --purple-glow: #b026ff;
-            --text-main: #e2e8f0;
-            --text-muted: #8a99ad;
-            --border-glow: rgba(243, 206, 114, 0.3);
-            --font-title: 'Orbitron', sans-serif;
-            --font-body: 'Rajdhani', sans-serif;
-            --font-mono: 'Share Tech Mono', monospace;
+            --bg-color: #0b0f19;
+            --panel-bg: #131c2e;
+            --card-bg: #1e293b;
+            --accent-green: #10b981;
+            --accent-gold: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-cyan: #00f0ff;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-
-        body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(20, 30, 60, 0.7) 0%, transparent 70%),
-                radial-gradient(circle at 100% 100%, rgba(138, 106, 31, 0.2) 0%, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-main);
-            font-family: var(--font-body);
-            font-size: 16px;
-            padding: 12px 8px;
-            min-height: 100vh;
-            overflow-x: hidden;
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; display: flex; justify-content: center; min-height: 100vh; }
+        
+        /* Pre-Landing Security Shield & Sentinel Lockout Overlay */
+        #security-lockout-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(11, 15, 25, 0.98);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            text-align: center;
         }
-
-        body::before {
-            content: " "; display: block; position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px; z-index: 1000; pointer-events: none; opacity: 0.35;
-        }
-
-        .container { max-width: 600px; margin: 0 auto; position: relative; z-index: 10; }
-
-        .scifi-panel {
+        .lockout-box {
+            max-width: 400px; width: 100%;
             background: var(--panel-bg);
-            border: 1px solid rgba(243, 206, 114, 0.2);
-            border-radius: 12px; padding: 16px; margin-bottom: 16px;
-            backdrop-filter: blur(8px);
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
-            position: relative;
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+        .lockout-box h2 { color: var(--accent-red); font-size: 16px; margin-bottom: 12px; }
+        .lockout-box p { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+        .lockout-box input {
+            width: 100%; padding: 10px; background: #0f172a;
+            border: 1px solid var(--border-color); color: var(--text-main);
+            border-radius: 4px; font-family: monospace; text-align: center; margin-bottom: 12px; text-transform: uppercase;
+        }
+        .lockout-box button {
+            width: 100%; padding: 10px; background: var(--accent-red);
+            border: none; color: #fff; font-weight: bold; border-radius: 4px; cursor: pointer;
         }
 
-        .panel-header {
-            font-family: var(--font-title); font-size: 1rem; color: var(--gold-primary);
-            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px;
-            display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px dashed rgba(243, 206, 114, 0.2); padding-bottom: 8px;
+        .container { width: 100%; max-width: 480px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; position: relative; height: fit-content; }
+        
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: #0f172a; }
+        .logo { font-weight: bold; color: var(--accent-green); letter-spacing: 1px; text-decoration: none; }
+        .nav-links { display: flex; gap: 6px; font-size: 10px; color: var(--text-muted); align-items: center; flex-wrap: wrap; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
+        .nav-links a:hover { color: var(--text-main); }
+        
+        /* Portal Grid */
+        .portal-grid { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .dual-panels { display: flex; gap: 12px; }
+        .square-panel { flex: 1; aspect-ratio: 1; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 12px; text-align: center; text-decoration: none; color: var(--text-main); transition: 0.2s; cursor: pointer; }
+        .square-panel:hover { border-color: var(--accent-green); }
+        .square-panel span { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+        
+        /* Client Access Portal Panel & Pathways */
+        .client-access-panel { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; }
+        .client-access-panel h3 { font-size: 14px; margin-bottom: 12px; color: var(--accent-gold); }
+        
+        .type-selector { display: flex; gap: 6px; margin-bottom: 12px; }
+        .type-btn {
+            flex: 1; padding: 8px 4px; background: #0f172a;
+            border: 1px solid var(--border-color); border-radius: 4px;
+            color: var(--text-muted); font-size: 11px; cursor: pointer; text-align: center;
+        }
+        .type-btn.active {
+            border-color: var(--accent-cyan); background: rgba(0, 240, 255, 0.1);
+            color: var(--accent-cyan); font-weight: bold;
         }
 
-        .panel-header-title::before { content: '◈ '; color: var(--cyan-accent); }
-
-        .nav-link {
-            font-family: var(--font-title); font-size: 0.7rem; color: var(--text-main);
-            text-decoration: none; letter-spacing: 1px; transition: all 0.2s ease; cursor: pointer;
+        .portal-form-group { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .portal-input {
+            width: 100%; padding: 10px; background: #0f172a;
+            border: 1px solid var(--border-color); color: var(--text-main);
+            border-radius: 4px; font-family: monospace; font-size: 12px; text-transform: uppercase; outline: none;
         }
-        .nav-link:hover { color: var(--cyan-accent); text-shadow: 0 0 8px var(--cyan-accent); }
+        .portal-input:focus { border-color: var(--accent-cyan); }
+        .portal-btn {
+            width: 100%; padding: 10px; background: linear-gradient(135deg, #b45309, var(--accent-gold));
+            border: none; color: #000; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 4px; font-size: 12px; text-decoration: none; text-align: center; display: block;
+        }
 
-        /* RESPONSIVE LANDING GRID (2 SQUARES + 1 RECTANGLE) */
-        .landing-grid-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        /* Horizontal Swipe Carousel Section (For Menu Page) */
+        .catalog-section { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .catalog-title { font-size: 12px; color: var(--accent-green); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .swipe-container {
+            display: flex;
             gap: 12px;
-            margin-bottom: 16px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
         }
-
-        .square-panel {
-            aspect-ratio: 1 / 1;
+        .swipe-container::-webkit-scrollbar { height: 4px; }
+        .swipe-container::-webkit-scrollbar-track { background: #0f172a; }
+        .swipe-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+        
+        .catalog-card {
+            flex: 0 0 85%;
+            scroll-snap-align: center;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            margin-bottom: 0;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
+        .catalog-card:hover { border-color: var(--accent-cyan); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .card-header h4 { font-size: 13px; color: var(--text-main); }
+        .card-badge { font-size: 10px; padding: 2px 6px; background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); border-radius: 4px; }
+        .card-desc { font-size: 10px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; }
+        .card-price { font-size: 13px; font-weight: bold; color: var(--accent-gold); }
 
-        .full-width-panel {
-            grid-column: span 2;
-            margin-bottom: 0;
+        /* Catalog Grid / List Styles */
+        .catalog-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
         }
+        .catalog-grid::-webkit-scrollbar { width: 4px; }
+        .catalog-grid::-webkit-scrollbar-track { background: #0f172a; }
+        .catalog-grid::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
 
-        @media (max-width: 420px) {
-            .square-panel { aspect-ratio: auto; min-height: 160px; }
-        }
+        /* Onboarding Specific Styles */
+        .timer-badge { background: rgba(255, 42, 109, 0.15); border: 1px solid var(--accent-red); color: var(--accent-red); padding: 8px; border-radius: 6px; text-align: center; margin-bottom: 14px; font-weight: bold; font-size: 12px; }
+        .handling-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed rgba(243, 206, 114, 0.15); font-size: 11px; }
 
-        input[type="text"], input[type="password"], input[type="number"], input[type="datetime-local"], select, textarea {
-            width: 100%; background: rgba(5, 7, 15, 0.85);
-            border: 1px solid rgba(243, 206, 114, 0.4); border-radius: 8px;
-            padding: 12px 14px; color: #fff; font-family: var(--font-mono); font-size: 1rem;
-            outline: none; transition: all 0.3s ease;
-        }
+        /* Dynamic Route Views */
+        .view-section { display: none; padding: 20px; }
+        .view-section.active { display: block; }
 
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--cyan-accent); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
-            color: #000; font-family: var(--font-title); font-weight: 800;
-            text-transform: uppercase; letter-spacing: 2px; border: none;
-            border-radius: 8px; padding: 14px 20px; cursor: pointer;
-            transition: all 0.2s ease; display: inline-block; text-align: center; width: 100%;
-            box-shadow: 0 0 15px rgba(243, 206, 114, 0.2); text-decoration: none;
-        }
-
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(243, 206, 114, 0.5); }
-        .btn-cyan { background: linear-gradient(135deg, #0072ff, var(--cyan-accent)); color: #000; }
-        .btn-purple { background: linear-gradient(135deg, #6a0ded, var(--purple-glow)); color: #fff; }
-        .btn-red { background: linear-gradient(135deg, #8a1f1f, var(--neon-red)); color: #fff; }
-
-        /* CAROUSEL */
-        .swipe-carousel {
-            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-            gap: 12px; padding: 10px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-        }
-        .swipe-carousel::-webkit-scrollbar { display: none; }
-
-        .swipe-card {
-            flex: 0 0 88%; scroll-snap-align: center; background: var(--panel-bg);
-            border: 1px solid rgba(243, 206, 114, 0.3); border-radius: 16px; padding: 18px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            min-height: 380px; box-shadow: 0 8px 25px rgba(0,0,0,0.6); position: relative;
-        }
-
-        .type-selector { display: flex; gap: 8px; margin-bottom: 14px; }
-        .type-btn {
-            flex: 1; padding: 10px 4px; background: rgba(5, 7, 15, 0.85);
-            border: 1px solid rgba(243, 206, 114, 0.3); border-radius: 8px;
-            color: var(--text-muted); font-family: var(--font-title); font-size: 0.7rem;
-            cursor: pointer; text-align: center;
-        }
-        .type-btn.active {
-            border-color: var(--cyan-accent); background: rgba(0, 240, 255, 0.15);
-            color: var(--cyan-accent); font-weight: bold;
-        }
-
-        .tab-nav { display: flex; gap: 8px; margin-bottom: 16px; }
-        .tab-btn {
-            flex: 1; padding: 10px; background: rgba(13, 17, 33, 0.8);
-            border: 1px solid rgba(243, 206, 114, 0.3); color: var(--text-muted);
-            font-family: var(--font-title); font-size: 0.75rem; border-radius: 8px; cursor: pointer; text-align: center; text-decoration: none;
-        }
-        .tab-btn.active { background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary)); color: #000; font-weight: bold; }
-
-        .qty-controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0; }
-        .qty-btn { background: rgba(243, 206, 114, 0.15); border: 1px solid var(--gold-primary); color: var(--gold-primary); width: 42px; height: 42px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
-        .qty-val { font-family: var(--font-mono); width: 40px; text-align: center; font-size: 1.3rem; color: #fff; }
-
-        .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-family: var(--font-mono); font-size: 0.9rem; }
-        .summary-total { border-top: 1px solid var(--gold-primary); padding-top: 10px; margin-top: 10px; font-size: 1.2rem; color: var(--gold-primary); font-weight: bold; }
-
-        .handling-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(243, 206, 114, 0.15); font-size: 0.8rem; }
-        .tooltip-icon { color: var(--cyan-accent); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; margin-left: 6px; }
-
-        .timer-badge { background: rgba(255, 42, 109, 0.2); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); text-align: center; margin-bottom: 12px; font-weight: bold; font-size: 0.85rem; }
-
-        #security-lockout-screen {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000; z-index: 999999; padding: 40px 20px; text-align: center;
-        }
-
-        #army-modal-backdrop, .info-modal-backdrop {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99998;
-        }
-        #galactic-army-login-view, .info-modal-box {
-            display: none; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); width: 92%; max-width: 440px;
-            max-height: 85vh; overflow-y: auto; z-index: 99999;
-            background: rgba(10, 14, 28, 0.98); border: 2px solid var(--cyan-accent);
-            border-radius: 14px; padding: 20px; box-shadow: 0 0 40px rgba(0, 240, 255, 0.4);
-        }
+        /* Footer */
+        footer { padding: 12px 16px; border-top: 1px solid var(--border-color); background: #0f172a; display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
+        footer a { color: var(--text-muted); text-decoration: none; }
+        footer a:hover { color: var(--text-main); }
     </style>
 </head>
 <body>
 
+<!-- Pre-Landing Scrutiny Shield / Inactivity Sentinel Lockout Overlay -->
 <div id="security-lockout-screen">
-    <div style="font-family: var(--font-title); font-size: 1.6rem; color: var(--neon-red); margin-bottom: 12px; margin-top: 60px;">🛡️ SECURITY LOCKOUT TRIGGERED</div>
-    <p style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; line-height: 1.5;">
-        Active Sentinel detected unauthorized activity, extended AFK timeout (>60s), screen shutdown, capture attempt, or decryption signature.
-    </p>
-    <div style="background: rgba(255, 42, 109, 0.1); border: 1px solid var(--neon-red); padding: 12px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: #fff; margin-bottom: 24px;">
-        STATUS: SESSION SEVERED // DEVICE ACCESS TERMINATED
+    <div class="lockout-box">
+        <h2>🔒 ACCESS GATEWAY LOCKED</h2>
+        <p>Security Sentinel triggered or session expired. Authenticate key to unlock terminal session.</p>
+        <input type="password" id="gate-key-input" placeholder="ENTER ACCESS KEY">
+        <button onclick="unlockGateway()">AUTHENTICATE ➔</button>
     </div>
-    <button class="btn btn-cyan" style="font-size: 0.75rem;" onclick="location.reload()">RE-INITIALIZE HANDSHAKE</button>
 </div>
 
 <div class="container">
-
-    <!-- PRE-LANDING DEFENSIVE SHIELD VIEW -->
-    <div id="shield-view" class="scifi-panel" style="text-align: center; padding: 40px 16px; margin-top: 40px;">
-        <div style="font-family: var(--font-title); font-size: 1.4rem; color: var(--cyan-accent); margin-bottom: 8px;">⚡ SYSTEM NODE 404</div>
-        <p style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Sub-network gateway is private and restricted to authorized sessions.</p>
-        <div id="shield-error-badge" style="background: rgba(255, 42, 109, 0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 12px; display: none;"></div>
-        <div style="max-width: 320px; margin: 0 auto;">
-            <input type="password" id="shield-passphrase" placeholder="ENTER ACCESS GATEWAY KEY" style="text-align: center; margin-bottom: 10px; text-transform: uppercase;">
-            <button class="btn btn-cyan" onclick="verifyShieldKey()">INITIALIZE HANDSHAKE ➔</button>
+    <!-- Top Header -->
+    <header>
+        <a href="#home" class="logo">[CL] LOBBY</a>
+        <div class="nav-links">
+            <a href="#home">[HOME]</a>
+            <a href="#store">[MENU]</a>
+            <a href="#about">[ABOUT]</a>
+            <a href="#3s">[3S]</a>
+            <a href="#nonos">[NO-NOS]</a>
+            <a href="#faqs" id="nav-link-faqs" style="display: none;">[FAQS]</a>
         </div>
-    </div>
+    </header>
 
-    <!-- MAIN APP CONTAINER -->
-    <div id="main-app-container" style="display: none;">
-
-        <!-- TOP HEADER -->
-        <div class="scifi-panel" id="main-header-panel" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-family: var(--font-title); font-size: 1rem; color: var(--gold-primary); font-weight: 900;">CELESTIAL LOBBY</span>
-            </div>
-            
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <a href="#home" class="nav-link">🏠 HOME</a>
-                <a class="nav-link" onclick="openInfoModal('core-values')">⚡ VALUES</a>
-                <a class="nav-link" onclick="openInfoModal('non-negotiables')">📜 RULES</a>
-                <a class="nav-link" id="nav-link-faqs" style="display: none;" onclick="openInfoModal('faqs')">❓ FAQS</a>
-                <button class="btn btn-purple" style="width: auto; padding: 4px 10px; font-size: 0.65rem;" onclick="showGalacticArmyLogin()">ARMY ⚡</button>
-            </div>
-        </div>
-
-        <!-- 1. LANDING PAGE VIEW (2 SQUARES + 1 RECTANGLE GRID) -->
-        <div id="landing-view" class="view-section" style="display: none;">
-            <div class="landing-grid-container">
-                <!-- SQUARE 1: FOUNDERS -->
-                <div class="scifi-panel square-panel">
-                    <div class="panel-header"><div class="panel-header-title">THE FOUNDERS</div></div>
-                    <p style="font-size: 0.75rem; color: var(--text-muted);">Stardust Mechanics division foundation & operations.</p>
-                    <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(243,206,114,0.2); border-radius: 8px; padding: 8px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold-primary);">
-                        ✦ Division: Stardust Mechanics<br>
-                        ✦ Mandate: Discrete Fulfillment
-                    </div>
-                </div>
-
-                <!-- SQUARE 2: THE CELESTIALS -->
-                <div class="scifi-panel square-panel">
-                    <div class="panel-header"><div class="panel-header-title">THE CELESTIALS</div></div>
-                    <p style="font-size: 0.75rem; color: var(--text-muted);">Explore the lore and cosmic foundation realm.</p>
-                    <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(243,206,114,0.2); border-radius: 8px; padding: 8px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--cyan-accent);">
-                        ✦ Origin: High Celestial Sector<br>
-                        ✦ Protocol: Sentinel Shield
-                    </div>
-                </div>
-
-                <!-- RECTANGULAR PANEL: CLIENT ACCESS PORTAL -->
-                <div class="scifi-panel full-width-panel">
-                    <div class="panel-header"><div class="panel-header-title">CLIENT ACCESS PORTAL</div></div>
-                    <label style="font-size: 0.75rem; color: var(--gold-primary); display: block; margin-bottom: 6px;">SELECT PATHWAY:</label>
-                    <div class="type-selector">
-                        <div class="type-btn active" id="btn-gate-guest" onclick="setLandingPath('guest')">GUEST</div>
-                        <div class="type-btn" id="btn-gate-new" onclick="setLandingPath('new')">NEW CLIENT</div>
-                        <div class="type-btn" id="btn-gate-reg" onclick="setLandingPath('regular')">REGULAR</div>
-                    </div>
-
-                    <div id="path-box-guest">
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">Begin 30-minute timed onboarding and process agreement walkthrough.</p>
-                        <button class="btn" onclick="window.location.hash = '#onboarding'">BEGIN GUEST ASCENSION 🚀</button>
-                    </div>
-
-                    <div id="path-box-new" style="display: none;">
-                        <label style="font-size: 0.75rem; color: var(--text-muted);">Enter First-Ever Order Number:</label>
-                        <input type="text" id="new-client-order-num" placeholder="e.g. CL-84920-X" style="margin-top: 4px; margin-bottom: 10px; text-transform: uppercase;">
-                        <button class="btn btn-cyan" onclick="verifyNewClientOrder()">VERIFY & ASCEND 🚀</button>
-                    </div>
-
-                    <div id="path-box-reg" style="display: none;">
-                        <label style="font-size: 0.75rem; color: var(--text-muted);">Account ID / Client Username:</label>
-                        <input type="text" id="reg-account-id" placeholder="ENTER ACCOUNT ID" style="margin-top: 4px; margin-bottom: 8px; text-transform: uppercase;">
-                        <label style="font-size: 0.75rem; color: var(--text-muted);">8-Digit Access Code:</label>
-                        <input type="text" id="reg-access-code" placeholder="ENTER 8-DIGIT CODE" maxlength="8" style="margin-top: 4px; margin-bottom: 12px; text-transform: uppercase;">
-                        <button class="btn" onclick="attemptRegularLogin()">WARP TO STORE 🚀</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. GUEST TIMED ONBOARDING VIEW -->
-        <div id="guest-onboarding-view" class="view-section" style="display: none;">
-            <div class="scifi-panel">
-                <div class="timer-badge" id="guest-timer-display">⏱️ SESSION TIME: 30:00</div>
-
-                <div id="guest-step-1">
-                    <div class="panel-header"><div class="panel-header-title">STEP 1: INTENT & GPS RADIUS CHECK</div></div>
-                    <p style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px;">Verify location telemetry to confirm eligibility within the 8km Davao operational radius.</p>
-                    
-                    <div style="margin-bottom: 12px;">
-                        <button class="btn btn-cyan" style="font-size: 0.75rem;" onclick="captureEarlyGPS()">📍 CAPTURE GPS LOCATION</button>
-                        <input type="text" id="onboarding-gps-coords" placeholder="7.19070, 125.45530" readonly style="margin-top: 8px; text-align: center; color: var(--cyan-accent); font-weight: bold;">
-                    </div>
-                    <button class="btn" onclick="nextGuestStep(2)">CONTINUE ➔</button>
-                </div>
-
-                <div id="guest-step-2" style="display: none;">
-                    <div class="panel-header"><div class="panel-header-title">STEP 2: SIMPLE PROCESS FLOW</div></div>
-                    <ul style="font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 14px; padding-left: 18px; color: var(--text-main);">
-                        <li>1. Swipe items & add-ons horizontally.</li>
-                        <li>2. Provide manual address & pin GPS location.</li>
-                        <li>3. Submit InstaPay payment reference.</li>
-                        <li>4. Await dispatch tracking approval.</li>
-                    </ul>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-red" onclick="terminatePortalAccess()">DECLINE</button>
-                        <button class="btn" onclick="nextGuestStep(3)">AGREE ➔</button>
-                    </div>
-                </div>
-
-                <div id="guest-step-3" style="display: none;">
-                    <div class="panel-header"><div class="panel-header-title">STEP 3: GENERAL POLICIES & GUIDELINES</div></div>
-                    <div style="font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 10px;">
-                        <label><input type="checkbox" id="faq-chk-1"> Scale-verified prior to dispatch.</label><br>
-                        <label><input type="checkbox" id="faq-chk-2"> GoRush night options apply after 10PM.</label><br>
-                        <label><input type="checkbox" id="faq-chk-3"> Zero internal handling absorption.</label><br>
-                        <label><input type="checkbox" id="faq-chk-4"> GPS must match manual address text.</label><br>
-                        <label><input type="checkbox" id="faq-chk-5"> Revisions approved on tracker screen.</label>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-red" onclick="terminatePortalAccess()">DECLINE</button>
-                        <button class="btn" onclick="nextGuestStep(4)">AGREE ➔</button>
-                    </div>
-                </div>
-
-                <div id="guest-step-4" style="display: none;">
-                    <div class="panel-header"><div class="panel-header-title">STEP 4: SPECIAL HANDLING MODULES</div></div>
-                    
-                    <div class="handling-item">
-                        <label><input type="checkbox" id="sh-split"> Unit Splitting</label>
-                        <span class="tooltip-icon" onclick="alert('Explains order modifications & income/cost impact.')">ⓘ INFO</span>
-                    </div>
-                    <div class="handling-item">
-                        <label><input type="checkbox" id="sh-loc"> Sudden Location Change</label>
-                        <span class="tooltip-icon" onclick="alert('Covers routing adjustments after order submission.')">ⓘ INFO</span>
-                    </div>
-                    <div class="handling-item">
-                        <label><input type="checkbox" id="sh-priority"> Priority Queue</label>
-                        <span class="tooltip-icon" onclick="alert('Expedited dispatch handling slot.')">ⓘ INFO</span>
-                    </div>
-                    <div class="handling-item">
-                        <label><input type="checkbox" id="sh-penalty"> Delay Penalty</label>
-                        <span class="tooltip-icon" onclick="alert('Terms regarding recipient pickup delays.')">ⓘ INFO</span>
-                    </div>
-                    <div class="handling-item">
-                        <label><input type="checkbox" id="sh-wrap"> Personalized Wrap</label>
-                        <span class="tooltip-icon" onclick="alert('Discreet customized outer wrap option.')">ⓘ INFO</span>
-                    </div>
-
-                    <div style="margin: 12px 0; font-size: 0.8rem;">
-                        <label><input type="checkbox" id="chk-non-neg"> Confirm non-negotiable handling rules.</label>
-                    </div>
-
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-red" onclick="terminatePortalAccess()">DECLINE</button>
-                        <button class="btn btn-cyan" onclick="finishGuestOnboarding()">COMPLETE & ENTER 🚀</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. CLIENT STOREFRONT & CATALOG PORTAL -->
-        <div id="portal-view" class="view-section" style="display: none;">
-            <div class="scifi-panel" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="font-family: var(--font-title); color: var(--gold-primary); font-size: 0.85rem;" id="user-badge-title">CLIENT</div>
-                    <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);" id="user-badge-sub">GENE PRINT</div>
-                </div>
-                <button class="btn btn-red" style="width: 70px; padding: 4px; font-size: 0.65rem;" onclick="logout()">LOGOUT</button>
+    <!-- VIEW 1: HOME / PORTAL INDEX (Clean Homepage) -->
+    <div id="view-home" class="view-section active">
+        <div class="portal-grid" style="padding: 0;">
+            <!-- Dual Square Panels (Celestial & Founders) -->
+            <div class="dual-panels">
+                <a href="#celestial" class="square-panel">
+                    <strong>☁️ CELESTIAL</strong>
+                    <span>Catalog of Celestials</span>
+                </a>
+                <a href="#store" class="square-panel" style="border-color: var(--accent-green);">
+                    <strong>🛒 STORE MENU</strong>
+                    <span>Official Products</span>
+                </a>
             </div>
 
-            <div class="tab-nav">
-                <a href="#catalog" class="tab-btn active" id="tab-btn-order">1. CATALOG CAROUSEL</a>
-                <a href="#track" class="tab-btn" id="tab-btn-track">2. TRACK</a>
-            </div>
-
-            <div id="tab-order-content">
-                <div style="text-align: center; font-family: var(--font-mono); font-size: 0.7rem; color: var(--cyan-accent); margin-bottom: 6px;">◄ SWIPE CARDS LEFT / RIGHT TO BROWSE ►</div>
+            <!-- Client Access Portal Panel -->
+            <div class="client-access-panel" style="margin-top: 16px;">
+                <h3>CLIENT ACCESS PORTAL</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Select pathway and enter required security credentials.</p>
                 
-                <div class="swipe-carousel" id="menu-swipe-carousel"></div>
-
-                <!-- CHECKOUT & DELIVERY OPTIONS PANEL -->
-                <div class="scifi-panel" id="checkout-section" style="margin-top: 16px;">
-                    <div class="panel-header"><div class="panel-header-title">DELIVERY METHOD & LOCATION</div></div>
-                    
-                    <label style="font-size: 0.75rem; color: var(--gold-primary); display: block; margin-bottom: 6px;">DELIVERY FEE OPTION:</label>
-                    <div class="type-selector">
-                        <div class="type-btn active" id="btn-fee-flat" onclick="setDeliveryFeeOption('flat')">₱200 FLAT RATE</div>
-                        <div class="type-btn" id="btn-fee-direct" onclick="setDeliveryFeeOption('direct')">DIRECT TO RIDER</div>
-                    </div>
-                    <div id="gorush-night-badge" style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--cyan-accent); color: var(--cyan-accent); padding: 6px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.7rem; margin-bottom: 10px; display: none;">
-                        🌙 GoRush Night Delivery Active (Post-10:00 PM)
-                    </div>
-
-                    <label style="font-size: 0.75rem; color: var(--text-muted);">Full Name:</label>
-                    <input type="text" id="rec-name" placeholder="John Doe" style="margin-top: 4px; margin-bottom: 10px;">
-                    <label style="font-size: 0.75rem; color: var(--text-muted);">Phone Number:</label>
-                    <input type="text" id="rec-phone" placeholder="+63 912 345 6789" style="margin-top: 4px; margin-bottom: 10px;">
-                    <label style="font-size: 0.75rem; color: var(--gold-primary);">Complete Address:</label>
-                    <textarea id="rec-address" rows="2" placeholder="House No. 123, Celestial St." style="margin-top: 4px; margin-bottom: 10px;"></textarea>
-                    
-                    <label style="font-size: 0.75rem; color: var(--gold-primary);">📍 GPS Coords (Verified):</label>
-                    <input type="text" id="rec-coords" placeholder="7.19070, 125.45530" readonly style="margin-bottom: 10px; color: var(--cyan-accent); font-weight: bold;">
+                <div class="type-selector">
+                    <div class="type-btn active" id="btn-gate-guest" onclick="setLandingPath('guest')">GUEST</div>
+                    <div class="type-btn" id="btn-gate-new" onclick="setLandingPath('new')">NEW CLIENT</div>
+                    <div class="type-btn" id="btn-gate-reg" onclick="setLandingPath('regular')">REGULAR</div>
                 </div>
 
-                <div class="scifi-panel">
-                    <div class="panel-header"><div class="panel-header-title">ORDER SUMMARY</div></div>
-                    <div id="summary-list"></div>
-                    <div class="summary-row summary-total"><span>TOTAL:</span><span id="summary-total-val">₱0</span></div>
+                <!-- GUEST PATHWAY -->
+                <div id="path-box-guest">
+                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Begin 30-minute timed guest session walkthrough.</p>
+                    <a href="#onboarding" class="portal-btn">BEGIN GUEST ASCENSION 🚀</a>
                 </div>
 
-                <div class="scifi-panel">
-                    <div class="panel-header"><div class="panel-header-title">INSTAPAY PAYMENT</div></div>
-                    <div>
-                        <label style="font-size: 0.75rem; color: var(--text-muted);">Amount Sent (₱):</label>
-                        <input type="number" id="payment-amount" placeholder="1700" style="margin-bottom: 6px;">
-                        <label style="font-size: 0.75rem; color: var(--text-muted);">First 3 Letters of First Name:</label>
-                        <input type="text" id="payment-initials" maxlength="3" placeholder="FRE" style="margin-bottom: 10px; text-transform: uppercase;">
+                <!-- NEW CLIENT PATHWAY -->
+                <div id="path-box-new" style="display: none;">
+                    <div class="portal-form-group">
+                        <input type="text" id="new-client-order-num" class="portal-input" placeholder="ENTER FIRST ORDER NUMBER (e.g. CL-84920-X)">
+                        <button class="portal-btn" onclick="verifyNewClientOrder()">VERIFY ORDER 🚀</button>
                     </div>
-                    <button class="btn" id="btn-submit-order" onclick="submitOrderToGoogleSheets()">SUBMIT ORDER 🚀</button>
                 </div>
-            </div>
 
-            <div id="tab-track-content" style="display: none;">
-                <div class="scifi-panel">
-                    <div class="panel-header"><div class="panel-header-title">ORDER TRACKER</div></div>
-                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                        <input type="text" id="track-ref-input" placeholder="REF NO. (CL-00000-X)" style="text-transform: uppercase;">
-                        <button class="btn btn-cyan" style="width: 90px; font-size: 0.75rem;" onclick="searchOrderTrack()">TRACK</button>
+                <!-- REGULAR CLIENT PATHWAY -->
+                <div id="path-box-reg" style="display: none;">
+                    <div class="portal-form-group">
+                        <input type="text" id="reg-account-id" class="portal-input" placeholder="ACCOUNT ID (e.g. REG8A101)">
+                        <input type="password" id="reg-access-code" class="portal-input" placeholder="8-DIGIT ACCESS CODE" maxlength="8">
+                        <button class="portal-btn" onclick="attemptRegularLogin()">WARP TO STORE 🚀</button>
                     </div>
-                    <div id="track-result-container"></div>
                 </div>
             </div>
         </div>
-
-        <!-- 4. TERMINATED / PORTAL CLOSED VIEW -->
-        <div id="terminated-view" class="scifi-panel view-section" style="display: none; text-align: center; padding: 30px 16px;">
-            <div style="font-family: var(--font-title); font-size: 1.4rem; color: var(--neon-red); margin-bottom: 8px;">PORTAL CLOSED</div>
-            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 16px;">Session expired or terms declined.</p>
-            <button class="btn btn-cyan" style="font-size: 0.75rem;" onclick="openTelegramDirect()">TELEGRAM SUPPORT (@HOE_NO)</button>
-        </div>
-
-        <!-- 5. GALACTIC ARMY MODAL & DASHBOARD -->
-        <div id="army-modal-backdrop" onclick="closeGalacticArmyLogin()"></div>
-        <div id="galactic-army-login-view" class="scifi-panel">
-            <div class="panel-header">
-                <div class="panel-header-title" style="color: var(--purple-glow);">GALACTIC ARMY | AUTH</div>
-                <button class="btn btn-red" style="width: auto; padding: 2px 8px; font-size: 0.65rem;" onclick="closeGalacticArmyLogin()">X</button>
-            </div>
-            <input type="text" id="army-emp-id" placeholder="EMPLOYEE ID" style="margin-bottom: 8px; text-transform: uppercase;">
-            <input type="password" id="army-passcode" placeholder="ENTER PASSCODE" style="margin-bottom: 10px;">
-            <button class="btn btn-purple" onclick="attemptGalacticArmyLogin()">AUTHENTICATE ⚡</button>
-        </div>
-
     </div>
 
+    <!-- VIEW 2: CATALOG VIEW - THE LIST OF CELESTIALS -->
+    <div id="view-celestial" class="view-section">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 6px;">📜 THE LORE OF THE CELESTIALS</h3>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">Select a catalog item below to inspect its lore specification:</p>
+        
+        <div class="catalog-section">
+            <div class="catalog-title">◄ CATALOG VIEW: LIST OF CELESTIALS ►</div>
+            <div class="catalog-grid">
+                
+                <div class="catalog-card" style="flex: none;" onclick="location.hash='#item-aelunari'">
+                    <div>
+                        <div class="card-header"><h4>✨ Aelunarí — The Dreamborn</h4></div>
+                        <p class="card-desc">Server: CLOUD9 — New Spawn's Area</p>
+                    </div>
+                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
+                </div>
+
+                <div class="catalog-card" style="flex: none;" onclick="location.hash='#item-kaelthari'">
+                    <div>
+                        <div class="card-header"><h4>🔥 Kaeltharí — The Redborn</h4></div>
+                        <p class="card-desc">Server: MARS — Mid-Game Rush</p>
+                    </div>
+                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
+                </div>
+
+                <div class="catalog-card" style="flex: none;" onclick="location.hash='#item-vaelith'">
+                    <div>
+                        <div class="card-header"><h4>💜 Vaelith — The Velvetborn</h4></div>
+                        <p class="card-desc">Server: VENUS — Incubus' Favorite</p>
+                    </div>
+                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
+                </div>
+
+                <div class="catalog-card" style="flex: none;" onclick="location.hash='#item-seraphim'">
+                    <div>
+                        <div class="card-header"><h4>🪐 Seraphim — The Ringborn</h4></div>
+                        <p class="card-desc">Server: SATURN — The Empress Build</p>
+                    </div>
+                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
+                </div>
+
+                <div class="catalog-card" style="flex: none;" onclick="location.hash='#item-nhyxari'">
+                    <div>
+                        <div class="card-header"><h4>🌌 Nhyxari — The Starborn</h4></div>
+                        <p class="card-desc">Server: NIBIRU — Celestial Inverted Realm</p>
+                    </div>
+                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
+                </div>
+
+                <div class="catalog-card" style="flex: none;" onclick="location.hash='#item-xyrem'">
+                    <div>
+                        <div class="card-header"><h4>🌀 Xyrem — The Abyssals</h4></div>
+                        <p class="card-desc">Server: NEMIK — The Abyssmal Zone</p>
+                    </div>
+                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
+                </div>
+
+                <div class="catalog-card" style="flex: none;" onclick="location.hash='#item-veyrath'">
+                    <div>
+                        <div class="card-header"><h4>🜏 Veyrath — The Cosmicborn</h4></div>
+                        <p class="card-desc">Server: Vaelithar — The Null Expanse</p>
+                    </div>
+                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
+                </div>
+
+                <div class="catalog-card" style="flex: none;" onclick="location.hash='#item-dragornborns'">
+                    <div>
+                        <div class="card-header"><h4>🐉 The Dragornborns</h4></div>
+                        <p class="card-desc">Server: HIGHYRTS — Reptilian Valkyries & God-Tier Draconians</p>
+                    </div>
+                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
+                </div>
+
+            </div>
+        </div>
+
+        <a href="#home" class="portal-btn" style="margin-top: 14px;">RETURN TO HOME</a>
+    </div>
+
+    <!-- VIEW 3: CATALOG ITEM (CELESTIAL DETAILS / LORE VIEW) -->
+    <div id="view-item-detail" class="view-section">
+        <h3 id="item-title" style="color: var(--accent-gold); margin-bottom: 10px;">CATALOG ITEM // LORE</h3>
+        <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; margin-bottom: 16px;">
+            <p id="item-desc" style="font-size: 12px; color: var(--text-main); line-height: 1.5; margin-bottom: 10px;">Loading catalog item telemetry...</p>
+        </div>
+        <a href="#celestial" class="portal-btn" style="background: linear-gradient(135deg, #0072ff, var(--accent-cyan)); color: #000; margin-bottom: 8px;">BACK TO CATALOG LIST</a>
+        <a href="#home" class="portal-btn">RETURN TO HOME</a>
+    </div>
+
+    <!-- VIEW 3B: OFFICIAL STORE MENU PAGE (SWIPE CAROUSEL & STORE ITEMS) -->
+    <div id="view-store-menu" class="view-section">
+        <h3 style="color: var(--accent-green); margin-bottom: 10px;">🛒 OFFICIAL STORE MENU PAGE</h3>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">Active store inventory and swipe allocations:</p>
+        
+        <!-- SWIPE CAROUSEL FOR STORE ITEMS -->
+        <div class="catalog-section" style="margin-bottom: 16px;">
+            <div class="catalog-title">◄ SWIPE STORE MENU CAROUSEL ►</div>
+            <div class="swipe-container" id="store-swipe-list">
+                <div class="catalog-card">
+                    <div>
+                        <div class="card-header">
+                            <h4>☁️ CLOUD9 BATCH</h4>
+                            <span class="card-badge">5*</span>
+                        </div>
+                        <p class="card-desc">Standard verification batch from New Spawn's Area.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-price">₱700</span>
+                        <span style="font-size: 10px; color: var(--accent-green);">ACTIVE STOCK</span>
+                    </div>
+                </div>
+                <div class="catalog-card">
+                    <div>
+                        <div class="card-header">
+                            <h4>🔴 MARS ALLOCATION</h4>
+                            <span class="card-badge">10*</span>
+                        </div>
+                        <p class="card-desc">Mid-game high-density extraction batch.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-price">₱1,200</span>
+                        <span style="font-size: 10px; color: var(--accent-green);">ACTIVE STOCK</span>
+                    </div>
+                </div>
+                <div class="catalog-card">
+                    <div>
+                        <div class="card-header">
+                            <h4>🪐 SATURN RESERVE</h4>
+                            <span class="card-badge">12*</span>
+                        </div>
+                        <p class="card-desc">Ring-complex high-tier reserve stream.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-price">₱1,800</span>
+                        <span style="font-size: 10px; color: var(--accent-green);">ACTIVE STOCK</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FULL STORE LIST INVENTORY -->
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+            <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong style="color: var(--text-main); font-size: 13px;">☁️ CLOUD9 BATCH</strong>
+                    <span style="color: var(--accent-gold); font-size: 13px; font-weight: bold;">₱700</span>
+                </div>
+                <p style="font-size: 10px; color: var(--text-muted);">Standard verification batch from New Spawn's Area.</p>
+            </div>
+
+            <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong style="color: var(--text-main); font-size: 13px;">🔴 MARS CORE ALLOCATION</strong>
+                    <span style="color: var(--accent-gold); font-size: 13px; font-weight: bold;">₱1,200</span>
+                </div>
+                <p style="font-size: 10px; color: var(--text-muted);">Mid-game high-density extraction batch.</p>
+            </div>
+
+            <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong style="color: var(--text-main); font-size: 13px;">🪐 SATURN EMPRESS RESERVE</strong>
+                    <span style="color: var(--accent-gold); font-size: 13px; font-weight: bold;">₱1,800</span>
+                </div>
+                <p style="font-size: 10px; color: var(--text-muted);">Ring-complex high-tier reserve stream.</p>
+            </div>
+        </div>
+
+        <a href="#home" class="portal-btn">RETURN TO HOME</a>
+    </div>
+
+    <!-- VIEW 4: GUEST TIMED ONBOARDING PROCESS -->
+    <div id="view-onboarding" class="view-section">
+        <div class="timer-badge" id="guest-timer-display">⏱️ SESSION TIME: 30:00</div>
+
+        <!-- Step 1: Intent & Intro -->
+        <div id="guest-step-1">
+            <h3 style="color: var(--accent-gold); margin-bottom: 10px; font-size: 14px;">STEP 1: INTENT & INTRODUCTION</h3>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">Welcome to the 30-minute timed guest walkthrough. Review the process guidelines before entering the sector.</p>
+            <button class="portal-btn" onclick="nextGuestStep(2)">CONTINUE TO PROCESS FLOW ➔</button>
+        </div>
+
+        <!-- Step 2: Simple Process Flow -->
+        <div id="guest-step-2" style="display: none;">
+            <h3 style="color: var(--accent-gold); margin-bottom: 10px; font-size: 14px;">STEP 2: SIMPLE PROCESS FLOW</h3>
+            <ul style="font-size: 11px; font-family: monospace; margin-bottom: 14px; padding-left: 18px; color: var(--text-main); line-height: 1.6;">
+                <li>1. Browse store menu items & swipe carousel.</li>
+                <li>2. Provide manual address & pin GPS location.</li>
+                <li>3. Submit InstaPay payment reference.</li>
+                <li>4. Await dispatch tracking approval.</li>
+            </ul>
+            <div style="display: flex; gap: 8px;">
+                <button class="portal-btn" style="background: var(--accent-red); color: #fff;" onclick="window.location.hash='#home'">DECLINE</button>
+                <button class="portal-btn" onclick="nextGuestStep(3)">AGREE ➔</button>
+            </div>
+        </div>
+
+        <!-- Step 3: General Policies -->
+        <div id="guest-step-3" style="display: none;">
+            <h3 style="color: var(--accent-gold); margin-bottom: 10px; font-size: 14px;">STEP 3: GENERAL POLICIES</h3>
+            <div style="font-size: 11px; font-family: monospace; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
+                <label><input type="checkbox" id="faq-chk-1"> Scale-verified prior to dispatch.</label>
+                <label><input type="checkbox" id="faq-chk-2"> GoRush night options apply after 10PM.</label>
+                <label><input type="checkbox" id="faq-chk-3"> Zero internal handling absorption.</label>
+                <label><input type="checkbox" id="faq-chk-4"> GPS must match manual address text.</label>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="portal-btn" style="background: var(--accent-red); color: #fff;" onclick="window.location.hash='#home'">DECLINE</button>
+                <button class="portal-btn" onclick="nextGuestStep(4)">AGREE ➔</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Special Handling & Final GPS Capture -->
+        <div id="guest-step-4" style="display: none;">
+            <h3 style="color: var(--accent-gold); margin-bottom: 10px; font-size: 14px;">STEP 4: SPECIAL HANDLING & GPS TELEMETRY</h3>
+            <div class="handling-item"><label><input type="checkbox" id="sh-split"> Unit Splitting</label></div>
+            <div class="handling-item"><label><input type="checkbox" id="sh-loc"> Sudden Location Change</label></div>
+            <div class="handling-item"><label><input type="checkbox" id="sh-priority"> Priority Queue</label></div>
+            <div class="handling-item"><label><input type="checkbox" id="sh-penalty"> Delay Penalty</label></div>
+            
+            <div style="margin: 10px 0; font-size: 11px;">
+                <label><input type="checkbox" id="chk-non-neg"> Confirm non-negotiable handling rules.</label>
+            </div>
+
+            <!-- GPS Capture Triggered After Onboarding Completion -->
+            <div style="margin-top: 12px; margin-bottom: 12px; border-top: 1px dashed rgba(243, 206, 114, 0.3); padding-top: 10px;">
+                <p style="font-size: 10px; color: var(--accent-cyan); margin-bottom: 6px;">FINAL REQUIREMENT: Verify operational radius (8km Davao).</p>
+                <button class="portal-btn" style="background: linear-gradient(135deg, #0072ff, var(--accent-cyan)); color: #000; margin-bottom: 8px;" onclick="captureFinalGPS()">📍 CAPTURE GPS LOCATION</button>
+                <input type="text" id="onboarding-gps-coords" class="portal-input" placeholder="PENDING GPS CAPTURE..." readonly style="text-align: center; color: var(--accent-cyan); font-weight: bold;">
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button class="portal-btn" style="background: var(--accent-red); color: #fff;" onclick="window.location.hash='#home'">DECLINE</button>
+                <button class="portal-btn" onclick="finishGuestOnboarding()">COMPLETE & ENTER STORE ➔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 5: ABOUT US -->
+    <div id="view-about" class="view-section">
+        <h3 style="color: var(--accent-gold); margin-bottom: 12px; font-size: 14px;">About Us — Celestial Lobby</h3>
+        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+            Welcome to <strong>Celestial Lobby</strong>—a streamlined, high-standard digital ecosystem built on absolute discretion, operational precision, and secure client access.
+        </p>
+        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+            Operating across our dedicated web applications, mobile interfaces, and secure Telegram channels (including <strong>@Celestiallobbybot</strong>), we bridge the gap between seamless digital navigation and reliable, low-profile fulfillment.
+        </p>
+
+        <h4 style="font-size: 12px; color: var(--accent-cyan); margin-bottom: 6px;">Our Core Foundation: The 3S Standards</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Everything we do is anchored by our non-negotiable operational pillars:</p>
+        <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                <strong style="color: var(--accent-green);">• Safety:</strong> Rigorous handling procedures, double-verification checks for structural and specification accuracy, and anonymous, tamper-evident packaging from dispatch to receipt.
+            </div>
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                <strong style="color: var(--accent-cyan);">• Security:</strong> Strict client isolation, encrypted communication protocols, and multi-factor access control to protect your identity and transaction history.
+            </div>
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                <strong style="color: var(--accent-gold);">• Secrecy:</strong> Absolute privacy guaranteed through a zero-footprint approach, sanitized digital metadata, and automated data retention hygiene.
+            </div>
+        </div>
+
+        <h4 style="font-size: 12px; color: var(--accent-cyan); margin-bottom: 6px;">What We Offer</h4>
+        <div style="font-size: 11px; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; line-height: 1.4;">
+            <div>• <strong>The Celestial Panel:</strong> A dedicated portal providing structured access to our catalog view of celestial dwellers and catalog item lore.</div>
+            <div>• <strong>The Founders Panel:</strong> A transparent look into our background, brand philosophy, and core operational directives.</div>
+            <div>• <strong>Client Access Portal:</strong> A secure, streamlined gateway designed for user authentication, entry pathways, and order tracking.</div>
+        </div>
+
+        <!-- CONDITIONAL CONTACT DETAILS (VISIBLE ONLY TO LOGGED-IN REGULAR CLIENTS) -->
+        <div id="about-contact-section" style="display: none;">
+            <h4 style="font-size: 12px; color: var(--accent-cyan); margin-bottom: 6px;">Connect With Us</h4>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">For inquiries, support, or assistance, reach out to our team through our official channels:</p>
+            <div style="font-size: 11px; color: var(--text-main); background: #0f172a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 16px; line-height: 1.5;">
+                • <strong>Email:</strong> ecelestiallobby@gmail.com<br>
+                • <strong>Telegram Support:</strong> @Celestiallobbybot
+            </div>
+        </div>
+
+        <a href="#home" class="portal-btn">RETURN TO HOME</a>
+    </div>
+
+    <!-- VIEW 6: THE 3S -->
+    <div id="view-3s" class="view-section">
+        <h3 style="color: var(--accent-green); margin-bottom: 12px; font-size: 14px;">THE 3S STANDARDS & COMMITMENT</h3>
+        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+            At <strong>Celestial Lobby</strong>, protecting your privacy, trust, and experience is the core foundation of our operations. We operate under three non-negotiable principles—<strong>Security, Secrecy, and Safety</strong>—to ensure every interaction and delivery is seamless, low-profile, and fully protected.
+        </p>
+
+        <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
+                <strong style="color: var(--accent-cyan);">1. SECURITY (System & Identity Protection)</strong>
+                <p style="color: var(--text-muted); margin-top: 4px; font-size: 10px; line-height: 1.4;">
+                    • <strong>Client Confidentiality:</strong> All interactions are tied strictly to unique identification codes, ensuring personal details remain isolated from logs.<br>
+                    • <strong>Encrypted Communication:</strong> End-to-end encrypted messaging infrastructure built directly into our platform.<br>
+                    • <strong>Access Control:</strong> System privileges are compartmentalized to prevent unauthorized exposure.
+                </p>
+            </div>
+
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
+                <strong style="color: var(--accent-gold);">2. SECRECY (Complete Discretion & Privacy)</strong>
+                <p style="color: var(--text-muted); margin-top: 4px; font-size: 10px; line-height: 1.4;">
+                    • <strong>Zero-Footprint Policy:</strong> Operational intelligence and rosters are handled on a strict need-to-know basis.<br>
+                    • <strong>Metadata Protection:</strong> Transmissions and receipts are sanitized to remove tracking tags and location markers.<br>
+                    • <strong>Automated Data Retention:</strong> Transaction details adhere to automated cleanup routines post-confirmation.
+                </p>
+            </div>
+
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
+                <strong style="color: var(--accent-green);">3. SAFETY (Fulfillment & Handling Integrity)</strong>
+                <p style="color: var(--text-muted); margin-top: 4px; font-size: 10px; line-height: 1.4;">
+                    • <strong>Verification Standards:</strong> Double-verification checks for structural integrity and precise weight/specs.<br>
+                    • <strong>Anonymous Packaging:</strong> Unbranded, tamper-evident packaging designed for discreet transit.<br>
+                    • <strong>Verified Delivery:</strong> Two-point handoff procedures ensuring secure arrival without external footprints.
+                </p>
+            </div>
+        </div>
+
+        <h4 style="font-size: 12px; color: var(--accent-gold); margin-bottom: 6px;">The 3S Guarantee Matrix</h4>
+        <table style="width: 100%; font-size: 10px; border-collapse: collapse; margin-bottom: 16px; background: #0f172a; border: 1px solid var(--border-color);">
+            <tr style="border-bottom: 1px solid var(--border-color); background: #131c2e;">
+                <th style="padding: 6px; text-align: left; color: var(--accent-cyan);">Standard</th>
+                <th style="padding: 6px; text-align: left; color: var(--text-main);">What It Means For You</th>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 6px; font-weight: bold; color: var(--accent-cyan);">Security</td>
+                <td style="padding: 6px; color: var(--text-muted);">Protected by strict encryption and access controls.</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 6px; font-weight: bold; color: var(--accent-gold);">Secrecy</td>
+                <td style="padding: 6px; color: var(--text-muted);">Privacy is absolute; data is sanitized and auto-cleaned.</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px; font-weight: bold; color: var(--accent-green);">Safety</td>
+                <td style="padding: 6px; color: var(--text-muted);">Verified, discreetly packaged, zero handling errors.</td>
+            </tr>
+        </table>
+
+        <a href="#home" class="portal-btn">RETURN TO HOME</a>
+    </div>
+
+    <!-- VIEW 7: THE NO-NOS -->
+    <div id="view-nonos" class="view-section">
+        <h3 style="color: var(--accent-red); margin-bottom: 10px; font-size: 14px;">🌌 The Celestial Lobby Non-Negotiables (The 15Ns)</h3>
+        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+            To maintain absolute operational integrity, discretion, and the highest standard of safety across our ecosystem, Celestial Lobby strictly enforces our non-negotiable store policies:
+        </p>
+
+        <!-- CORE 5NS (ALWAYS VISIBLE) -->
+        <h4 style="font-size: 12px; color: var(--accent-gold); margin-bottom: 8px;">🛑 The Core 5Ns (Store & Operational Policies)</h4>
+        <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                <strong style="color: var(--accent-red);">1. No COD (Cash on Delivery) ❗️</strong>
+                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Advance payment verification is mandatory before any order is confirmed or processed.</p>
+            </div>
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                <strong style="color: var(--accent-red);">2. No Meet Ups ❗️</strong>
+                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> All fulfillment operates through designated secure channels (such as ride-hailing app delivery or unattended drop-off protocols) to ensure absolute security and privacy.</p>
+            </div>
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                <strong style="color: var(--accent-red);">3. No Refunds ❗️</strong>
+                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Confirmed orders are non-refundable under standard circumstances, with strict product-equivalent or non-cash resolution policies governing exceptional high-value reviews.</p>
+            </div>
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                <strong style="color: var(--accent-red);">4. No Rush Orders ❗️</strong>
+                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Standard preparation and verification workflows must be respected. Rushing compromises our rigorous handling integrity.</p>
+            </div>
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                <strong style="color: var(--accent-red);">5. No Spamming ❗️</strong>
+                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Unauthorized messaging, repeated policy infractions, or out-of-channel disruptions result in immediate account termination.</p>
+            </div>
+        </div>
+
+        <!-- BEHAVIORAL 5NS (VISIBLE ONLY TO LOGGED-IN REGULAR CLIENTS) -->
+        <div id="nonos-behavioral-section" style="display: none;">
+            <h4 style="font-size: 12px; color: var(--accent-gold); margin-bottom: 8px;">🛡️ The Behavioral 5Ns (Client Conduct & Boundaries)</h4>
+            <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">6. No Rudeness ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Interactions with our support team and couriers must remain professional and civil. Disrespectful, abusive, or hostile language results in immediate termination of service and a permanent block.</p>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">7. No Nosy Probes ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Inquiries into confidential internal operations—including supplier identities, sourcing locations, wholesale acquisition costs, or profit margins—are strictly prohibited.</p>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">8. No Nuisance ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Creating unnecessary operational gridlock, frivolous disputes, or wasting administrative time with unverified claims will lead to blacklisting.</p>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">9. No Threats ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Any form of intimidation, coercion, blackmail, or legal/physical threats directed at staff, automated channels, or couriers triggers an immediate permanent ban and forfeiture of active orders.</p>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">10. No Bogus Transactions ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Submitting fake proof-of-payment receipts, false identity details, or intentionally misleading information results in an instant ban across all channels.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPANDED 5NS (VISIBLE ONLY TO LOGGED-IN REGULAR CLIENTS) -->
+        <div id="nonos-expanded-section" style="display: none;">
+            <h4 style="font-size: 12px; color: var(--accent-gold); margin-bottom: 8px;">🔒 The Expanded 5Ns (Security & Operational Safeguards)</h4>
+            <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">11. No Unverified Handling Fee Absorption ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Any unverified or extra fees incurred due to client errors in routing or payment details must be settled independently; internal absorption of unverified fees is strictly not permitted.</p>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">12. No Manual Address Telemetry Mismatches ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Submitted GPS map coordinates must strictly match your manual delivery address text. Discrepancies will trigger automated delivery holds.</p>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">13. No Unapproved Routing Shifts ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Once dispatch authorization is granted, changing drop-off locations mid-transit is prohibited to maintain courier discretion and safety protocols.</p>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">14. No Unauthorized Sharing of Access Codes ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Distributing client access gateways, unique 8-digit client codes, or invitation links outside authorized channels results in an immediate, permanent ban.</p>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
+                    <strong style="color: var(--accent-red);">15. No Promotional Code Abuse on First Orders ❗️</strong>
+                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> First-time purchasers are strictly prohibited from using promotional codes or special access perks on their initial transaction to preserve integrity verification.</p>
+                </div>
+            </div>
+        </div>
+
+        <a href="#home" class="portal-btn">RETURN TO HOME</a>
+    </div>
+
+    <!-- VIEW 8: FAQS -->
+    <div id="view-faqs" class="view-section">
+        <h3 style="color: var(--accent-gold); margin-bottom: 10px;">FREQUENTLY ASKED QUESTIONS</h3>
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">Restricted tier FAQ knowledge base active. All inquiries are encrypted.</p>
+        <a href="#home" class="portal-btn">RETURN TO HOME</a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div>© CELESTIAL SYSTEM</div>
+        <div class="nav-links">
+            <a href="#privacy">[PRIVACY]</a>
+            <a href="#terms">[TERMS]</a>
+            <a href="#infosec">[INFOSEC]</a>
+        </div>
+    </footer>
 </div>
 
 <script>
-    /* =========================================================================
-       GOOGLE APPS SCRIPT WEB APP URL (YOUR GOOGLE ACCOUNT STORAGE ENDPOINT)
-       ========================================================================= */
-    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq1hpAlCIYEeMw6VWaCOpFdPBG6inUpNknWrilGXtlCgCQNb1FQXWVSfPGVCfvYk53IQ/exec";
+    /* ===================================================
+       1. APP STATE & CATALOG ITEM LORE DATABASE
+       =================================================== */
+    let isRegularClientLoggedIn = false;
 
-    let afkTimer = null;
-    const AFK_LIMIT_MS = 60000; // Extended to 60 seconds to prevent false-positive lockouts
-    let selectedDeliveryFee = 200;
-
-    const VALID_REGULAR_ACCOUNTS = {
-        "REG8A101": "81018101",
-        "REG8A102": "81028102",
-        "REG8A103": "81038103",
-        "REG8A104": "81048104",
-        "REG8A105": "81058105"
+    const CATALOG_ITEM_DATABASE = {
+        'aelunari': { name: '✨ AELUNARI — THE DREAMBORN', desc: 'Server: CLOUD9 — New Spawn\'s Area\n\nCatalog Item Lore: Aelunarí embodies the ethereal start of ascension. Operating within the New Spawn\'s Area, this archetype coordinates foundational stardust and dream-state telemetry for newly inducted initiates.' },
+        'kaelthari': { name: '🔥 KAELTHARI — THE REDBORN', desc: 'Server: MARS — Mid-Game Rush\n\nCatalog Item Lore: Forged in crimson stellar core allocations. Kaeltharí manages high-intensity mid-game velocity streams and deep-orbit refined extraction protocols.' },
+        'vaelith': { name: '💜 VAELITH — THE VELVETBORN', desc: 'Server: VENUS — Incubus\' Favorite\n\nCatalog Item Lore: Operating within the velvet sectors, Vaelith specializes in allure-frequency synchronization and specialized high-tier sensory distribution lore.' },
+        'seraphim': { name: '🪐 SERAPHIM — THE RINGBORN', desc: 'Server: SATURN — The Empress Build\n\nCatalog Item Lore: Bound to ring-complex orbital resonance. Seraphim channels absolute structural integrity and empress-tier celestial command over reserve streams.' },
+        'nhyxari': { name: '🌌 NHYXARI — THE STARBORN', desc: 'Server: NIBIRU — Celestial Inverted Realm\n\nCatalog Item Lore: Nhyxari governs the inverted dimensions of Nibiru, handling obscured transit vectors and deep cosmic anomaly frequencies.' },
+        'xyrem': { name: '🌀 XYREM — THE ABYSSALS', desc: 'Server: NEMIK — The Abyssmal Zone\n\nCatalog Item Lore: Emerging from the dark void of Nemik, Xyrem controls shadow-tethered logistics and unmapped void-route telemetry.' },
+        'veyrath': { name: '🜏 VEYRATH — THE COSMICBORN', desc: 'Server: VAELITHAR — The Null Expanse\n\nCatalog Item Lore: Veyrath stands at the edge of the Null Expanse, balancing absolute zero-point energy and primordial cosmic alignment vectors.' },
+        'dragornborns': { name: '🐉 THE DRAGORNBORNS (REPTILIAN VALKYRIES & GOD-TIER DRACONIANS)', desc: 'Server: HIGHYRTS — The Draconians\n\nCatalog Item Lore: The apex lineage of Highyrts. Divided between Reptilian Valkyries and God-Tier Draconians, they govern supreme airspace security and inviolable celestial hierarchy.' }
     };
 
-    const MENU_ITEMS = [
-        { id: 'cloud9', name: '☁️ CLOUD9 — 5*', price: 700, minTier: 'guest', desc: 'Pure celestial grade stardust procurement.' },
-        { id: 'mars', name: '🔴 MARS — 10*', price: 1200, minTier: 'guest', desc: 'High potency Martian batch.' },
-        { id: 'venus', name: '🟣 VENUS — 15*', price: 1700, minTier: 'guest', desc: 'Deep cosmic aura blend.' },
-        { id: 'saturn', name: '🪐 SATURN — 20*', price: 2150, minTier: 'new', desc: 'Ring-grade concentrated extract.' },
-        { id: 'vhaerion', name: '🌑 VHAERION 0.5 — 60*', price: 4450, minTier: 'regular', desc: 'Regular tier exclusive reserve.' }
-    ];
+    window.addEventListener('hashchange', handleRouting);
+    window.addEventListener('DOMContentLoaded', handleRouting);
 
-    let cart = JSON.parse(localStorage.getItem('celestial_cart') || '{}');
+    function updateClientVisibility() {
+        const aboutContact = document.getElementById('about-contact-section');
+        const nonosBehavioral = document.getElementById('nonos-behavioral-section');
+        const nonosExpanded = document.getElementById('nonos-expanded-section');
 
-    window.addEventListener('DOMContentLoaded', () => {
-        resetAfkTimer();
-        window.addEventListener('hashchange', handleRoute);
-        if (sessionStorage.getItem('celestial_shield_passed') === 'true') {
-            unlockMainApp();
-            handleRoute();
-            if (sessionStorage.getItem('celestial_user_tier') === 'regular') {
-                document.getElementById('nav-link-faqs').style.display = 'inline-block';
-            }
+        if (isRegularClientLoggedIn) {
+            if (aboutContact) aboutContact.style.display = 'block';
+            if (nonosBehavioral) nonosBehavioral.style.display = 'block';
+            if (nonosExpanded) nonosExpanded.style.display = 'block';
         } else {
-            window.location.hash = '#home';
+            if (aboutContact) aboutContact.style.display = 'none';
+            if (nonosBehavioral) nonosBehavioral.style.display = 'none';
+            if (nonosExpanded) nonosExpanded.style.display = 'none';
+        }
+    }
+
+    function handleRouting() {
+        const hash = window.location.hash || '#home';
+        
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        updateClientVisibility();
+        
+        if (hash === '#home') {
+            document.getElementById('view-home').classList.add('active');
+        } else if (hash === '#celestial') {
+            document.getElementById('view-celestial').classList.add('active');
+        } else if (hash.startsWith('#item-')) {
+            const itemId = hash.replace('#item-', '');
+            const item = CATALOG_ITEM_DATABASE[itemId];
+            if (item) {
+                document.getElementById('item-title').innerText = item.name;
+                document.getElementById('item-desc').innerHTML = item.desc.replace(/\n/g, '<br>');
+                document.getElementById('view-item-detail').classList.add('active');
+            } else {
+                document.getElementById('view-home').classList.add('active');
+            }
+        } else if (hash === '#store') {
+            document.getElementById('view-store-menu').classList.add('active');
+        } else if (hash === '#about') {
+            document.getElementById('view-about').classList.add('active');
+        } else if (hash === '#3s') {
+            document.getElementById('view-3s').classList.add('active');
+        } else if (hash === '#nonos') {
+            document.getElementById('view-nonos').classList.add('active');
+        } else if (hash === '#faqs') {
+            document.getElementById('view-faqs').classList.add('active');
+        } else if (hash === '#onboarding') {
+            document.getElementById('view-onboarding').classList.add('active');
+            nextGuestStep(1); 
+        } else {
+            document.getElementById('view-home').classList.add('active');
+        }
+        resetSentinelTimer();
+    }
+
+    /* ===================================================
+       2. RECALIBRATED SECURITY SENTINEL
+       =================================================== */
+    const AFK_LIMIT_MS = 120000; 
+    const VALID_KEYS = ["ASCEND", "CELESTIAL2026", "ADMIN888"];
+    let afkTimer = null;
+
+    function lockGateway() {
+        document.getElementById('security-lockout-screen').style.display = 'flex';
+    }
+
+    function unlockGateway() {
+        const inputKey = document.getElementById('gate-key-input').value.trim();
+        if (VALID_KEYS.includes(inputKey)) {
+            document.getElementById('security-lockout-screen').style.display = 'none';
+            document.getElementById('gate-key-input').value = '';
+            resetSentinelTimer();
+        } else {
+            alert('SECURITY ALERT: Invalid Access Key');
+        }
+    }
+
+    function resetSentinelTimer() {
+        clearTimeout(afkTimer);
+        afkTimer = setTimeout(lockGateway, AFK_LIMIT_MS);
+    }
+
+    const activityEvents = ['mousemove', 'touchstart', 'scroll', 'keydown', 'click'];
+    activityEvents.forEach(event => {
+        window.addEventListener(event, resetSentinelTimer, { passive: true });
+    });
+
+    window.addEventListener('blur', () => {
+        setTimeout(() => {
+            if (document.hidden) {
+                lockGateway();
+            }
+        }, 400);
+    });
+
+    window.addEventListener('keyup', (e) => {
+        if (e.key === 'PrintScreen' || e.keyCode === 44) {
+            lockGateway();
         }
     });
 
-    function handleRoute() {
-        const hash = window.location.hash || '#home';
-        document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
-
-        if (hash === '#home') document.getElementById('landing-view').style.display = 'block';
-        else if (hash === '#onboarding') document.getElementById('guest-onboarding-view').style.display = 'block';
-        else if (hash === '#catalog' || hash === '#track') {
-            document.getElementById('portal-view').style.display = 'block';
-            document.getElementById('tab-order-content').style.display = (hash === '#catalog') ? 'block' : 'none';
-            document.getElementById('tab-track-content').style.display = (hash === '#track') ? 'block' : 'none';
-            renderSwipeCarousel();
-            updateCalculations();
-        }
-        else if (hash === '#terminated') document.getElementById('terminated-view').style.display = 'block';
-    }
-
-    function verifyShieldKey() {
-        const key = document.getElementById('shield-passphrase').value.trim().toUpperCase();
-        if (key === 'ASCEND' || key === 'CELESTIAL2026') {
-            sessionStorage.setItem('celestial_shield_passed', 'true');
-            unlockMainApp();
-            handleRoute();
-        } else {
-            alert("SECURITY ALERT: Invalid Access Gateway Key.");
-        }
-    }
-
-    function unlockMainApp() {
-        document.getElementById('shield-view').style.display = 'none';
-        document.getElementById('main-app-container').style.display = 'block';
-    }
-
-    function resetAfkTimer() {
-        if (document.getElementById('security-lockout-screen').style.display === 'block') return;
-        clearTimeout(afkTimer);
-        afkTimer = setTimeout(() => { triggerSecurityLockout("AFK Timeout (>60s)"); }, AFK_LIMIT_MS);
-    }
-
-    function triggerSecurityLockout(reason) {
-        document.getElementById('security-lockout-screen').style.display = 'block';
-        sessionStorage.clear();
-        localStorage.removeItem('celestial_cart');
-    }
-
-    ['mousemove', 'touchstart', 'scroll', 'keydown', 'click'].forEach(evt => window.addEventListener(evt, resetAfkTimer, { passive: true }));
-    document.addEventListener('visibilitychange', () => { if (document.hidden) triggerSecurityLockout("Screen Timeout / App Backgrounded"); });
-    window.addEventListener('blur', () => triggerSecurityLockout("Window Blur"));
-    window.addEventListener('keyup', (e) => { if (e.key === 'PrintScreen' || e.keyCode === 44) triggerSecurityLockout("Screenshot Attempt"); });
-
+    /* ===================================================
+       3. PATHWAY SWITCHING & LOGOUT/LOGIN LOGIC
+       =================================================== */
     function setLandingPath(path) {
+        resetSentinelTimer();
         document.getElementById('path-box-guest').style.display = (path === 'guest') ? 'block' : 'none';
         document.getElementById('path-box-new').style.display = (path === 'new') ? 'block' : 'none';
         document.getElementById('path-box-reg').style.display = (path === 'regular') ? 'block' : 'none';
@@ -572,203 +822,63 @@
         document.getElementById('btn-gate-reg').classList.toggle('active', path === 'regular');
     }
 
-    function attemptRegularLogin() {
-        const accId = document.getElementById('reg-account-id').value.trim().toUpperCase();
-        const code = document.getElementById('reg-access-code').value.trim();
-
-        if (!accId || !VALID_REGULAR_ACCOUNTS[accId]) {
-            alert("SECURITY CHECK: Invalid or unregistered Account ID.");
-            return;
-        }
-        if (VALID_REGULAR_ACCOUNTS[accId] !== code) {
-            alert("SECURITY CHECK: Incorrect 8-Digit Access Code.");
-            return;
-        }
-
-        sessionStorage.setItem('celestial_client_id', accId);
-        sessionStorage.setItem('celestial_access_code', code);
-        sessionStorage.setItem('celestial_user_tier', 'regular');
-        document.getElementById('nav-link-faqs').style.display = 'inline-block';
-        window.location.hash = '#catalog';
-    }
-
     function verifyNewClientOrder() {
         const orderNum = document.getElementById('new-client-order-num').value.trim();
         if (!orderNum) {
             alert("Please enter a valid first-ever order number.");
             return;
         }
-        sessionStorage.setItem('celestial_user_tier', 'new');
-        window.location.hash = '#catalog';
+        isRegularClientLoggedIn = false; 
+        updateClientVisibility();
+        window.location.hash = '#store';
     }
 
-    function captureEarlyGPS() {
+    function attemptRegularLogin() {
+        resetSentinelTimer();
+        const accId = document.getElementById('reg-account-id').value.trim().toUpperCase();
+        const code = document.getElementById('reg-access-code').value.trim();
+        
+        if (!accId || !code) {
+            alert("SECURITY CHECK: Please enter both your Account ID and 8-Digit Access Code.");
+            return;
+        }
+        
+        isRegularClientLoggedIn = true; 
+        updateClientVisibility();
+
+        document.getElementById('nav-link-faqs').style.display = 'inline-block';
+        alert(`Authenticating Account ID: ${accId}... Gateway access verified.`);
+        window.location.hash = '#store';
+    }
+
+    function captureFinalGPS() {
         document.getElementById('onboarding-gps-coords').value = "7.19070, 125.45530";
-        document.getElementById('rec-coords').value = "7.19070, 125.45530";
-        alert("GPS Telemetry Verified: Within 8km Davao Operational Radius.");
+        alert("GPS Telemetry Captured: Verified within 8km Davao operational radius.");
     }
 
     function nextGuestStep(step) {
-        [1,2,3,4].forEach(s => document.getElementById(`guest-step-${s}`).style.display = 'none');
-        document.getElementById(`guest-step-${step}`).style.display = 'block';
+        [1, 2, 3, 4].forEach(s => {
+            const el = document.getElementById(`guest-step-${s}`);
+            if (el) el.style.display = (s === step) ? 'block' : 'none';
+        });
     }
 
     function finishGuestOnboarding() {
-        if (!document.getElementById('chk-non-neg').checked) { alert("Please confirm non-negotiable rules."); return; }
-        sessionStorage.setItem('celestial_user_tier', 'guest');
-        window.location.hash = '#catalog';
-        checkGoRushTime();
-    }
-
-    function terminatePortalAccess() { window.location.hash = '#terminated'; }
-
-    function setDeliveryFeeOption(type) {
-        selectedDeliveryFee = (type === 'flat') ? 200 : 0;
-        document.getElementById('btn-fee-flat').classList.toggle('active', type === 'flat');
-        document.getElementById('btn-fee-direct').classList.toggle('active', type === 'direct');
-        updateCalculations();
-    }
-
-    function checkGoRushTime() {
-        const hour = new Date().getHours();
-        if (hour >= 22 || hour < 5) {
-            document.getElementById('gorush-night-badge').style.display = 'block';
-        }
-    }
-
-    function renderSwipeCarousel() {
-        const container = document.getElementById('menu-swipe-carousel');
-        let html = '';
-
-        MENU_ITEMS.forEach((item, index) => {
-            cart[item.id] = cart[item.id] || 0;
-            html += `
-                <div class="swipe-card">
-                    <div>
-                        <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--gold-primary); text-align: right;">CARD ${index + 1} OF ${MENU_ITEMS.length + 1}</div>
-                        <div style="font-family: var(--font-title); font-size: 1.1rem; color: #fff; margin-top: 6px;">${item.name}</div>
-                        <div style="font-family: var(--font-mono); color: var(--cyan-accent); font-size: 1.2rem; font-weight: bold; margin-top: 4px;">₱${item.price.toLocaleString()}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;">${item.desc}</div>
-                    </div>
-                    <div>
-                        <div class="qty-controls">
-                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-                            <span class="qty-val" id="qty-${item.id}">${cart[item.id]}</span>
-                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        html += `
-            <div class="swipe-card" style="border-color: var(--cyan-accent); text-align: center; justify-content: center;">
-                <div style="font-family: var(--font-title); font-size: 1.2rem; color: var(--cyan-accent); margin-bottom: 12px;">READY TO CHECKOUT?</div>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">Proceed to delivery selection and InstaPay submission.</p>
-                <a href="#checkout-section" class="btn btn-cyan" style="font-size: 0.75rem;">JUMP TO DELIVERY ➔</a>
-            </div>
-        `;
-
-        container.innerHTML = html;
-    }
-
-    function changeQty(id, delta) {
-        cart[id] = Math.max(0, (cart[id] || 0) + delta);
-        if (document.getElementById(`qty-${id}`)) {
-            document.getElementById(`qty-${id}`).innerText = cart[id];
-        }
-        localStorage.setItem('celestial_cart', JSON.stringify(cart));
-        updateCalculations();
-    }
-
-    function updateCalculations() {
-        let subtotal = 0;
-        let summaryHTML = '';
-
-        MENU_ITEMS.forEach(item => {
-            const qty = cart[item.id] || 0;
-            if (qty > 0) {
-                const itemTotal = item.price * qty;
-                subtotal += itemTotal;
-                summaryHTML += `<div class="summary-row"><span>${item.name} x${qty}</span><span>₱${itemTotal.toLocaleString()}</span></div>`;
-            }
-        });
-
-        if (selectedDeliveryFee > 0) {
-            summaryHTML += `<div class="summary-row"><span>Delivery Fee (Flat Rate)</span><span>₱${selectedDeliveryFee}</span></div>`;
-        }
-
-        const grandTotal = subtotal + selectedDeliveryFee;
-        if (document.getElementById('summary-list')) {
-            document.getElementById('summary-list').innerHTML = summaryHTML || '<div style="color: var(--text-muted); font-size: 0.8rem;">No items selected yet.</div>';
-            document.getElementById('summary-total-val').innerText = `₱${grandTotal.toLocaleString()}`;
-        }
-    }
-
-    /* =========================================================================
-       SUBMIT ORDER DIRECTLY TO GOOGLE SHEETS (GOOGLE ACCOUNT BACKEND)
-       ========================================================================= */
-    function submitOrderToGoogleSheets() {
-        const name = document.getElementById('rec-name').value.trim();
-        const phone = document.getElementById('rec-phone').value.trim();
-        const address = document.getElementById('rec-address').value.trim();
-        const coords = document.getElementById('rec-coords').value.trim();
-        const paymentAmt = document.getElementById('payment-amount').value.trim();
-        const initials = document.getElementById('payment-initials').value.trim().toUpperCase();
-
-        if (!name || !phone || !address || !paymentAmt || !initials) {
-            alert("Please complete all recipient and InstaPay details.");
+        if (!document.getElementById('chk-non-neg').checked) {
+            alert("Please confirm non-negotiable handling rules.");
             return;
         }
-
-        const orderData = {
-            timestamp: new Date().toISOString(),
-            clientTier: sessionStorage.getItem('celestial_user_tier') || 'guest',
-            clientId: sessionStorage.getItem('celestial_client_id') || 'GUEST',
-            name: name,
-            phone: phone,
-            address: address,
-            gps: coords,
-            cart: cart,
-            deliveryFee: selectedDeliveryFee,
-            paymentAmount: paymentAmt,
-            paymentInitials: initials,
-            refNo: 'CL-' + Math.floor(10000 + Math.random() * 90000) + '-X'
-        };
-
-        fetch(GOOGLE_APPS_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderData)
-        }).then(() => {
-            alert(`Order submitted successfully! Reference Number: ${orderData.refNo}`);
-            localStorage.removeItem('celestial_cart');
-            window.location.hash = '#track';
-            document.getElementById('track-ref-input').value = orderData.refNo;
-        }).catch(err => {
-            console.error(err);
-            alert("Error submitting order to server. Please check your network connection.");
-        });
+        const gpsVal = document.getElementById('onboarding-gps-coords').value.trim();
+        if (!gpsVal || gpsVal === "PENDING GPS CAPTURE...") {
+            alert("Please capture your GPS location before completing onboarding.");
+            return;
+        }
+        isRegularClientLoggedIn = false; 
+        updateClientVisibility();
+        window.location.hash = '#store';
     }
 
-    function searchOrderTrack() {
-        const ref = document.getElementById('track-ref-input').value.trim().toUpperCase();
-        if (!ref) return;
-        document.getElementById('track-result-container').innerHTML = `
-            <div class="ticket-card" style="background:#000; border:2px dashed var(--gold-primary); border-radius:12px; padding:16px; font-family:var(--font-mono); font-size:0.85rem;">
-                <div><strong>REF NO:</strong> ${ref}</div>
-                <div><strong>STATUS:</strong> 🟢 DISPATCH VERIFIED & LOGGED TO GOOGLE SHEETS</div>
-                <div><strong>ETA:</strong> ~30-45 Mins within Davao Sector</div>
-            </div>
-        `;
-    }
-
-    function openTelegramDirect() { window.open('https://t.me/hoe_no', '_blank'); }
-    function showGalacticArmyLogin() { document.getElementById('army-modal-backdrop').style.display = 'block'; document.getElementById('galactic-army-login-view').style.display = 'block'; }
-    function closeGalacticArmyLogin() { document.getElementById('army-modal-backdrop').style.display = 'none'; document.getElementById('galactic-army-login-view').style.display = 'none'; }
-    function openInfoModal(type) { alert(`Opening ${type} policy.`); }
-    function logout() { sessionStorage.clear(); localStorage.removeItem('celestial_cart'); window.location.hash = '#home'; location.reload(); }
+    resetSentinelTimer();
 </script>
 
 </body>
