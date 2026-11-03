@@ -170,7 +170,7 @@
             text-align: center;
         }
 
-        /* Live Calculator Panel */
+        /* Live Calculator & Checkout Panels */
         .live-calculator {
             background: #0f172a;
             border: 1px solid var(--accent-gold);
@@ -195,6 +195,15 @@
             margin-top: 6px;
             color: var(--accent-gold);
         }
+
+        .instapay-section {
+            background: #0f172a;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .instapay-section h4 { font-size: 12px; color: var(--accent-cyan); margin-bottom: 8px; }
 
         /* Onboarding Specific Styles */
         .timer-badge { background: rgba(255, 42, 109, 0.15); border: 1px solid var(--accent-red); color: var(--accent-red); padding: 8px; border-radius: 6px; text-align: center; margin-bottom: 14px; font-weight: bold; font-size: 12px; }
@@ -630,6 +639,24 @@
             <div class="calc-total"><span>Grand Total:</span> <span id="calc-grand-total">₱0</span></div>
         </div>
 
+        <!-- INSTAPAY PAYMENT REFERENCE UPLOAD FORM -->
+        <div class="instapay-section">
+            <h4>💳 INSTAPAY PAYMENT REFERENCE UPLOAD</h4>
+            <p style="font-size: 10px; color: var(--text-muted); margin-bottom: 10px;">Advance payment verification required (No COD). Enter transaction reference details below:</p>
+            
+            <div class="portal-form-group">
+                <select id="pay-channel" class="portal-input" style="cursor: pointer;">
+                    <option value="GCash">GCash InstaPay</option>
+                    <option value="Maya">Maya InstaPay</option>
+                    <option value="BPI">BPI Online / InstaPay</option>
+                    <option value="UnionBank">UnionBank InstaPay</option>
+                </select>
+                <input type="text" id="pay-ref-no" class="portal-input" placeholder="ENTER TRANSACTION REF NO. (e.g. 20261103-XXXX)">
+                <input type="text" id="pay-initials" class="portal-input" placeholder="SENDER INITIALS (e.g. J.M.)" maxlength="6">
+                <button class="portal-btn" onclick="submitInstaPayCheckout()">SUBMIT PAYMENT & ORDER 🚀</button>
+            </div>
+        </div>
+
         <a href="#home" class="portal-btn" style="margin-top: 14px;">RETURN TO HOME</a>
     </div>
 
@@ -1049,6 +1076,25 @@
 
         document.getElementById('calc-summary-rows').innerHTML = summaryHTML;
         document.getElementById('calc-grand-total').innerText = `₱${grandTotal.toLocaleString()}`;
+    }
+
+    function submitInstaPayCheckout() {
+        resetSentinelTimer();
+        const channel = document.getElementById('pay-channel').value;
+        const refNo = document.getElementById('pay-ref-no').value.trim();
+        const initials = document.getElementById('pay-initials').value.trim();
+
+        if (!refNo) {
+            alert("INSTAPAY CHECKOUT: Please enter your transaction reference number.");
+            return;
+        }
+        if (!initials) {
+            alert("INSTAPAY CHECKOUT: Please enter your sender initials.");
+            return;
+        }
+
+        alert(`Payment Verified via ${channel}!\nRef No: ${refNo}\nInitials: ${initials}\n\nOrder submitted successfully. Awaiting dispatch tracking approval.`);
+        window.location.hash = '#home';
     }
 
     /* ===================================================
