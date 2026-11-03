@@ -71,7 +71,7 @@
         .square-panel:hover { border-color: var(--accent-green); }
         .square-panel span { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
         
-        /* Client Access Portal Panel & Pathways */
+        /* Client Access Portal Panel */
         .client-access-panel { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; }
         .client-access-panel h3 { font-size: 14px; margin-bottom: 12px; color: var(--accent-gold); }
         
@@ -98,118 +98,7 @@
             border: none; color: #000; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 4px; font-size: 12px; text-decoration: none; text-align: center; display: block;
         }
 
-        /* Catalog Grid / List Styles */
-        .catalog-section { display: flex; flex-direction: column; gap: 8px; }
-        .catalog-title { font-size: 12px; color: var(--accent-green); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-        
-        .catalog-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .catalog-grid::-webkit-scrollbar { width: 4px; }
-        .catalog-grid::-webkit-scrollbar-track { background: #0f172a; }
-        .catalog-grid::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
-
-        .catalog-card {
-            background: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
-        .catalog-card:hover { border-color: var(--accent-cyan); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .card-header h4 { font-size: 13px; color: var(--text-main); }
-        .card-desc { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
-        .card-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 6px; }
-
-        /* Store Menu Quantity Controls */
-        .store-item-card {
-            background: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .qty-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .qty-btn {
-            background: #1e293b;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-        }
-        .qty-btn:hover { border-color: var(--accent-cyan); background: rgba(0, 240, 255, 0.1); }
-        .qty-val {
-            font-size: 13px;
-            font-weight: bold;
-            color: var(--accent-cyan);
-            min-width: 18px;
-            text-align: center;
-        }
-
-        /* Live Calculator & Checkout Panels */
-        .live-calculator {
-            background: #0f172a;
-            border: 1px solid var(--accent-gold);
-            border-radius: 6px;
-            padding: 12px;
-            margin-top: 12px;
-        }
-        .calc-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            margin-bottom: 6px;
-            color: var(--text-muted);
-        }
-        .calc-total {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            font-weight: bold;
-            border-top: 1px dashed var(--border-color);
-            padding-top: 8px;
-            margin-top: 6px;
-            color: var(--accent-gold);
-        }
-
-        .instapay-section {
-            background: #0f172a;
-            border: 1px solid var(--accent-cyan);
-            border-radius: 6px;
-            padding: 12px;
-            margin-top: 12px;
-        }
-        .instapay-section h4 { font-size: 12px; color: var(--accent-cyan); margin-bottom: 8px; }
-
-        /* Onboarding Specific Styles */
-        .timer-badge { background: rgba(255, 42, 109, 0.15); border: 1px solid var(--accent-red); color: var(--accent-red); padding: 8px; border-radius: 6px; text-align: center; margin-bottom: 14px; font-weight: bold; font-size: 12px; }
-        .handling-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed rgba(243, 206, 114, 0.15); font-size: 11px; }
-
-        /* Dynamic Route Views */
+        /* Dynamic Views */
         .view-section { display: none; padding: 20px; }
         .view-section.active { display: block; }
 
@@ -221,7 +110,7 @@
 </head>
 <body>
 
-<!-- Pre-Landing Scrutiny Shield / Inactivity Sentinel Lockout Overlay -->
+<!-- Security Sentinel Lockout Overlay -->
 <div id="security-lockout-screen">
     <div class="lockout-box">
         <h2>🔒 ACCESS GATEWAY LOCKED</h2>
@@ -237,18 +126,15 @@
         <a href="#home" class="logo">[CL] LOBBY</a>
         <div class="nav-links">
             <a href="#home">[HOME]</a>
-            <a href="#store">[MENU]</a>
             <a href="#about">[ABOUT]</a>
             <a href="#3s">[3S]</a>
             <a href="#nonos">[NO-NOS]</a>
-            <a href="#faqs" id="nav-link-faqs" style="display: none;">[FAQS]</a>
         </div>
     </header>
 
     <!-- VIEW 1: HOME / PORTAL INDEX -->
     <div id="view-home" class="view-section active">
         <div class="portal-grid" style="padding: 0;">
-            <!-- Dual Square Panels (Celestial & Founders) -->
             <div class="dual-panels">
                 <a href="#celestial" class="square-panel">
                     <strong>☁️ CELESTIAL</strong>
@@ -260,7 +146,7 @@
                 </a>
             </div>
 
-            <!-- Client Access Portal Panel -->
+            <!-- Client Access Portal -->
             <div class="client-access-panel" style="margin-top: 16px;">
                 <h3>CLIENT ACCESS PORTAL</h3>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Select pathway and enter required security credentials.</p>
@@ -273,15 +159,15 @@
 
                 <!-- GUEST PATHWAY -->
                 <div id="path-box-guest">
-                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Begin 30-minute timed guest session walkthrough.</p>
-                    <a href="#onboarding" class="portal-btn">BEGIN GUEST ASCENSION 🚀</a>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Begin guest walkthrough session.</p>
+                    <button class="portal-btn" onclick="alert('Guest pathway initialized.')">BEGIN ASCENSION 🚀</button>
                 </div>
 
                 <!-- NEW CLIENT PATHWAY -->
                 <div id="path-box-new" style="display: none;">
                     <div class="portal-form-group">
-                        <input type="text" id="new-client-order-num" class="portal-input" placeholder="ENTER FIRST ORDER NUMBER (e.g. CL-84920-X)">
-                        <button class="portal-btn" onclick="verifyNewClientOrder()">VERIFY ORDER 🚀</button>
+                        <input type="text" id="new-client-order-num" class="portal-input" placeholder="ENTER FIRST ORDER NUMBER">
+                        <button class="portal-btn" onclick="alert('Verifying first order...')">VERIFY ORDER 🚀</button>
                     </div>
                 </div>
 
@@ -290,639 +176,37 @@
                     <div class="portal-form-group">
                         <input type="text" id="reg-account-id" class="portal-input" placeholder="ACCOUNT ID (e.g. REG8A101)">
                         <input type="password" id="reg-access-code" class="portal-input" placeholder="8-DIGIT ACCESS CODE" maxlength="8">
-                        <button class="portal-btn" onclick="attemptRegularLogin()">WARP TO STORE 🚀</button>
+                        <button class="portal-btn" onclick="alert('Authenticating account...')">WARP TO STORE 🚀</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- VIEW 2: CATALOG VIEW - THE LIST OF CELESTIALS -->
-    <div id="view-celestial" class="view-section">
-        <h3 style="color: var(--accent-cyan); margin-bottom: 6px;">📜 THE LORE OF THE CELESTIALS</h3>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">Select a catalog item below to inspect its lore specification:</p>
-        
-        <div class="catalog-section">
-            <div class="catalog-title">◄ CATALOG VIEW: LIST OF CELESTIALS ►</div>
-            <div class="catalog-grid">
-                
-                <div class="catalog-card" onclick="location.hash='#item-aelunari'">
-                    <div>
-                        <div class="card-header"><h4>✨ Aelunarí — The Dreamborn</h4></div>
-                        <p class="card-desc">Server: CLOUD9 — New Spawn's Area</p>
-                    </div>
-                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
-                </div>
-
-                <div class="catalog-card" onclick="location.hash='#item-kaelthari'">
-                    <div>
-                        <div class="card-header"><h4>🔥 Kaeltharí — The Redborn</h4></div>
-                        <p class="card-desc">Server: MARS — Mid-Game Rush</p>
-                    </div>
-                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
-                </div>
-
-                <div class="catalog-card" onclick="location.hash='#item-vaelith'">
-                    <div>
-                        <div class="card-header"><h4>💜 Vaelith — The Velvetborn</h4></div>
-                        <p class="card-desc">Server: VENUS — Incubus' Favorite</p>
-                    </div>
-                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
-                </div>
-
-                <div class="catalog-card" onclick="location.hash='#item-seraphim'">
-                    <div>
-                        <div class="card-header"><h4>🪐 Seraphim — The Ringborn</h4></div>
-                        <p class="card-desc">Server: SATURN — The Empress Build</p>
-                    </div>
-                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
-                </div>
-
-                <div class="catalog-card" onclick="location.hash='#item-nhyxari'">
-                    <div>
-                        <div class="card-header"><h4>🌌 Nhyxari — The Starborn</h4></div>
-                        <p class="card-desc">Server: NIBIRU — Celestial Inverted Realm</p>
-                    </div>
-                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
-                </div>
-
-                <div class="catalog-card" onclick="location.hash='#item-xyrem'">
-                    <div>
-                        <div class="card-header"><h4>🌀 Xyrem — The Abyssals</h4></div>
-                        <p class="card-desc">Server: NEMIK — The Abyssmal Zone</p>
-                    </div>
-                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
-                </div>
-
-                <div class="catalog-card" onclick="location.hash='#item-veyrath'">
-                    <div>
-                        <div class="card-header"><h4>🜏 Veyrath — The Cosmicborn</h4></div>
-                        <p class="card-desc">Server: Vaelithar — The Null Expanse</p>
-                    </div>
-                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
-                </div>
-
-                <div class="catalog-card" onclick="location.hash='#item-dragornborns'">
-                    <div>
-                        <div class="card-header"><h4>🐉 The Dragornborns</h4></div>
-                        <p class="card-desc">Server: HIGHYRTS — Reptilian Valkyries & God-Tier Draconians</p>
-                    </div>
-                    <div class="card-footer"><span style="font-size: 10px; color: var(--accent-cyan);">VIEW CATALOG ITEM LORE ➔</span></div>
-                </div>
-
-            </div>
-        </div>
-
-        <a href="#home" class="portal-btn" style="margin-top: 14px;">RETURN TO HOME</a>
-    </div>
-
-    <!-- VIEW 3: CATALOG ITEM (CELESTIAL DETAILS / LORE VIEW) -->
-    <div id="view-item-detail" class="view-section">
-        <h3 id="item-title" style="color: var(--accent-gold); margin-bottom: 10px;">CATALOG ITEM // LORE</h3>
-        <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; margin-bottom: 16px;">
-            <p id="item-desc" style="font-size: 12px; color: var(--text-main); line-height: 1.5; margin-bottom: 10px;">Loading catalog item telemetry...</p>
-        </div>
-        <a href="#celestial" class="portal-btn" style="background: linear-gradient(135deg, #0072ff, var(--accent-cyan)); color: #000; margin-bottom: 8px;">BACK TO CATALOG LIST</a>
-        <a href="#home" class="portal-btn">RETURN TO HOME</a>
-    </div>
-
-    <!-- VIEW 3B: OFFICIAL STORE MENU WITH COMPLETE ITEMS, ADD-ONS & SPECIAL HANDLING -->
-    <div id="view-store-menu" class="view-section">
-        <h3 style="color: var(--accent-green); margin-bottom: 10px;">🛒 OFFICIAL STORE MENU</h3>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">Select quantities for core allocations, add-ons, and special handling fees:</p>
-        
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
-            
-            <!-- Cloud9 -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">☁️ Cloud9 — 5*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱700</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('cloud9', -1)">-</button>
-                    <span class="qty-val" id="qty-cloud9">0</span>
-                    <button class="qty-btn" onclick="updateQty('cloud9', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- Mars -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">🔴 Mars — 10*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱1,200</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('mars', -1)">-</button>
-                    <span class="qty-val" id="qty-mars">0</span>
-                    <button class="qty-btn" onclick="updateQty('mars', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- Venus -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">🟣 Venus — 15*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱1,700</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('venus', -1)">-</button>
-                    <span class="qty-val" id="qty-venus">0</span>
-                    <button class="qty-btn" onclick="updateQty('venus', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- Saturn -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">🪐 Saturn — 20*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱2,150</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('saturn', -1)">-</button>
-                    <span class="qty-val" id="qty-saturn">0</span>
-                    <button class="qty-btn" onclick="updateQty('saturn', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- Nibiru -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">🌑 Nibiru — 25*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱2,600</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('nibiru', -1)">-</button>
-                    <span class="qty-val" id="qty-nibiru">0</span>
-                    <button class="qty-btn" onclick="updateQty('nibiru', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- Nemik -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">⚫ Nemik — 30*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱3,100</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('nemik', -1)">-</button>
-                    <span class="qty-val" id="qty-nemik">0</span>
-                    <button class="qty-btn" onclick="updateQty('nemik', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- Vaelithar -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">🌑 Vaelithar — 40*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱3,500</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('vaelithar', -1)">-</button>
-                    <span class="qty-val" id="qty-vaelithar">0</span>
-                    <button class="qty-btn" onclick="updateQty('vaelithar', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- Vhaerion (Draco Bulk) -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">🌑 Vhaerion 0.5g — 60*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱4,450</p>
-                    <p style="font-size: 9px; color: var(--accent-green);">🎁 Freebies: Lube & 5 Dagom</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('vhaerion', -1)">-</button>
-                    <span class="qty-val" id="qty-vhaerion">0</span>
-                    <button class="qty-btn" onclick="updateQty('vhaerion', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- Zhaevoryn (Draco Bulk) -->
-            <div class="store-item-card">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 12px;">🌑 Zhaevoryn 1.0g — 110*</strong>
-                    <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱6,950</p>
-                    <p style="font-size: 9px; color: var(--accent-green);">🎁 Freebies: Lube & 10 Dagom</p>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="updateQty('zhaevoryn', -1)">-</button>
-                    <span class="qty-val" id="qty-zhaevoryn">0</span>
-                    <button class="qty-btn" onclick="updateQty('zhaevoryn', 1)">+</button>
-                </div>
-            </div>
-
-            <!-- ADD-ONS SECTION -->
-            <div style="margin-top: 8px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
-                <h4 style="font-size: 11px; color: var(--accent-cyan); margin-bottom: 8px;">➕ EXTRAS & ADD-ONS</h4>
-                
-                <div class="store-item-card" style="margin-bottom: 8px;">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 12px;">💧 Lu Be (200ml)</strong>
-                        <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱150</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('lube', -1)">-</button>
-                        <span class="qty-val" id="qty-lube">0</span>
-                        <button class="qty-btn" onclick="updateQty('lube', 1)">+</button>
-                    </div>
-                </div>
-
-                <div class="store-item-card">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 12px;">📌 1 pc Dagom</strong>
-                        <p style="font-size: 11px; color: var(--accent-gold); font-weight: bold;">₱50</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('dagom', -1)">-</button>
-                        <span class="qty-val" id="qty-dagom">0</span>
-                        <button class="qty-btn" onclick="updateQty('dagom', 1)">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SPECIAL HANDLING SERVICES SECTION -->
-            <div style="margin-top: 8px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
-                <h4 style="font-size: 11px; color: var(--accent-gold); margin-bottom: 8px;">⚡ SPECIAL HANDLING & SERVICES</h4>
-                
-                <div class="store-item-card" style="margin-bottom: 8px;">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 11px;">🚀 GoRush30 [Sendnow] (+10PM)</strong>
-                        <p style="font-size: 10px; color: var(--accent-gold); font-weight: bold;">₱500</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('gorush30', -1)">-</button>
-                        <span class="qty-val" id="qty-gorush30">0</span>
-                        <button class="qty-btn" onclick="updateQty('gorush30', 1)">+</button>
-                    </div>
-                </div>
-
-                <div class="store-item-card" style="margin-bottom: 8px;">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 11px;">🚀 GoRush60 [Immediate] (+10PM)</strong>
-                        <p style="font-size: 10px; color: var(--accent-gold); font-weight: bold;">₱350</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('gorush60', -1)">-</button>
-                        <span class="qty-val" id="qty-gorush60">0</span>
-                        <button class="qty-btn" onclick="updateQty('gorush60', 1)">+</button>
-                    </div>
-                </div>
-
-                <div class="store-item-card" style="margin-bottom: 8px;">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 11px;">🚀 GoRush90 [A.S.A.P.] (+10PM)</strong>
-                        <p style="font-size: 10px; color: var(--accent-gold); font-weight: bold;">₱200</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('gorush90', -1)">-</button>
-                        <span class="qty-val" id="qty-gorush90">0</span>
-                        <button class="qty-btn" onclick="updateQty('gorush90', 1)">+</button>
-                    </div>
-                </div>
-
-                <div class="store-item-card" style="margin-bottom: 8px;">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 11px;">✂️ Unit Splitting & Customization</strong>
-                        <p style="font-size: 10px; color: var(--accent-gold); font-weight: bold;">₱100</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('unitsplit', -1)">-</button>
-                        <span class="qty-val" id="qty-unitsplit">0</span>
-                        <button class="qty-btn" onclick="updateQty('unitsplit', 1)">+</button>
-                    </div>
-                </div>
-
-                <div class="store-item-card" style="margin-bottom: 8px;">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 11px;">📍 Sudden Location Change</strong>
-                        <p style="font-size: 10px; color: var(--accent-gold); font-weight: bold;">₱100</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('locchange', -1)">-</button>
-                        <span class="qty-val" id="qty-locchange">0</span>
-                        <button class="qty-btn" onclick="updateQty('locchange', 1)">+</button>
-                    </div>
-                </div>
-
-                <div class="store-item-card" style="margin-bottom: 8px;">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 11px;">⏱️ Scheduled Staging (Time-Hold)</strong>
-                        <p style="font-size: 10px; color: var(--accent-gold); font-weight: bold;">₱100</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('scheduled', -1)">-</button>
-                        <span class="qty-val" id="qty-scheduled">0</span>
-                        <button class="qty-btn" onclick="updateQty('scheduled', 1)">+</button>
-                    </div>
-                </div>
-
-                <div class="store-item-card">
-                    <div>
-                        <strong style="color: var(--text-main); font-size: 11px;">⚡ Emergency Expedited Assembly</strong>
-                        <p style="font-size: 10px; color: var(--accent-gold); font-weight: bold;">₱150</p>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateQty('expedited', -1)">-</button>
-                        <span class="qty-val" id="qty-expedited">0</span>
-                        <button class="qty-btn" onclick="updateQty('expedited', 1)">+</button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Live Bill Calculator Summary -->
-        <div class="live-calculator">
-            <div style="font-size: 12px; color: var(--accent-cyan); font-weight: bold; margin-bottom: 8px;">📊 LIVE BILL SUMMARY</div>
-            <div id="calc-summary-rows"></div>
-            <div class="calc-total"><span>Grand Total:</span> <span id="calc-grand-total">₱0</span></div>
-        </div>
-
-        <!-- INSTAPAY PAYMENT REFERENCE UPLOAD FORM -->
-        <div class="instapay-section">
-            <h4>💳 INSTAPAY PAYMENT REFERENCE UPLOAD</h4>
-            <p style="font-size: 10px; color: var(--text-muted); margin-bottom: 10px;">Advance payment verification required (No COD). Enter transaction reference details below:</p>
-            
-            <div class="portal-form-group">
-                <select id="pay-channel" class="portal-input" style="cursor: pointer;">
-                    <option value="GCash">GCash InstaPay</option>
-                    <option value="Maya">Maya InstaPay</option>
-                    <option value="BPI">BPI Online / InstaPay</option>
-                    <option value="UnionBank">UnionBank InstaPay</option>
-                </select>
-                <input type="text" id="pay-ref-no" class="portal-input" placeholder="ENTER TRANSACTION REF NO. (e.g. 20261103-XXXX)">
-                <input type="text" id="pay-initials" class="portal-input" placeholder="SENDER INITIALS (e.g. J.M.)" maxlength="6">
-                <button class="portal-btn" onclick="submitInstaPayCheckout()">SUBMIT PAYMENT & ORDER 🚀</button>
-            </div>
-        </div>
-
-        <a href="#home" class="portal-btn" style="margin-top: 14px;">RETURN TO HOME</a>
-    </div>
-
-    <!-- VIEW 4: GUEST TIMED ONBOARDING PROCESS -->
-    <div id="view-onboarding" class="view-section">
-        <div class="timer-badge" id="guest-timer-display">⏱️ SESSION TIME: 30:00</div>
-
-        <!-- Step 1: Intent & Intro -->
-        <div id="guest-step-1">
-            <h3 style="color: var(--accent-gold); margin-bottom: 10px; font-size: 14px;">STEP 1: INTENT & INTRODUCTION</h3>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">Welcome to the 30-minute timed guest walkthrough. Review the process guidelines before entering the sector.</p>
-            <button class="portal-btn" onclick="nextGuestStep(2)">CONTINUE TO PROCESS FLOW ➔</button>
-        </div>
-
-        <!-- Step 2: Simple Process Flow -->
-        <div id="guest-step-2" style="display: none;">
-            <h3 style="color: var(--accent-gold); margin-bottom: 10px; font-size: 14px;">STEP 2: SIMPLE PROCESS FLOW</h3>
-            <ul style="font-size: 11px; font-family: monospace; margin-bottom: 14px; padding-left: 18px; color: var(--text-main); line-height: 1.6;">
-                <li>1. Browse store quantities & inventory.</li>
-                <li>2. Provide manual address & pin GPS location.</li>
-                <li>3. Submit InstaPay payment reference.</li>
-                <li>4. Await dispatch tracking approval.</li>
-            </ul>
-            <div style="display: flex; gap: 8px;">
-                <button class="portal-btn" style="background: var(--accent-red); color: #fff;" onclick="window.location.hash='#home'">DECLINE</button>
-                <button class="portal-btn" onclick="nextGuestStep(3)">AGREE ➔</button>
-            </div>
-        </div>
-
-        <!-- Step 3: General Policies -->
-        <div id="guest-step-3" style="display: none;">
-            <h3 style="color: var(--accent-gold); margin-bottom: 10px; font-size: 14px;">STEP 3: GENERAL POLICIES</h3>
-            <div style="font-size: 11px; font-family: monospace; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
-                <label><input type="checkbox" id="faq-chk-1"> Scale-verified prior to dispatch.</label>
-                <label><input type="checkbox" id="faq-chk-2"> GoRush night options apply after 10PM.</label>
-                <label><input type="checkbox" id="faq-chk-3"> Zero internal handling absorption.</label>
-                <label><input type="checkbox" id="faq-chk-4"> GPS must match manual address text.</label>
-            </div>
-            <div style="display: flex; gap: 8px;">
-                <button class="portal-btn" style="background: var(--accent-red); color: #fff;" onclick="window.location.hash='#home'">DECLINE</button>
-                <button class="portal-btn" onclick="nextGuestStep(4)">AGREE ➔</button>
-            </div>
-        </div>
-
-        <!-- Step 4: Special Handling & Final GPS Capture -->
-        <div id="guest-step-4" style="display: none;">
-            <h3 style="color: var(--accent-gold); margin-bottom: 10px; font-size: 14px;">STEP 4: SPECIAL HANDLING & GPS TELEMETRY</h3>
-            <div class="handling-item"><label><input type="checkbox" id="sh-split"> Unit Splitting</label></div>
-            <div class="handling-item"><label><input type="checkbox" id="sh-loc"> Sudden Location Change</label></div>
-            <div class="handling-item"><label><input type="checkbox" id="sh-priority"> Priority Queue</label></div>
-            <div class="handling-item"><label><input type="checkbox" id="sh-penalty"> Delay Penalty</label></div>
-            
-            <div style="margin: 10px 0; font-size: 11px;">
-                <label><input type="checkbox" id="chk-non-neg"> Confirm non-negotiable handling rules.</label>
-            </div>
-
-            <!-- GPS Capture Triggered After Onboarding Completion -->
-            <div style="margin-top: 12px; margin-bottom: 12px; border-top: 1px dashed rgba(243, 206, 114, 0.3); padding-top: 10px;">
-                <p style="font-size: 10px; color: var(--accent-cyan); margin-bottom: 6px;">FINAL REQUIREMENT: Verify operational radius (8km Davao).</p>
-                <button class="portal-btn" style="background: linear-gradient(135deg, #0072ff, var(--accent-cyan)); color: #000; margin-bottom: 8px;" onclick="captureFinalGPS()">📍 CAPTURE GPS LOCATION</button>
-                <input type="text" id="onboarding-gps-coords" class="portal-input" placeholder="PENDING GPS CAPTURE..." readonly style="text-align: center; color: var(--accent-cyan); font-weight: bold;">
-            </div>
-
-            <div style="display: flex; gap: 8px;">
-                <button class="portal-btn" style="background: var(--accent-red); color: #fff;" onclick="window.location.hash='#home'">DECLINE</button>
-                <button class="portal-btn" onclick="finishGuestOnboarding()">COMPLETE & ENTER STORE ➔</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- VIEW 5: ABOUT US -->
+    <!-- VIEW 2: ABOUT US -->
     <div id="view-about" class="view-section">
         <h3 style="color: var(--accent-gold); margin-bottom: 12px; font-size: 14px;">About Us — Celestial Lobby</h3>
         <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-            Welcome to <strong>Celestial Lobby</strong>—a streamlined, high-standard digital ecosystem built on absolute discretion, operational precision, and secure client access.
+            Celestial Lobby is a streamlined digital ecosystem built on operational precision, discretion, and secure client access.
         </p>
-        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-            Operating across our dedicated web applications, mobile interfaces, and secure Telegram channels (including <strong>@Celestiallobbybot</strong>), we bridge the gap between seamless digital navigation and reliable, low-profile fulfillment.
-        </p>
-
-        <h4 style="font-size: 12px; color: var(--accent-cyan); margin-bottom: 6px;">Our Core Foundation: The 3S Standards</h4>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Everything we do is anchored by our non-negotiable operational pillars:</p>
-        <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                <strong style="color: var(--accent-green);">• Safety:</strong> Rigorous handling procedures, double-verification checks for structural and specification accuracy, and anonymous, tamper-evident packaging from dispatch to receipt.
-            </div>
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                <strong style="color: var(--accent-cyan);">• Security:</strong> Strict client isolation, encrypted communication protocols, and multi-factor access control to protect your identity and transaction history.
-            </div>
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                <strong style="color: var(--accent-gold);">• Secrecy:</strong> Absolute privacy guaranteed through a zero-footprint approach, sanitized digital metadata, and automated data retention hygiene.
-            </div>
-        </div>
-
-        <h4 style="font-size: 12px; color: var(--accent-cyan); margin-bottom: 6px;">What We Offer</h4>
-        <div style="font-size: 11px; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; line-height: 1.4;">
-            <div>• <strong>The Celestial Panel:</strong> A dedicated portal providing structured access to our catalog view of celestial dwellers and catalog item lore.</div>
-            <div>• <strong>The Founders Panel:</strong> A transparent look into our background, brand philosophy, and core operational directives.</div>
-            <div>• <strong>Client Access Portal:</strong> A secure, streamlined gateway designed for user authentication, entry pathways, and order tracking.</div>
-        </div>
-
-        <!-- CONDITIONAL CONTACT DETAILS (VISIBLE ONLY TO LOGGED-IN REGULAR CLIENTS) -->
-        <div id="about-contact-section" style="display: none;">
-            <h4 style="font-size: 12px; color: var(--accent-cyan); margin-bottom: 6px;">Connect With Us</h4>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">For inquiries, support, or assistance, reach out to our team through our official channels:</p>
-            <div style="font-size: 11px; color: var(--text-main); background: #0f172a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 16px; line-height: 1.5;">
-                • <strong>Email:</strong> ecelestiallobby@gmail.com<br>
-                • <strong>Telegram Support:</strong> @Celestiallobbybot
-            </div>
-        </div>
-
         <a href="#home" class="portal-btn">RETURN TO HOME</a>
     </div>
 
-    <!-- VIEW 6: THE 3S -->
+    <!-- VIEW 3: THE 3S -->
     <div id="view-3s" class="view-section">
-        <h3 style="color: var(--accent-green); margin-bottom: 12px; font-size: 14px;">THE 3S STANDARDS & COMMITMENT</h3>
+        <h3 style="color: var(--accent-green); margin-bottom: 12px; font-size: 14px;">THE 3S STANDARDS</h3>
         <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-            At <strong>Celestial Lobby</strong>, protecting your privacy, trust, and experience is the core foundation of our operations. We operate under three non-negotiable principles—<strong>Security, Secrecy, and Safety</strong>—to ensure every interaction and delivery is seamless, low-profile, and fully protected.
+            Our core foundation is anchored on <strong>Security</strong>, <strong>Secrecy</strong>, and <strong>Safety</strong>.
         </p>
-
-        <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
-                <strong style="color: var(--accent-cyan);">1. SECURITY (System & Identity Protection)</strong>
-                <p style="color: var(--text-muted); margin-top: 4px; font-size: 10px; line-height: 1.4;">
-                    • <strong>Client Confidentiality:</strong> All interactions are tied strictly to unique identification codes, ensuring personal details remain isolated from logs.<br>
-                    • <strong>Encrypted Communication:</strong> End-to-end encrypted messaging infrastructure built directly into our platform.<br>
-                    • <strong>Access Control:</strong> System privileges are compartmentalized to prevent unauthorized exposure.
-                </p>
-            </div>
-
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
-                <strong style="color: var(--accent-gold);">2. SECRECY (Complete Discretion & Privacy)</strong>
-                <p style="color: var(--text-muted); margin-top: 4px; font-size: 10px; line-height: 1.4;">
-                    • <strong>Zero-Footprint Policy:</strong> Operational intelligence and rosters are handled on a strict need-to-know basis.<br>
-                    • <strong>Metadata Protection:</strong> Transmissions and receipts are sanitized to remove tracking tags and location markers.<br>
-                    • <strong>Automated Data Retention:</strong> Transaction details adhere to automated cleanup routines post-confirmation.
-                </p>
-            </div>
-
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px;">
-                <strong style="color: var(--accent-green);">3. SAFETY (Fulfillment & Handling Integrity)</strong>
-                <p style="color: var(--text-muted); margin-top: 4px; font-size: 10px; line-height: 1.4;">
-                    • <strong>Verification Standards:</strong> Double-verification checks for structural integrity and precise weight/specs.<br>
-                    • <strong>Anonymous Packaging:</strong> Unbranded, tamper-evident packaging designed for discreet transit.<br>
-                    • <strong>Verified Delivery:</strong> Two-point handoff procedures ensuring secure arrival without external footprints.
-                </p>
-            </div>
-        </div>
-
-        <h4 style="font-size: 12px; color: var(--accent-gold); margin-bottom: 6px;">The 3S Guarantee Matrix</h4>
-        <table style="width: 100%; font-size: 10px; border-collapse: collapse; margin-bottom: 16px; background: #0f172a; border: 1px solid var(--border-color);">
-            <tr style="border-bottom: 1px solid var(--border-color); background: #131c2e;">
-                <th style="padding: 6px; text-align: left; color: var(--accent-cyan);">Standard</th>
-                <th style="padding: 6px; text-align: left; color: var(--text-main);">What It Means For You</th>
-            </tr>
-            <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 6px; font-weight: bold; color: var(--accent-cyan);">Security</td>
-                <td style="padding: 6px; color: var(--text-muted);">Protected by strict encryption and access controls.</td>
-            </tr>
-            <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 6px; font-weight: bold; color: var(--accent-gold);">Secrecy</td>
-                <td style="padding: 6px; color: var(--text-muted);">Privacy is absolute; data is sanitized and auto-cleaned.</td>
-            </tr>
-            <tr>
-                <td style="padding: 6px; font-weight: bold; color: var(--accent-green);">Safety</td>
-                <td style="padding: 6px; color: var(--text-muted);">Verified, discreetly packaged, zero handling errors.</td>
-            </tr>
-        </table>
-
         <a href="#home" class="portal-btn">RETURN TO HOME</a>
     </div>
 
-    <!-- VIEW 7: THE NO-NOS -->
+    <!-- VIEW 4: THE NO-NOS -->
     <div id="view-nonos" class="view-section">
-        <h3 style="color: var(--accent-red); margin-bottom: 10px; font-size: 14px;">🌌 The Celestial Lobby Non-Negotiables (The 15Ns)</h3>
+        <h3 style="color: var(--accent-red); margin-bottom: 10px; font-size: 14px;">STORE POLICIES & NON-NEGOTIABLES</h3>
         <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
-            To maintain absolute operational integrity, discretion, and the highest standard of safety across our ecosystem, Celestial Lobby strictly enforces our non-negotiable store policies:
+            Strict adherence to advance verification, non-rush standard dispatch, and zero-footprint handling guidelines.
         </p>
-
-        <!-- CORE 5NS (ALWAYS VISIBLE) -->
-        <h4 style="font-size: 12px; color: var(--accent-gold); margin-bottom: 8px;">🛑 The Core 5Ns (Store & Operational Policies)</h4>
-        <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                <strong style="color: var(--accent-red);">1. No COD (Cash on Delivery) ❗️</strong>
-                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Advance payment verification is mandatory before any order is confirmed or processed.</p>
-            </div>
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                <strong style="color: var(--accent-red);">2. No Meet Ups ❗️</strong>
-                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> All fulfillment operates through designated secure channels (such as ride-hailing app delivery or unattended drop-off protocols) to ensure absolute security and privacy.</p>
-            </div>
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                <strong style="color: var(--accent-red);">3. No Refunds ❗️</strong>
-                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Confirmed orders are non-refundable under standard circumstances, with strict product-equivalent or non-cash resolution policies governing exceptional high-value reviews.</p>
-            </div>
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                <strong style="color: var(--accent-red);">4. No Rush Orders ❗️</strong>
-                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Standard preparation and verification workflows must be respected. Rushing compromises our rigorous handling integrity.</p>
-            </div>
-            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                <strong style="color: var(--accent-red);">5. No Spamming ❗️</strong>
-                <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Unauthorized messaging, repeated policy infractions, or out-of-channel disruptions result in immediate account termination.</p>
-            </div>
-        </div>
-
-        <!-- BEHAVIORAL 5NS (VISIBLE ONLY TO LOGGED-IN REGULAR CLIENTS) -->
-        <div id="nonos-behavioral-section" style="display: none;">
-            <h4 style="font-size: 12px; color: var(--accent-gold); margin-bottom: 8px;">🛡️ The Behavioral 5Ns (Client Conduct & Boundaries)</h4>
-            <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">6. No Rudeness ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Interactions with our support team and couriers must remain professional and civil. Disrespectful, abusive, or hostile language results in immediate termination of service and a permanent block.</p>
-                </div>
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">7. No Nosy Probes ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Inquiries into confidential internal operations—including supplier identities, sourcing locations, wholesale acquisition costs, or profit margins—are strictly prohibited.</p>
-                </div>
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">8. No Nuisance ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Creating unnecessary operational gridlock, frivolous disputes, or wasting administrative time with unverified claims will lead to blacklisting.</p>
-                </div>
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">9. No Threats ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Any form of intimidation, coercion, blackmail, or legal/physical threats directed at staff, automated channels, or couriers triggers an immediate permanent ban and forfeiture of active orders.</p>
-                </div>
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">10. No Bogus Transactions ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Submitting fake proof-of-payment receipts, false identity details, or intentionally misleading information results in an instant ban across all channels.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- EXPANDED 5NS (VISIBLE ONLY TO LOGGED-IN REGULAR CLIENTS) -->
-        <div id="nonos-expanded-section" style="display: none;">
-            <h4 style="font-size: 12px; color: var(--accent-gold); margin-bottom: 8px;">🔒 The Expanded 5Ns (Security & Operational Safeguards)</h4>
-            <div style="font-size: 11px; color: var(--text-main); display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">11. No Unverified Handling Fee Absorption ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Any unverified or extra fees incurred due to client errors in routing or payment details must be settled independently; internal absorption of unverified fees is strictly not permitted.</p>
-                </div>
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">12. No Manual Address Telemetry Mismatches ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Submitted GPS map coordinates must strictly match your manual delivery address text. Discrepancies will trigger automated delivery holds.</p>
-                </div>
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">13. No Unapproved Routing Shifts ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Once dispatch authorization is granted, changing drop-off locations mid-transit is prohibited to maintain courier discretion and safety protocols.</p>
-                </div>
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">14. No Unauthorized Sharing of Access Codes ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> Distributing client access gateways, unique 8-digit client codes, or invitation links outside authorized channels results in an immediate, permanent ban.</p>
-                </div>
-                <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px;">
-                    <strong style="color: var(--accent-red);">15. No Promotional Code Abuse on First Orders ❗️</strong>
-                    <p style="color: var(--text-muted); margin-top: 2px; font-size: 10px;">• <strong>Policy:</strong> First-time purchasers are strictly prohibited from using promotional codes or special access perks on their initial transaction to preserve integrity verification.</p>
-                </div>
-            </div>
-        </div>
-
-        <a href="#home" class="portal-btn">RETURN TO HOME</a>
-    </div>
-
-    <!-- VIEW 8: FAQS -->
-    <div id="view-faqs" class="view-section">
-        <h3 style="color: var(--accent-gold); margin-bottom: 10px;">FREQUENTLY ASKED QUESTIONS</h3>
-        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">Restricted tier FAQ knowledge base active. All inquiries are encrypted.</p>
         <a href="#home" class="portal-btn">RETURN TO HOME</a>
     </div>
 
@@ -938,169 +222,37 @@
 </div>
 
 <script>
-    /* ===================================================
-       1. APP STATE & STORE CATALOG DATA
-       =================================================== */
-    let isRegularClientLoggedIn = false;
-
-    const storeItems = {
-        'cloud9': { name: '☁️ Cloud9 (5*)', price: 700 },
-        'mars': { name: '🔴 Mars (10*)', price: 1200 },
-        'venus': { name: '🟣 Venus (15*)', price: 1700 },
-        'saturn': { name: '🪐 Saturn (20*)', price: 2150 },
-        'nibiru': { name: '🌑 Nibiru (25*)', price: 2600 },
-        'nemik': { name: '⚫ Nemik (30*)', price: 3100 },
-        'vaelithar': { name: '🌑 Vaelithar (40*)', price: 3500 },
-        'vhaerion': { name: '🌑 Vhaerion 0.5g (60*)', price: 4450 },
-        'zhaevoryn': { name: '🌑 Zhaevoryn 1.0g (110*)', price: 6950 },
-        'lube': { name: '💧 Lu Be (200ml)', price: 150 },
-        'dagom': { name: '📌 1 pc Dagom', price: 50 },
-        'gorush30': { name: '🚀 GoRush30 [Sendnow]', price: 500 },
-        'gorush60': { name: '🚀 GoRush60 [Immediate]', price: 350 },
-        'gorush90': { name: '🚀 GoRush90 [A.S.A.P.]', price: 200 },
-        'unitsplit': { name: '✂️ Unit Splitting', price: 100 },
-        'locchange': { name: '📍 Sudden Location Change', price: 100 },
-        'scheduled': { name: '⏱️ Scheduled Staging', price: 100 },
-        'expedited': { name: '⚡ Emergency Expedited', price: 150 }
-    };
-
-    const cart = {
-        'cloud9': 0, 'mars': 0, 'venus': 0, 'saturn': 0,
-        'nibiru': 0, 'nemik': 0, 'vaelithar': 0,
-        'vhaerion': 0, 'zhaevoryn': 0, 'lube': 0, 'dagom': 0,
-        'gorush30': 0, 'gorush60': 0, 'gorush90': 0,
-        'unitsplit': 0, 'locchange': 0, 'scheduled': 0, 'expedited': 0
-    };
-
-    const CATALOG_ITEM_DATABASE = {
-        'aelunari': { name: '✨ AELUNARI — THE DREAMBORN', desc: 'Server: CLOUD9 — New Spawn\'s Area\n\nCatalog Item Lore: Aelunarí embodies the ethereal start of ascension. Operating within the New Spawn\'s Area, this archetype coordinates foundational stardust and dream-state telemetry for newly inducted initiates.' },
-        'kaelthari': { name: '🔥 KAELTHARI — THE REDBORN', desc: 'Server: MARS — Mid-Game Rush\n\nCatalog Item Lore: Forged in crimson stellar core allocations. Kaeltharí manages high-intensity mid-game velocity streams and deep-orbit refined extraction protocols.' },
-        'vaelith': { name: '💜 VAELITH — THE VELVETBORN', desc: 'Server: VENUS — Incubus\' Favorite\n\nCatalog Item Lore: Operating within the velvet sectors, Vaelith specializes in allure-frequency synchronization and specialized high-tier sensory distribution lore.' },
-        'seraphim': { name: '🪐 SERAPHIM — THE RINGBORN', desc: 'Server: SATURN — The Empress Build\n\nCatalog Item Lore: Bound to ring-complex orbital resonance. Seraphim channels absolute structural integrity and empress-tier celestial command over reserve streams.' },
-        'nhyxari': { name: '🌌 NHYXARI — THE STARBORN', desc: 'Server: NIBIRU — Celestial Inverted Realm\n\nCatalog Item Lore: Nhyxari governs the inverted dimensions of Nibiru, handling obscured transit vectors and deep cosmic anomaly frequencies.' },
-        'xyrem': { name: '🌀 XYREM — THE ABYSSALS', desc: 'Server: NEMIK — The Abyssmal Zone\n\nCatalog Item Lore: Emerging from the dark void of Nemik, Xyrem controls shadow-tethered logistics and unmapped void-route telemetry.' },
-        'veyrath': { name: '🜏 VEYRATH — THE COSMICBORN', desc: 'Server: VAELITHAR — The Null Expanse\n\nCatalog Item Lore: Veyrath stands at the edge of the Null Expanse, balancing absolute zero-point energy and primordial cosmic alignment vectors.' },
-        'dragornborns': { name: '🐉 THE DRAGORNBORNS (REPTILIAN VALKYRIES & GOD-TIER DRACONIANS)', desc: 'Server: HIGHYRTS — The Draconians\n\nCatalog Item Lore: The apex lineage of Highyrts. Divided between Reptilian Valkyries and God-Tier Draconians, they govern supreme airspace security and inviolable celestial hierarchy.' }
-    };
-
     window.addEventListener('hashchange', handleRouting);
     window.addEventListener('DOMContentLoaded', handleRouting);
 
-    function updateClientVisibility() {
-        const aboutContact = document.getElementById('about-contact-section');
-        const nonosBehavioral = document.getElementById('nonos-behavioral-section');
-        const nonosExpanded = document.getElementById('nonos-expanded-section');
-
-        if (isRegularClientLoggedIn) {
-            if (aboutContact) aboutContact.style.display = 'block';
-            if (nonosBehavioral) nonosBehavioral.style.display = 'block';
-            if (nonosExpanded) nonosExpanded.style.display = 'block';
-        } else {
-            if (aboutContact) aboutContact.style.display = 'none';
-            if (nonosBehavioral) nonosBehavioral.style.display = 'none';
-            if (nonosExpanded) nonosExpanded.style.display = 'none';
-        }
-    }
-
     function handleRouting() {
         const hash = window.location.hash || '#home';
-        
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-        updateClientVisibility();
         
         if (hash === '#home') {
             document.getElementById('view-home').classList.add('active');
-        } else if (hash === '#celestial') {
-            document.getElementById('view-celestial').classList.add('active');
-        } else if (hash.startsWith('#item-')) {
-            const itemId = hash.replace('#item-', '');
-            const item = CATALOG_ITEM_DATABASE[itemId];
-            if (item) {
-                document.getElementById('item-title').innerText = item.name;
-                document.getElementById('item-desc').innerHTML = item.desc.replace(/\n/g, '<br>');
-                document.getElementById('view-item-detail').classList.add('active');
-            } else {
-                document.getElementById('view-home').classList.add('active');
-            }
-        } else if (hash === '#store') {
-            document.getElementById('view-store-menu').classList.add('active');
         } else if (hash === '#about') {
             document.getElementById('view-about').classList.add('active');
         } else if (hash === '#3s') {
             document.getElementById('view-3s').classList.add('active');
         } else if (hash === '#nonos') {
             document.getElementById('view-nonos').classList.add('active');
-        } else if (hash === '#faqs') {
-            document.getElementById('view-faqs').classList.add('active');
-        } else if (hash === '#onboarding') {
-            document.getElementById('view-onboarding').classList.add('active');
-            nextGuestStep(1); 
         } else {
             document.getElementById('view-home').classList.add('active');
         }
-        resetSentinelTimer();
     }
 
-    /* ===================================================
-       2. QUANTITY & LIVE CALCULATOR LOGIC
-       =================================================== */
-    function updateQty(itemId, change) {
-        resetSentinelTimer();
-        if (!cart[itemId]) cart[itemId] = 0;
-        cart[itemId] += change;
-        if (cart[itemId] < 0) cart[itemId] = 0;
+    function setLandingPath(path) {
+        document.getElementById('path-box-guest').style.display = (path === 'guest') ? 'block' : 'none';
+        document.getElementById('path-box-new').style.display = (path === 'new') ? 'block' : 'none';
+        document.getElementById('path-box-reg').style.display = (path === 'regular') ? 'block' : 'none';
 
-        const qtyEl = document.getElementById(`qty-${itemId}`);
-        if (qtyEl) qtyEl.innerText = cart[itemId];
-
-        recalculateBill();
+        document.getElementById('btn-gate-guest').classList.toggle('active', path === 'guest');
+        document.getElementById('btn-gate-new').classList.toggle('active', path === 'new');
+        document.getElementById('btn-gate-reg').classList.toggle('active', path === 'regular');
     }
 
-    function recalculateBill() {
-        let summaryHTML = '';
-        let grandTotal = 0;
-
-        for (let key in cart) {
-            const qty = cart[key];
-            if (qty > 0) {
-                const item = storeItems[key];
-                const subtotal = qty * item.price;
-                grandTotal += subtotal;
-                summaryHTML += `<div class="calc-row"><span>${item.name} x${qty}</span> <span>₱${subtotal.toLocaleString()}</span></div>`;
-            }
-        }
-
-        if (!summaryHTML) {
-            summaryHTML = '<div style="font-size: 11px; color: var(--text-muted);">No items selected yet.</div>';
-        }
-
-        document.getElementById('calc-summary-rows').innerHTML = summaryHTML;
-        document.getElementById('calc-grand-total').innerText = `₱${grandTotal.toLocaleString()}`;
-    }
-
-    function submitInstaPayCheckout() {
-        resetSentinelTimer();
-        const channel = document.getElementById('pay-channel').value;
-        const refNo = document.getElementById('pay-ref-no').value.trim();
-        const initials = document.getElementById('pay-initials').value.trim();
-
-        if (!refNo) {
-            alert("INSTAPAY CHECKOUT: Please enter your transaction reference number.");
-            return;
-        }
-        if (!initials) {
-            alert("INSTAPAY CHECKOUT: Please enter your sender initials.");
-            return;
-        }
-
-        alert(`Payment Verified via ${channel}!\nRef No: ${refNo}\nInitials: ${initials}\n\nOrder submitted successfully. Awaiting dispatch tracking approval.`);
-        window.location.hash = '#home';
-    }
-
-    /* ===================================================
-       3. RECALIBRATED SECURITY SENTINEL
-       =================================================== */
-    const AFK_LIMIT_MS = 120000; 
+    const AFK_LIMIT_MS = 120000;
     const VALID_KEYS = ["ASCEND", "CELESTIAL2026", "ADMIN888"];
     let afkTimer = null;
 
@@ -1124,94 +276,9 @@
         afkTimer = setTimeout(lockGateway, AFK_LIMIT_MS);
     }
 
-    const activityEvents = ['mousemove', 'touchstart', 'scroll', 'keydown', 'click'];
-    activityEvents.forEach(event => {
-        window.addEventListener(event, resetSentinelTimer, { passive: true });
+    ['mousemove', 'touchstart', 'scroll', 'keydown', 'click'].forEach(evt => {
+        window.addEventListener(evt, resetSentinelTimer, { passive: true });
     });
-
-    window.addEventListener('blur', () => {
-        setTimeout(() => {
-            if (document.hidden) {
-                lockGateway();
-            }
-        }, 400);
-    });
-
-    window.addEventListener('keyup', (e) => {
-        if (e.key === 'PrintScreen' || e.keyCode === 44) {
-            lockGateway();
-        }
-    });
-
-    /* ===================================================
-       4. PATHWAY SWITCHING & LOGOUT/LOGIN LOGIC
-       =================================================== */
-    function setLandingPath(path) {
-        resetSentinelTimer();
-        document.getElementById('path-box-guest').style.display = (path === 'guest') ? 'block' : 'none';
-        document.getElementById('path-box-new').style.display = (path === 'new') ? 'block' : 'none';
-        document.getElementById('path-box-reg').style.display = (path === 'regular') ? 'block' : 'none';
-
-        document.getElementById('btn-gate-guest').classList.toggle('active', path === 'guest');
-        document.getElementById('btn-gate-new').classList.toggle('active', path === 'new');
-        document.getElementById('btn-gate-reg').classList.toggle('active', path === 'regular');
-    }
-
-    function verifyNewClientOrder() {
-        const orderNum = document.getElementById('new-client-order-num').value.trim();
-        if (!orderNum) {
-            alert("Please enter a valid first-ever order number.");
-            return;
-        }
-        isRegularClientLoggedIn = false; 
-        updateClientVisibility();
-        window.location.hash = '#store';
-    }
-
-    function attemptRegularLogin() {
-        resetSentinelTimer();
-        const accId = document.getElementById('reg-account-id').value.trim().toUpperCase();
-        const code = document.getElementById('reg-access-code').value.trim();
-        
-        if (!accId || !code) {
-            alert("SECURITY CHECK: Please enter both your Account ID and 8-Digit Access Code.");
-            return;
-        }
-        
-        isRegularClientLoggedIn = true; 
-        updateClientVisibility();
-
-        document.getElementById('nav-link-faqs').style.display = 'inline-block';
-        alert(`Authenticating Account ID: ${accId}... Gateway access verified.`);
-        window.location.hash = '#store';
-    }
-
-    function captureFinalGPS() {
-        document.getElementById('onboarding-gps-coords').value = "7.19070, 125.45530";
-        alert("GPS Telemetry Captured: Verified within 8km Davao operational radius.");
-    }
-
-    function nextGuestStep(step) {
-        [1, 2, 3, 4].forEach(s => {
-            const el = document.getElementById(`guest-step-${s}`);
-            if (el) el.style.display = (s === step) ? 'block' : 'none';
-        });
-    }
-
-    function finishGuestOnboarding() {
-        if (!document.getElementById('chk-non-neg').checked) {
-            alert("Please confirm non-negotiable handling rules.");
-            return;
-        }
-        const gpsVal = document.getElementById('onboarding-gps-coords').value.trim();
-        if (!gpsVal || gpsVal === "PENDING GPS CAPTURE...") {
-            alert("Please capture your GPS location before completing onboarding.");
-            return;
-        }
-        isRegularClientLoggedIn = false; 
-        updateClientVisibility();
-        window.location.hash = '#store';
-    }
 
     resetSentinelTimer();
 </script>
