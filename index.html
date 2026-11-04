@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celestial Lobby - Store Architecture</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        celestial: {
+                            bg: '#0a0915',
+                            card: 'rgba(23, 20, 48, 0.65)',
+                            border: 'rgba(160, 140, 255, 0.18)',
+                            gold: '#dfb76c',
+                            goldHover: '#c79d50',
+                            purple: '#8a5cf6',
+                            accent: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom Space Background & Glassmorphic Utilities */
+        body {
+            background-color: #05040a;
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(110, 68, 255, 0.18) 0%, transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(199, 112, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(41, 98, 255, 0.15) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Card Effect */
+        .glass-card {
+            background: rgba(20, 18, 41, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(160, 140, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card-interactive {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card-interactive:hover {
+            border-color: rgba(223, 183, 108, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(110, 68, 255, 0.2);
+        }
+
+        /* Gold Gradient Button */
+        .btn-gold {
+            background: linear-gradient(135deg, #f5d77f 0%, #c79d50 100%);
+            color: #0e0c1a;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(223, 183, 108, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #ffe08a 0%, #d4aa59 100%);
+            box-shadow: 0 6px 24px rgba(223, 183, 108, 0.5);
+            transform: scale(1.01);
+        }
+
+        .btn-gold:active {
+            transform: scale(0.98);
+        }
+
+        /* Star Sparkle Animations */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.15); }
+        }
+
+        .star-sparkle {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 9, 21, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(138, 92, 246, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(223, 183, 108, 0.5);
+        }
+
+        /* Hide scrollbar for step indicator */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    
+#celestial-portal{max-width:896px;width:100%;margin:0 auto;padding:28px 16px 42px;color:#e2e8f0}
+#celestial-portal .portal-panel{background:rgba(20,18,41,.78);border:1px solid rgba(160,140,255,.18);border-radius:18px;padding:22px;box-shadow:0 8px 32px #0006}
+#celestial-portal .portal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+#celestial-portal .portal-tile{display:block;text-align:left;width:100%;padding:18px;border-radius:14px;background:rgba(20,18,41,.72);border:1px solid rgba(160,140,255,.2);color:#e2e8f0;transition:.2s}
+#celestial-portal .portal-tile:hover{border-color:#dfb76c;transform:translateY(-2px)}
+#celestial-portal .portal-tile b{display:block;color:#f0cf87;letter-spacing:.8px;margin:7px 0}
+#celestial-portal .portal-tile small{color:#b7a9df}
+#celestial-portal .portal-kicker{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#dfb76c}
+#celestial-portal h2{font-size:clamp(25px,4vw,36px);font-weight:800;letter-spacing:1px;color:#f0cf87;margin:8px 0}
+#celestial-portal p{color:#b9c0d2;font-size:13px;line-height:1.6}
+#celestial-portal .portal-btn{padding:11px 17px;border-radius:10px;background:linear-gradient(135deg,#f5d77f,#c79d50);color:#100e1b;font-weight:800}
+#celestial-portal .portal-secondary{padding:10px 14px;border:1px solid #dfb76c;border-radius:10px;color:#f0cf87;background:transparent}
+#celestial-portal .portal-foot{border-top:1px solid rgba(160,140,255,.18);margin-top:25px;padding-top:14px;display:flex;gap:16px;flex-wrap:wrap;font-size:10px;color:#9ca3af}
+#celestial-portal .portal-foot a{color:#b9c0d2;text-decoration:none}
+#celestial-portal .portal-hidden{display:none!important}
+#celestial-portal .portal-step{color:#dfb76c;font-size:11px;letter-spacing:1px}
+#celestial-portal .portal-progress{height:4px;background:#29213f;border-radius:8px;margin:14px 0;overflow:hidden}
+#celestial-portal .portal-progress span{display:block;height:100%;background:#dfb76c;width:12.5%;transition:width .2s}
+#store-app{display:none}
+#handling-card-priority,#handling-card-express{display:none!important}
+@media(max-width:520px){#celestial-portal .portal-grid{grid-template-columns:1fr}#celestial-portal{padding:20px 13px 35px}}
+
+</style>
+</head>
+<body class="flex flex-col min-h-screen justify-between pb-16 md:pb-0">
+
+
+<section id="celestial-portal">
+ <div id="portal-home">
+  <div class="portal-kicker">The gateway is open</div><h2>Choose your destination.</h2>
+  <p>A unified Celestial Lobby: discover the public environment, begin your first ascension, or enter your regular client space. The Access Gate works behind these routes; it is not a fourth destination.</p>
+  <div class="portal-grid">
+   <button class="portal-tile" onclick="portalShow('guest')"><small>01 / PUBLIC ACCESS</small><b>GUEST ENVIRONMENT</b><small>Explore the Lobby and public information.</small></button>
+   <button class="portal-tile" onclick="portalShow('onboarding')"><small>02 / FIRST ASCENSION</small><b>NEW CLIENT</b><small>Complete the guided introduction.</small></button>
+   <button class="portal-tile" onclick="portalShow('regular')"><small>03 / CLIENT ACCESS</small><b>REGULAR CLIENT</b><small>Enter using your Access ID and APG code.</small></button>
+  </div>
+  <p style="font-size:10px;margin-top:18px">DEMO PREVIEW — Access checks, payment verification, order records, and browser storage are simulated. Do not use real customer or payment information.</p>
+ </div>
+ <div id="portal-guest" class="portal-hidden">
+  <button class="portal-secondary" onclick="portalShow('home')">← Destinations</button>
+  <div class="portal-kicker" style="margin-top:20px">Public environment</div><h2>Welcome to the Lobby.</h2><p>Explore the public-facing information before entering the client environment.</p>
+  <div class="portal-grid">
+   <button class="portal-tile" onclick="portalExpand('guest-detail','The Celestials','The Celestial Archive will contain the realm information and lore supplied by the owner.')"><b>THE CELESTIALS</b><small>Celestial archive</small></button>
+   <button class="portal-tile" onclick="portalExpand('guest-detail','The Founders','Four Founder profiles. Biographies and source material will be supplied by the owner.')"><b>THE FOUNDERS</b><small>Founders archive</small></button>
+   <button class="portal-tile" onclick="portalExpand('guest-detail','The 3S','Security · Secrecy · Safety. Review the standards that guide the client experience.')"><b>THE 3S</b><small>Security · Secrecy · Safety</small></button>
+   <button class="portal-tile" onclick="portalExpand('guest-detail','The 10 Non-Negotiables','The customer standards and non-negotiable policies will be presented here.')"><b>THE 10 NON-NEGOTIABLES</b><small>Customer standards</small></button>
+   <button class="portal-tile" onclick="portalExpand('guest-detail','Frequently Asked Questions','Answers about the business, orders, availability, pricing, packaging, delivery, and customer support.')"><b>FREQUENTLY ASKED QUESTIONS</b><small>Customer information</small></button>
+   <button class="portal-tile" onclick="portalExpand('guest-detail','Behind the Scenes','Celestial Lab · Celestial Fleet · Celestial Inspectors. High-level introductions only.')"><b>BEHIND THE SCENES</b><small>Our divisions</small></button>
+  </div>
+  <div id="guest-detail" class="portal-panel portal-hidden" style="margin-top:14px"></div>
+  <div class="portal-foot"><a href="#terms">TERMS & CONDITIONS</a><a href="#privacy">DATA PRIVACY</a><a href="#infosec">INFORMATION SECURITY</a></div>
+ </div>
+ <div id="portal-onboarding" class="portal-hidden">
+  <button class="portal-secondary" onclick="portalShow('home')">← Destinations</button>
+  <div class="portal-kicker" style="margin-top:20px">New client · first ascension</div><h2>Your introduction to Celestial Lobby.</h2>
+  <div class="portal-panel"><div class="portal-step" id="onboard-label">STEP 1 OF 8 · ABOUT US</div><div class="portal-progress"><span id="onboard-progress"></span></div>
+   <h3 id="onboard-title" style="font-size:20px;color:#f0cf87;font-weight:800">About Us</h3><p id="onboard-copy">Understand why Celestial Lobby exists and the experience we aim to provide.</p>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="portal-btn" onclick="portalNextOnboarding()">I understand — continue</button><button class="portal-secondary" onclick="portalShow('home')">Leave for now</button></div>
+  </div>
+ </div>
+ <div id="portal-regular" class="portal-hidden">
+  <button class="portal-secondary" onclick="portalShow('home')">← Destinations</button>
+  <div class="portal-kicker" style="margin-top:20px">Regular client · shared access gate</div><h2>Identify your access.</h2>
+  <div class="portal-panel">
+   <label style="display:block;color:#b9c0d2;font-size:12px;margin:10px 0">ACCESS ID<input id="portal-access-id" placeholder="Enter your Access ID" style="display:block;width:100%;padding:12px;margin-top:6px;border-radius:8px;background:#090817;border:1px solid #493d68;color:white"></label>
+   <label style="display:block;color:#b9c0d2;font-size:12px;margin:10px 0">APG CODE<input id="portal-apg" type="password" placeholder="Enter your APG code" style="display:block;width:100%;padding:12px;margin-top:6px;border-radius:8px;background:#090817;border:1px solid #493d68;color:white"></label>
+   <p style="font-size:10px">Demo access only. This prototype does not validate credentials against a secure server.</p>
+   <button class="portal-btn" onclick="portalEnterStore()">Continue to client environment · Demo</button>
+  </div>
+ </div>
+</section>
+
+    <div id="store-app">
+    <!-- TOP HEADER / NAV BAR -->
+    <header class="sticky top-0 z-40 w-full glass-card border-b border-celestial-border/30 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="appState.navigateTo(1)">
+                <!-- Celestial Winged C Logo SVG -->
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-900 to-indigo-900 flex items-center justify-center border border-celestial-gold/50 shadow-lg shadow-purple-900/40">
+                    <svg class="w-6 h-6 text-celestial-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 tracking-wider text-base uppercase">Celestial Lobby</h1>
+                    <p class="text-[10px] text-purple-300 tracking-widest uppercase">Orbit Store Ecosystem</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Actions -->
+            <div class="flex items-center space-x-3">
+                <button onclick="portalShow('home')" title="Return to Lobby" class="text-xs px-2.5 py-1.5 rounded-lg border border-purple-500/30 text-amber-200">Lobby</button>
+                <button onclick="appState.clearState()" title="Reset Demo Data" class="text-xs px-2.5 py-1.5 rounded-lg bg-red-950/40 text-red-300 border border-red-500/30 hover:bg-red-900/50 transition">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+                </button>
+                <div class="relative cursor-pointer" onclick="appState.navigateTo(3)">
+                    <div class="w-9 h-9 rounded-full bg-indigo-950/80 border border-celestial-border flex items-center justify-center text-amber-300">
+                        <i class="fa-solid fa-shopping-bag"></i>
+                    </div>
+                    <span id="header-cart-count" class="absolute -top-1 -right-1 bg-amber-400 text-slate-950 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-slate-950">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8-Step Navigation Tracker -->
+        <div class="max-w-4xl mx-auto mt-3 pt-2 border-t border-purple-900/40 overflow-x-auto no-scrollbar">
+            <div class="flex items-center justify-between min-w-[650px] px-2 text-xs">
+                <button onclick="appState.navigateTo(1)" id="step-btn-1" class="step-btn text-amber-300 font-semibold flex items-center gap-1"><span class="w-5 h-5 rounded-full border border-amber-400 flex items-center justify-center text-[10px]">1</span> Home</button>
+                <i class="fa-solid fa-chevron-right text-[8px] text-gray-600"></i>
+                <button onclick="appState.navigateTo(2)" id="step-btn-2" class="step-btn text-gray-400 hover:text-amber-200 flex items-center gap-1"><span class="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px]">2</span> Lineup</button>
+                <i class="fa-solid fa-chevron-right text-[8px] text-gray-600"></i>
+                <button onclick="appState.navigateTo(3)" id="step-btn-3" class="step-btn text-gray-400 hover:text-amber-200 flex items-center gap-1"><span class="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px]">3</span> Cart</button>
+                <i class="fa-solid fa-chevron-right text-[8px] text-gray-600"></i>
+                <button onclick="appState.navigateTo(4)" id="step-btn-4" class="step-btn text-gray-400 hover:text-amber-200 flex items-center gap-1"><span class="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px]">4</span> Extras</button>
+                <i class="fa-solid fa-chevron-right text-[8px] text-gray-600"></i>
+                <button onclick="appState.navigateTo(5)" id="step-btn-5" class="step-btn text-gray-400 hover:text-amber-200 flex items-center gap-1"><span class="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px]">5</span> Service</button>
+                <i class="fa-solid fa-chevron-right text-[8px] text-gray-600"></i>
+                <button onclick="appState.navigateTo(6)" id="step-btn-6" class="step-btn text-gray-400 hover:text-amber-200 flex items-center gap-1"><span class="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px]">6</span> Checkout</button>
+                <i class="fa-solid fa-chevron-right text-[8px] text-gray-600"></i>
+                <button onclick="appState.navigateTo(7)" id="step-btn-7" class="step-btn text-gray-400 hover:text-amber-200 flex items-center gap-1"><span class="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px]">7</span> Payment</button>
+                <i class="fa-solid fa-chevron-right text-[8px] text-gray-600"></i>
+                <button onclick="appState.navigateTo(8)" id="step-btn-8" class="step-btn text-gray-400 hover:text-amber-200 flex items-center gap-1"><span class="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px]">8</span> Status</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN INTERACTIVE CONTAINER -->
+    <main class="max-w-4xl w-full mx-auto p-4 flex-grow relative">
+
+        <!-- VIEW 1: STORE HOMEPAGE -->
+        <section id="view-1" class="view-panel space-y-6">
+            <!-- Hero Banner -->
+            <div class="relative glass-card rounded-2xl p-8 text-center overflow-hidden border border-purple-500/20">
+                <div class="absolute -top-10 -left-10 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-b from-purple-800 to-slate-950 flex items-center justify-center border-2 border-celestial-gold/60 shadow-xl shadow-purple-900/50">
+                    <i class="fa-solid fa-orbit text-4xl text-amber-300 star-sparkle"></i>
+                </div>
+                
+                <h2 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-amber-100 tracking-wider uppercase mb-2">Celestial Lobby</h2>
+                <p class="text-xs md:text-sm text-purple-200 uppercase tracking-widest font-semibold mb-6">Enter the Orbit. Choose your Fantasy...</p>
+                
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="appState.navigateTo(2)" class="btn-gold px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-meteor"></i> Explore Server Lineup
+                    </button>
+                </div>
+            </div>
+
+            <!-- Homepage Main Categories -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Stardust Category -->
+                <div onclick="appState.navigateTo(2)" class="glass-card glass-card-interactive p-6 rounded-2xl cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition"></div>
+                    <div class="flex items-start justify-between mb-8">
+                        <div>
+                            <span class="text-[10px] tracking-widest uppercase text-purple-400 font-bold block mb-1">Primary Realms</span>
+                            <h3 class="text-2xl font-bold text-amber-300">STARDUST</h3>
+                            <p class="text-xs text-gray-300 mt-1">(Server Lineup)</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-globe text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-purple-200 font-medium">
+                        <span>9 Servers Available</span>
+                        <span class="text-amber-400 group-hover:translate-x-1 transition flex items-center gap-1">Browse <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+
+                <!-- Draco Bulk Category -->
+                <div onclick="appState.navigateTo(4)" class="glass-card glass-card-interactive p-6 rounded-2xl cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition"></div>
+                    <div class="flex items-start justify-between mb-8">
+                        <div>
+                            <span class="text-[10px] tracking-widest uppercase text-purple-400 font-bold block mb-1">Enhancements</span>
+                            <h3 class="text-2xl font-bold text-amber-300">DRACO BULK</h3>
+                            <p class="text-xs text-gray-300 mt-1">(Add-ons & Extras)</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-gem text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-purple-200 font-medium">
+                        <span>Lubricants & Accessories</span>
+                        <span class="text-amber-400 group-hover:translate-x-1 transition flex items-center gap-1">View Add-ons <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Celestial Services Box -->
+            <div onclick="appState.navigateTo(5)" class="glass-card glass-card-interactive p-6 rounded-2xl cursor-pointer flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-900 to-purple-950 border border-purple-400/30 flex items-center justify-center text-amber-300 shadow-inner">
+                        <i class="fa-solid fa-cube text-2xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-white uppercase tracking-wider">Celestial Services</h4>
+                        <p class="text-xs text-purple-300">Priority Express Delivery & Special Handling</p>
+                    </div>
+                </div>
+                <div class="text-amber-300 text-sm font-semibold flex items-center gap-2">
+                    <span>Configure</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <!-- Footer Tagline -->
+            <div class="text-center pt-4">
+                <p class="text-[11px] text-purple-400/70 tracking-widest uppercase font-semibold">FANTASY &bull; EUPHORIA &bull; PLEASURE</p>
+            </div>
+        </section>
+
+        <!-- VIEW 2: CATEGORY PAGE (STARDUST) -->
+        <section id="view-2" class="view-panel space-y-6 hidden">
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <button onclick="appState.navigateTo(1)" class="text-xs text-purple-300 hover:text-amber-300 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Homepage
+                    </button>
+                    <h2 class="text-2xl font-bold text-amber-300 tracking-wide uppercase">STARDUST</h2>
+                    <p class="text-xs text-purple-200">OUR SERVER LINEUP &mdash; Choose your realm.</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-purple-300 block">Current Cart</span>
+                    <span id="stardust-cart-subtotal" class="text-sm font-bold text-amber-400">₱0</span>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="stardust-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                <!-- Dynamically Populated by JS -->
+            </div>
+
+            <!-- Bottom Action Bar -->
+            <div class="pt-4 flex justify-between items-center border-t border-purple-900/30">
+                <button onclick="appState.navigateTo(1)" class="px-4 py-2.5 rounded-xl glass-card text-xs text-purple-300 hover:text-white">Back</button>
+                <button onclick="appState.navigateTo(3)" class="btn-gold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2">
+                    Review Selection <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 3: SELECTION PAGE (CART REVIEW) -->
+        <section id="view-3" class="view-panel space-y-6 hidden">
+            <div class="flex items-center justify-between">
+                <div>
+                    <button onclick="appState.navigateTo(2)" class="text-xs text-purple-300 hover:text-amber-300 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-left"></i> Add More Items
+                    </button>
+                    <h2 class="text-2xl font-bold text-amber-300 tracking-wide uppercase">Your Selection</h2>
+                    <p class="text-xs text-purple-200">Adjust quantities for your selected servers.</p>
+                </div>
+            </div>
+
+            <!-- Cart Items Container -->
+            <div id="cart-items-list" class="space-y-3">
+                <!-- Dynamically populated or Empty state -->
+            </div>
+
+            <!-- Subtotal Box -->
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between border border-amber-400/20">
+                <span class="text-sm text-purple-200 font-semibold">Subtotal (Servers)</span>
+                <span id="selection-subtotal" class="text-xl font-extrabold text-amber-300">₱0</span>
+            </div>
+
+            <!-- Next Step Button -->
+            <div class="pt-2">
+                <button onclick="appState.navigateTo(4)" class="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    Next: Add-Ons <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 4: EXTRAS PAGE (ADD-ONS) -->
+        <section id="view-4" class="view-panel space-y-6 hidden">
+            <div class="flex items-center justify-between">
+                <div>
+                    <button onclick="appState.navigateTo(3)" class="text-xs text-purple-300 hover:text-amber-300 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Selection
+                    </button>
+                    <h2 class="text-2xl font-bold text-amber-300 tracking-wide uppercase">Add-Ons</h2>
+                    <p class="text-xs text-purple-200">Enhance your experience with Draco Bulk essentials.</p>
+                </div>
+            </div>
+
+            <!-- Add-ons Items Container -->
+            <div id="addons-grid" class="space-y-3">
+                <!-- Dynamically populated by JS -->
+            </div>
+
+            <!-- Combined Subtotal Box -->
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between border border-purple-400/20">
+                <div>
+                    <span class="text-xs text-purple-300 block">Subtotal (Items + Add-ons)</span>
+                    <span class="text-[10px] text-gray-400">Before handling & promo codes</span>
+                </div>
+                <span id="extras-subtotal" class="text-xl font-extrabold text-amber-300">₱0</span>
+            </div>
+
+            <!-- Next Step Button -->
+            <div class="pt-2">
+                <button onclick="appState.navigateTo(5)" class="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    Next: Special Handling <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 5: SPECIAL HANDLING & PROMOTIONS -->
+        <section id="view-5" class="view-panel space-y-6 hidden">
+            <div>
+                <button onclick="appState.navigateTo(4)" class="text-xs text-purple-300 hover:text-amber-300 mb-1 flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Add-Ons
+                </button>
+                <h2 class="text-2xl font-bold text-amber-300 tracking-wide uppercase">Special Handling & Promotions</h2>
+                <p class="text-xs text-purple-200">Choose your preferred service level and apply discounts.</p>
+            </div>
+
+            <!-- Special Handling Cards -->
+            <div class="space-y-3">
+                <div onclick="appState.toggleHandling('priority')" id="handling-card-priority" class="glass-card p-4 rounded-xl cursor-pointer border transition flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center border border-amber-400/30">
+                            <i class="fa-solid fa-crown text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Priority Delivery</h4>
+                            <p class="text-[11px] text-purple-300">(Go Rush Priority)</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="font-bold text-amber-300 text-sm">₱250</span>
+                        <div id="radio-priority" class="w-5 h-5 rounded-full border border-amber-400 flex items-center justify-center text-amber-300">
+                            <i class="fa-solid fa-check text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="appState.toggleHandling('express')" id="handling-card-express" class="glass-card p-4 rounded-xl cursor-pointer border transition flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center border border-purple-400/30">
+                            <i class="fa-solid fa-stopwatch text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm">30-Minute Go Rush</h4>
+                            <p class="text-[11px] text-purple-300">Ultra-fast priority dispatch</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="font-bold text-amber-300 text-sm">₱500</span>
+                        <div id="radio-express" class="w-5 h-5 rounded-full border border-purple-400/50 flex items-center justify-center text-transparent">
+                            <i class="fa-solid fa-check text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Promo Code Input -->
+            <div class="glass-card p-4 rounded-xl space-y-2">
+                <label class="text-xs font-semibold text-purple-200 block">Promo Code</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="promo-code-input" placeholder="Enter code (e.g., ORBIT10)" class="flex-grow bg-slate-950/80 border border-purple-500/30 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400 uppercase">
+                    <button onclick="appState.applyPromoCode()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition">Apply</button>
+                </div>
+                <div id="promo-status-msg" class="text-[11px] text-purple-300 hidden"></div>
+            </div>
+
+            <!-- Active Service Note Alert -->
+            <div id="handling-notice-box" class="glass-card p-3 rounded-xl border border-indigo-500/30 flex items-start space-x-3 bg-indigo-950/30">
+                <i class="fa-solid fa-circle-info text-amber-300 text-base mt-0.5"></i>
+                <p class="text-[11px] text-purple-200 leading-relaxed">
+                    Priority service is currently selected. Guaranteed fast-track processing for your active realm server.
+                </p>
+            </div>
+
+            <!-- Subtotal Box -->
+            <div class="glass-card p-4 rounded-xl flex items-center justify-between border border-amber-400/20">
+                <span class="text-xs text-purple-200 font-semibold">Updated Subtotal</span>
+                <span id="handling-subtotal" class="text-xl font-extrabold text-amber-300">₱0</span>
+            </div>
+
+            <!-- Next Step Button -->
+            <div class="pt-2">
+                <button onclick="appState.navigateTo(6)" class="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    Next: Checkout <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 6: CHECKOUT FORM -->
+        <section id="view-6" class="view-panel space-y-6 hidden">
+            <div>
+                <button onclick="appState.navigateTo(5)" class="text-xs text-purple-300 hover:text-amber-300 mb-1 flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Handling
+                </button>
+                <h2 class="text-2xl font-bold text-amber-300 tracking-wide uppercase">Checkout</h2>
+                <p class="text-xs text-purple-200">Confirm delivery details & delivery method.</p>
+            </div>
+
+            <!-- Order Summary Card -->
+            <div class="glass-card p-4 rounded-xl space-y-2 border border-purple-500/30">
+                <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider border-b border-purple-900/40 pb-2">Order Summary</h3>
+                <div class="flex justify-between text-xs text-purple-200">
+                    <span id="summary-item-count">Items (0)</span>
+                    <span id="summary-items-cost" class="font-semibold text-white">₱0</span>
+                </div>
+                <div class="flex justify-between text-xs text-purple-200">
+                    <span id="summary-handling-name">Priority Delivery</span>
+                    <span id="summary-handling-cost" class="font-semibold text-white">₱0</span>
+                </div>
+                <div id="summary-promo-row" class="flex justify-between text-xs text-emerald-400 hidden">
+                    <span>Discount Promo</span>
+                    <span id="summary-promo-discount">-₱0</span>
+                </div>
+                <div class="flex justify-between text-sm font-extrabold text-amber-300 border-t border-purple-900/40 pt-2">
+                    <span>Total</span>
+                    <span id="checkout-total-price">₱0</span>
+                </div>
+            </div>
+
+            <!-- Delivery Info Inputs -->
+            <div class="glass-card p-4 rounded-xl space-y-3">
+                <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider">Delivery Information</h3>
+                
+                <div>
+                    <label class="text-[11px] text-purple-300 block mb-1">Full Name</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-3 text-purple-400 text-xs"></i>
+                        <input type="text" id="cust-name" value="Juan Dela Cruz" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] text-purple-300 block mb-1">Contact Number</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-phone absolute left-3 top-3 text-purple-400 text-xs"></i>
+                        <input type="text" id="cust-phone" value="0917 123 4567" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] text-purple-300 block mb-1">Delivery Address / Destination</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-location-dot absolute left-3 top-3 text-purple-400 text-xs"></i>
+                        <input type="text" id="cust-address" value="123 Celestial St., Davao City" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Method Selection -->
+            <div class="glass-card p-4 rounded-xl space-y-3">
+                <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider">Delivery Method</h3>
+                <div class="space-y-2 text-xs">
+                    <label onclick="appState.setDeliveryMethod('Standard Rider Delivery')" class="flex items-center justify-between p-2.5 rounded-lg border border-purple-500/30 bg-slate-950/40 cursor-pointer hover:border-amber-400">
+                        <div class="flex items-center space-x-2">
+                            <input type="radio" name="delivery_method" value="Standard Rider Delivery" checked class="accent-amber-400">
+                            <span class="text-white font-medium">Standard Rider Delivery</span>
+                        </div>
+                        <span class="text-amber-300 font-bold">₱0</span>
+                    </label>
+
+                    <label onclick="appState.setDeliveryMethod('Pickup')" class="flex items-center justify-between p-2.5 rounded-lg border border-purple-500/30 bg-slate-950/40 cursor-pointer hover:border-amber-400">
+                        <div class="flex items-center space-x-2">
+                            <input type="radio" name="delivery_method" value="Pickup" class="accent-amber-400">
+                            <span class="text-purple-200">Pickup</span>
+                        </div>
+                        <span class="text-gray-400">Free</span>
+                    </label>
+
+                    <label onclick="appState.setDeliveryMethod('Drop-off')" class="flex items-center justify-between p-2.5 rounded-lg border border-purple-500/30 bg-slate-950/40 cursor-pointer hover:border-amber-400">
+                        <div class="flex items-center space-x-2">
+                            <input type="radio" name="delivery_method" value="Drop-off" class="accent-amber-400">
+                            <span class="text-purple-200">Drop-off</span>
+                        </div>
+                        <span class="text-gray-400">Free</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Place Order Button -->
+            <div class="pt-2">
+                <button onclick="appState.placeOrder()" class="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    Place Order <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 7: CONFIRMATION & PAYMENT -->
+        <section id="view-7" class="view-panel space-y-6 hidden">
+            <!-- 60-Min Countdown Timer Header Card -->
+            <div class="glass-card p-6 rounded-2xl text-center relative overflow-hidden border border-amber-400/30">
+                <div class="w-32 h-32 mx-auto rounded-full border-4 border-amber-400/40 flex flex-col items-center justify-center relative bg-indigo-950/50 shadow-inner">
+                    <span id="timer-display" class="text-3xl font-extrabold text-white tracking-widest">60:00</span>
+                    <span class="text-[10px] text-amber-300 font-semibold uppercase mt-0.5">Pay within 1 hour</span>
+                </div>
+
+                <div class="mt-4 space-y-1">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
+                        <i class="fa-solid fa-circle-check"></i> Order Confirmed!
+                    </div>
+                    <p id="confirm-order-id" class="text-xs text-purple-200 font-mono tracking-wider pt-1">Order #CL20261104-001</p>
+                    <p class="text-[11px] text-purple-300">Please submit your payment details before the timer expires.</p>
+                </div>
+            </div>
+
+            <!-- Payment Information Form -->
+            <div class="glass-card p-5 rounded-2xl space-y-4">
+                <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider border-b border-purple-900/40 pb-2">Payment Information</h3>
+
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-purple-300">Amount Sent</span>
+                    <span id="payment-amount-sent" class="text-lg font-bold text-amber-300">₱0</span>
+                </div>
+
+                <div>
+                    <label class="text-[11px] text-purple-300 block mb-1">Sender (First 3 Letters of Account)</label>
+                    <input type="text" id="payment-sender-initials" maxlength="3" value="FTA" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg px-3 py-2 text-xs text-white uppercase tracking-widest focus:outline-none focus:border-amber-400">
+                </div>
+
+                <!-- Screenshot Upload Box -->
+                <div class="space-y-2">
+                    <label class="text-[11px] text-purple-300 block">Upload Payment Screenshot</label>
+                    <div onclick="document.getElementById('file-upload-input').click()" class="border-2 border-dashed border-purple-500/30 hover:border-amber-400/60 rounded-xl p-6 text-center cursor-pointer bg-slate-950/40 transition">
+                        <input type="file" id="file-upload-input" accept="image/*" class="hidden" onchange="appState.handleFileUpload(event)">
+                        <div id="upload-placeholder" class="space-y-2">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-purple-900/40 flex items-center justify-center text-amber-300">
+                                <i class="fa-solid fa-camera text-xl"></i>
+                            </div>
+                            <p class="text-xs text-purple-200 font-semibold">Upload Payment Screenshot</p>
+                            <p class="text-[10px] text-gray-400">(PNG, JPG, up to 5MB)</p>
+                        </div>
+                        <div id="upload-preview-container" class="hidden flex flex-col items-center">
+                            <img id="upload-preview-img" src="" alt="Screenshot preview" class="max-h-36 rounded-lg border border-amber-400/40 mb-2">
+                            <span class="text-xs text-emerald-400 font-semibold flex items-center gap-1"><i class="fa-solid fa-check"></i> Image Loaded</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Payment Button -->
+            <div>
+                <button onclick="appState.submitPayment()" class="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    Submit Payment <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 8: ORDER RECEIPT & TRACKING -->
+        <section id="view-8" class="view-panel space-y-6 hidden">
+            <!-- Thank You Banner -->
+            <div class="glass-card p-6 rounded-2xl text-center border border-emerald-500/30 relative">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/40 flex items-center justify-center text-2xl shadow-lg">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-1">Thank you for your order!</h2>
+                <p id="receipt-order-id" class="text-xs text-purple-300 font-mono">Order #CL20261104-001</p>
+
+                <div class="mt-4 pt-4 border-t border-purple-900/40 flex items-center justify-between">
+                    <div class="text-left">
+                        <span class="text-[10px] text-purple-400 uppercase tracking-wider block">Total Paid</span>
+                        <span id="receipt-total-paid" class="text-xl font-extrabold text-amber-300">₱0</span>
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
+                        Payment Verified
+                    </span>
+                </div>
+            </div>
+
+            <!-- Order Status Timeline Tracker -->
+            <div class="glass-card p-6 rounded-2xl space-y-6 relative overflow-hidden">
+                <div class="flex items-center justify-between border-b border-purple-900/40 pb-3">
+                    <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider">Order Status</h3>
+                    <!-- Celestial Wing Emblem -->
+                    <div class="w-8 h-8 rounded-full bg-purple-900/40 border border-amber-400/40 flex items-center justify-center text-amber-300 text-xs">
+                        <i class="fa-solid fa-feather"></i>
+                    </div>
+                </div>
+
+                <!-- Timeline List -->
+                <div class="space-y-6 relative pl-6 border-l-2 border-purple-900/60 ml-2">
+                    <!-- Status Item 1 -->
+                    <div class="relative">
+                        <div class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-xs font-bold shadow-md">
+                            <i class="fa-solid fa-check text-[10px]"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Order Submitted</h4>
+                        <p id="time-submitted" class="text-[10px] text-purple-300">Nov 4, 2026 &bull; 04:32 AM</p>
+                    </div>
+
+                    <!-- Status Item 2 -->
+                    <div class="relative">
+                        <div class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-xs font-bold shadow-md">
+                            <i class="fa-solid fa-check text-[10px]"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Payment Submitted</h4>
+                        <p id="time-payment" class="text-[10px] text-purple-300">Nov 4, 2026 &bull; 04:33 AM</p>
+                    </div>
+
+                    <!-- Status Item 3 -->
+                    <div class="relative">
+                        <div class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-slate-900 border-2 border-purple-500 text-purple-400 flex items-center justify-center text-xs">
+                            <div class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></div>
+                        </div>
+                        <h4 class="text-xs font-bold text-amber-300">Processing</h4>
+                        <p class="text-[10px] text-purple-300">Allocating realm resources...</p>
+                    </div>
+
+                    <!-- Status Item 4 -->
+                    <div class="relative opacity-50">
+                        <div class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-slate-900 border border-gray-600 text-gray-500 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-circle text-[6px]"></i>
+                        </div>
+                        <h4 class="text-xs font-semibold text-gray-300">Out for Delivery</h4>
+                    </div>
+
+                    <!-- Status Item 5 -->
+                    <div class="relative opacity-50">
+                        <div class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-slate-900 border border-gray-600 text-gray-500 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-circle text-[6px]"></i>
+                        </div>
+                        <h4 class="text-xs font-semibold text-gray-300">Delivered</h4>
+                    </div>
+                </div>
+
+                <!-- Estimated Arrival Banner -->
+                <div class="glass-card p-4 rounded-xl flex items-center justify-between border border-amber-400/30 bg-gradient-to-r from-purple-950/40 to-slate-950">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-truck-fast text-2xl text-amber-300"></i>
+                        <div>
+                            <span class="text-[10px] text-purple-300 uppercase tracking-wider block">Estimated Arrival</span>
+                            <span class="text-sm font-bold text-white">&sim; 45 &ndash; 60 mins</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Info Footer -->
+                <div class="flex items-center justify-between pt-2 text-xs border-t border-purple-900/40">
+                    <div class="flex items-center space-x-2 text-purple-200">
+                        <i class="fa-solid fa-compass text-amber-300"></i>
+                        <span id="tracking-cust-info" class="truncate max-w-[200px]">Juan Dela Cruz &bull; 0917 123 4567</span>
+                    </div>
+                    <button onclick="alert('Live tracking active: Dispatcher is en route!')" class="btn-gold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1">
+                        Track Live <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Home Restart Button -->
+            <div class="pt-2 text-center">
+                <button onclick="appState.navigateTo(1)" class="text-xs text-purple-300 hover:text-amber-300 underline">
+                    Return to Store Homepage
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE PERSISTENT BOTTOM TAB BAR (Mirroring Image 1) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-card border-t border-celestial-border/40 py-2 px-4 flex justify-around items-center text-[10px]">
+        <button onclick="appState.navigateTo(1)" id="mobile-tab-1" class="flex flex-col items-center text-amber-300 font-bold">
+            <i class="fa-solid fa-house text-base mb-0.5"></i>
+            <span>Home</span>
+        </button>
+        <button onclick="appState.navigateTo(2)" id="mobile-tab-2" class="flex flex-col items-center text-purple-300 hover:text-amber-300">
+            <i class="fa-solid fa-layer-group text-base mb-0.5"></i>
+            <span>About</span>
+        </button>
+        <button onclick="appState.navigateTo(3)" id="mobile-tab-3" class="flex flex-col items-center text-purple-300 hover:text-amber-300 relative">
+            <i class="fa-solid fa-sparkles text-base mb-0.5"></i>
+            <span>3S</span>
+        </button>
+        <button onclick="appState.navigateTo(8)" id="mobile-tab-4" class="flex flex-col items-center text-purple-300 hover:text-amber-300">
+            <i class="fa-solid fa-circle-xmark text-base mb-0.5"></i>
+            <span>No-Nos</span>
+        </button>
+    </nav>
+
+    </div><!-- /store-app -->
+    <!-- JAVASCRIPT STATE & LOGIC ENGINE -->
+    <script>
+        /**
+         * Celestial Lobby - Application Data Catalog
+         */
+        const CATALOG = {
+            stardust: [
+                { id: 'cloud9', name: 'Cloud9', units: '5u', price: 700, icon: 'fa-cloud-bolt' },
+                { id: 'mars', name: 'Mars', units: '10u', price: 1200, icon: 'fa-planet-ring' },
+                { id: 'venus', name: 'Venus', units: '15u', price: 1700, icon: 'fa-sun' },
+                { id: 'saturn', name: 'Saturn', units: '20u', price: 2150, icon: 'fa-globe-americas' },
+                { id: 'nibiru', name: 'Nibiru', units: '25u', price: 2600, icon: 'fa-atom' },
+                { id: 'nemik', name: 'Nemik', units: '30u', price: 3100, icon: 'fa-moon' },
+                { id: 'vaelithar', name: 'Vaelithar', units: '40u', price: 3500, icon: 'fa-shield-halved' },
+                { id: 'half_g', name: '0.5 / Half G', units: '60u', price: 4450, icon: 'fa-compact-disc' },
+                { id: 'one_g', name: '1.0 / One G', units: '110u', price: 6950, icon: 'fa-circle-dot' }
+            ],
+            addons: [
+                { id: 'lubricant', name: 'Lubricant (Small)', price: 150, icon: 'fa-flask' },
+                { id: 'accessory', name: 'Accessory (Extra)', price: 50, icon: 'fa-gem' }
+            ]
+        };
+
+        /**
+         * Reactive Application State with LocalStorage Persistence
+         */
+        class CelestialAppState {
+            constructor() {
+                this.storageKey = 'CELESTIAL_LOBBY_STATE_v1';
+                this.timerInterval = null;
+                
+                // Default State
+                this.state = {
+                    currentStep: 1,
+                    cart: {
+                        cloud9: 1,
+                        mars: 1
+                    },
+                    addons: {
+                        lubricant: 0,
+                        accessory: 0
+                    },
+                    specialHandling: 'standard', // standard service only
+                    promoCode: '',
+                    discount: 0,
+                    deliveryDetails: {
+                        name: 'Juan Dela Cruz',
+                        phone: '0917 123 4567',
+                        address: '123 Celestial St., Davao City',
+                        method: 'Standard Rider Delivery'
+                    },
+                    activeOrder: {
+                        orderId: '#CL20261104-001',
+                        startTime: null,
+                        paymentSender: 'FTA',
+                        paymentScreenshot: null,
+                        status: 'submitted'
+                    }
+                };
+
+                this.loadFromStorage();
+            }
+
+            loadFromStorage() {
+                try {
+                    const saved = localStorage.getItem(this.storageKey);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        this.state = { ...this.state, ...parsed };
+                    }
+                } catch (e) {
+                    console.error('Failed to load state', e);
+                }
+            }
+
+            saveToStorage() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.state));
+                } catch (e) {
+                    console.error('Failed to save state', e);
+                }
+            }
+
+            clearState() {
+                localStorage.removeItem(this.storageKey);
+                window.location.reload();
+            }
+
+            // Navigation handler
+            navigateTo(stepNumber) {
+                this.state.currentStep = stepNumber;
+                this.saveToStorage();
+
+                // Toggle visibility of panels
+                document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+                const activePanel = document.getElementById(`view-${stepNumber}`);
+                if (activePanel) activePanel.classList.remove('hidden');
+
+                // Update Step Buttons styling
+                document.querySelectorAll('.step-btn').forEach((btn, index) => {
+                    const stepIdx = index + 1;
+                    if (stepIdx === stepNumber) {
+                        btn.className = 'step-btn text-amber-300 font-bold flex items-center gap-1';
+                    } else if (stepIdx < stepNumber) {
+                        btn.className = 'step-btn text-emerald-400 font-semibold flex items-center gap-1';
+                    } else {
+                        btn.className = 'step-btn text-gray-400 hover:text-amber-200 flex items-center gap-1';
+                    }
+                });
+
+                // Trigger view specific updates
+                this.renderAll();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Cart Items Logic
+            updateCartQuantity(itemId, change) {
+                const current = this.state.cart[itemId] || 0;
+                const updated = Math.max(0, current + change);
+                if (updated === 0) {
+                    delete this.state.cart[itemId];
+                } else {
+                    this.state.cart[itemId] = updated;
+                }
+                this.saveToStorage();
+                this.renderAll();
+            }
+
+            // Add-ons Logic
+            updateAddonQuantity(addonId, change) {
+                const current = this.state.addons[addonId] || 0;
+                const updated = Math.max(0, current + change);
+                this.state.addons[addonId] = updated;
+                this.saveToStorage();
+                this.renderAll();
+            }
+
+            // Special Handling Toggle
+            toggleHandling(type) {
+                this.state.specialHandling = type;
+                this.saveToStorage();
+                this.renderAll();
+            }
+
+            // Promo Code Validation
+            applyPromoCode() {
+                const input = document.getElementById('promo-code-input').value.trim().toUpperCase();
+                const statusMsg = document.getElementById('promo-status-msg');
+                statusMsg.classList.remove('hidden');
+
+                if (input === 'ORBIT10' || input === 'CELESTIAL') {
+                    this.state.promoCode = input;
+                    this.state.discount = 200; // ₱200 discount
+                    statusMsg.className = 'text-[11px] text-emerald-400 font-semibold';
+                    statusMsg.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Code applied! ₱200 discount added.';
+                } else if (input === '') {
+                    this.state.promoCode = '';
+                    this.state.discount = 0;
+                    statusMsg.className = 'text-[11px] text-gray-400';
+                    statusMsg.innerHTML = 'Promo code removed.';
+                } else {
+                    statusMsg.className = 'text-[11px] text-red-400';
+                    statusMsg.innerHTML = '<i class="fa-solid fa-xmark mr-1"></i> Invalid promo code.';
+                }
+                this.saveToStorage();
+                this.renderAll();
+            }
+
+            setDeliveryMethod(method) {
+                this.state.deliveryDetails.method = method;
+                this.saveToStorage();
+            }
+
+            saveCheckoutDetails() {
+                this.state.deliveryDetails.name = document.getElementById('cust-name').value;
+                this.state.deliveryDetails.phone = document.getElementById('cust-phone').value;
+                this.state.deliveryDetails.address = document.getElementById('cust-address').value;
+                this.saveToStorage();
+            }
+
+            // Order Submission & Timer Init
+            placeOrder() {
+                this.saveCheckoutDetails();
+                if (!this.state.activeOrder.startTime) {
+                    this.state.activeOrder.startTime = Date.now();
+                }
+                this.saveToStorage();
+                this.navigateTo(7);
+            }
+
+            startTimer() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+
+                const duration = 60 * 60 * 1000; // 60 Minutes
+                const startTime = this.state.activeOrder.startTime || Date.now();
+
+                const updateDisplay = () => {
+                    const elapsed = Date.now() - startTime;
+                    const remaining = Math.max(0, duration - elapsed);
+
+                    const minutes = Math.floor(remaining / (1000 * 60));
+                    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+                    const timerEl = document.getElementById('timer-display');
+                    if (timerEl) {
+                        timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    }
+
+                    if (remaining <= 0) {
+                        clearInterval(this.timerInterval);
+                        if (timerEl) timerEl.textContent = '00:00';
+                    }
+                };
+
+                updateDisplay();
+                this.timerInterval = setInterval(updateDisplay, 1000);
+            }
+
+            handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.state.activeOrder.paymentScreenshot = e.target.result;
+                        this.saveToStorage();
+                        
+                        document.getElementById('upload-placeholder').classList.add('hidden');
+                        document.getElementById('upload-preview-container').classList.remove('hidden');
+                        document.getElementById('upload-preview-img').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            submitPayment() {
+                const senderInit = document.getElementById('payment-sender-initials').value.trim();
+                this.state.activeOrder.paymentSender = senderInit || 'FTA';
+                this.saveToStorage();
+                this.navigateTo(8);
+            }
+
+            // Calculations
+            getCalculations() {
+                let stardustSubtotal = 0;
+                let totalItemsCount = 0;
+
+                CATALOG.stardust.forEach(item => {
+                    const qty = this.state.cart[item.id] || 0;
+                    stardustSubtotal += item.price * qty;
+                    totalItemsCount += qty;
+                });
+
+                let addonsSubtotal = 0;
+                CATALOG.addons.forEach(addon => {
+                    const qty = this.state.addons[addon.id] || 0;
+                    addonsSubtotal += addon.price * qty;
+                });
+
+                let handlingCost = 0;
+                let handlingName = 'Standard Service';
+
+                const itemsTotal = stardustSubtotal + addonsSubtotal;
+                const grandTotal = Math.max(0, itemsTotal + handlingCost - this.state.discount);
+
+                return {
+                    stardustSubtotal,
+                    addonsSubtotal,
+                    itemsTotal,
+                    handlingCost,
+                    handlingName,
+                    discount: this.state.discount,
+                    grandTotal,
+                    totalItemsCount
+                };
+            }
+
+            // Master Render Method
+            renderAll() {
+                const calc = this.getCalculations();
+
+                // Header Cart Count
+                document.getElementById('header-cart-count').textContent = calc.totalItemsCount;
+
+                // Render Stardust Grid (View 2)
+                const grid = document.getElementById('stardust-grid');
+                grid.innerHTML = CATALOG.stardust.map(item => {
+                    const qty = this.state.cart[item.id] || 0;
+                    return `
+                        <div class="glass-card glass-card-interactive p-4 rounded-xl flex flex-col justify-between border border-purple-500/20 text-center relative group">
+                            <div class="w-12 h-12 mx-auto mb-2 rounded-lg bg-indigo-950/80 border border-purple-400/30 flex items-center justify-center text-amber-300">
+                                <i class="fa-solid ${item.icon} text-lg"></i>
+                            </div>
+                            <h4 class="font-bold text-white text-sm truncate">${item.name}</h4>
+                            <p class="text-xs text-purple-300">${item.units}</p>
+                            <p class="text-sm font-extrabold text-amber-300 my-2">₱${item.price.toLocaleString()}</p>
+                            
+                            <div class="flex items-center justify-center space-x-2 mt-1">
+                                <button onclick="appState.updateCartQuantity('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-indigo-950 border border-purple-500/40 text-purple-200 hover:text-amber-300 flex items-center justify-center text-xs font-bold font-mono">-</button>
+                                <span class="text-xs font-bold text-white w-4">${qty}</span>
+                                <button onclick="appState.updateCartQuantity('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-indigo-950 border border-purple-500/40 text-purple-200 hover:text-amber-300 flex items-center justify-center text-xs font-bold font-mono">+</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('stardust-cart-subtotal').textContent = `₱${calc.stardustSubtotal.toLocaleString()}`;
+
+                // Render Cart Items (View 3)
+                const cartList = document.getElementById('cart-items-list');
+                const selectedItems = CATALOG.stardust.filter(item => (this.state.cart[item.id] || 0) > 0);
+
+                if (selectedItems.length === 0) {
+                    cartList.innerHTML = `
+                        <div class="glass-card p-8 rounded-xl text-center text-purple-300">
+                            <i class="fa-solid fa-basket-shopping text-3xl mb-2 text-purple-400/50"></i>
+                            <p class="text-xs">Your server selection is empty.</p>
+                            <button onclick="appState.navigateTo(2)" class="mt-3 text-xs text-amber-300 underline font-semibold">Browse Lineup</button>
+                        </div>
+                    `;
+                } else {
+                    cartList.innerHTML = selectedItems.map(item => {
+                        const qty = this.state.cart[item.id];
+                        return `
+                            <div class="glass-card p-4 rounded-xl flex items-center justify-between border border-purple-500/20">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-lg bg-indigo-950 border border-purple-400/30 flex items-center justify-center text-amber-300">
+                                        <i class="fa-solid ${item.icon}"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-white text-xs">${item.name}</h4>
+                                        <p class="text-[10px] text-purple-300">${item.units}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex items-center space-x-2 bg-slate-950/60 p-1 rounded-lg border border-purple-500/30">
+                                        <button onclick="appState.updateCartQuantity('${item.id}', -1)" class="w-6 h-6 rounded bg-indigo-900/60 text-purple-200 text-xs flex items-center justify-center font-bold font-mono">-</button>
+                                        <span class="text-xs font-bold text-white px-1">${qty}</span>
+                                        <button onclick="appState.updateCartQuantity('${item.id}', 1)" class="w-6 h-6 rounded bg-indigo-900/60 text-purple-200 text-xs flex items-center justify-center font-bold font-mono">+</button>
+                                    </div>
+                                    <span class="text-xs font-bold text-amber-300 w-16 text-right">₱${(item.price * qty).toLocaleString()}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                document.getElementById('selection-subtotal').textContent = `₱${calc.stardustSubtotal.toLocaleString()}`;
+
+                // Render Add-ons (View 4)
+                const addonsGrid = document.getElementById('addons-grid');
+                addonsGrid.innerHTML = CATALOG.addons.map(addon => {
+                    const qty = this.state.addons[addon.id] || 0;
+                    return `
+                        <div class="glass-card p-4 rounded-xl flex items-center justify-between border border-purple-500/20">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-xl bg-purple-950/80 border border-amber-400/30 flex items-center justify-center text-amber-300">
+                                    <i class="fa-solid ${addon.icon} text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-xs">${addon.name}</h4>
+                                    <p class="text-xs font-bold text-amber-300 mt-0.5">₱${addon.price.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-slate-950/60 p-1 rounded-lg border border-purple-500/30">
+                                <button onclick="appState.updateAddonQuantity('${addon.id}', -1)" class="w-7 h-7 rounded bg-indigo-900/60 text-purple-200 text-xs flex items-center justify-center font-bold font-mono">-</button>
+                                <span class="text-xs font-bold text-white px-2">${qty}</span>
+                                <button onclick="appState.updateAddonQuantity('${addon.id}', 1)" class="w-7 h-7 rounded bg-indigo-900/60 text-purple-200 text-xs flex items-center justify-center font-bold font-mono">+</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('extras-subtotal').textContent = `₱${calc.itemsTotal.toLocaleString()}`;
+
+                // Render Special Handling (View 5)
+                const isPriority = this.state.specialHandling === 'priority';
+                document.getElementById('handling-card-priority').className = isPriority ? 
+                    'glass-card p-4 rounded-xl cursor-pointer border border-amber-400/80 bg-purple-950/40 transition flex items-center justify-between' :
+                    'glass-card p-4 rounded-xl cursor-pointer border border-purple-500/20 transition flex items-center justify-between opacity-70';
+                
+                document.getElementById('handling-card-express').className = !isPriority ? 
+                    'glass-card p-4 rounded-xl cursor-pointer border border-amber-400/80 bg-purple-950/40 transition flex items-center justify-between' :
+                    'glass-card p-4 rounded-xl cursor-pointer border border-purple-500/20 transition flex items-center justify-between opacity-70';
+
+                document.getElementById('radio-priority').className = isPriority ?
+                    'w-5 h-5 rounded-full border border-amber-400 flex items-center justify-center text-amber-300 bg-amber-400/20' :
+                    'w-5 h-5 rounded-full border border-purple-500/40 flex items-center justify-center text-transparent';
+
+                document.getElementById('radio-express').className = !isPriority ?
+                    'w-5 h-5 rounded-full border border-amber-400 flex items-center justify-center text-amber-300 bg-amber-400/20' :
+                    'w-5 h-5 rounded-full border border-purple-500/40 flex items-center justify-center text-transparent';
+
+                document.getElementById('handling-subtotal').textContent = `₱${calc.grandTotal.toLocaleString()}`;
+
+                // Render Checkout Summary (View 6)
+                document.getElementById('summary-item-count').textContent = `Items (${calc.totalItemsCount})`;
+                document.getElementById('summary-items-cost').textContent = `₱${calc.itemsTotal.toLocaleString()}`;
+                document.getElementById('summary-handling-name').textContent = calc.handlingName;
+                document.getElementById('summary-handling-cost').textContent = `₱${calc.handlingCost.toLocaleString()}`;
+
+                if (calc.discount > 0) {
+                    document.getElementById('summary-promo-row').classList.remove('hidden');
+                    document.getElementById('summary-promo-discount').textContent = `-₱${calc.discount.toLocaleString()}`;
+                } else {
+                    document.getElementById('summary-promo-row').classList.add('hidden');
+                }
+
+                document.getElementById('checkout-total-price').textContent = `₱${calc.grandTotal.toLocaleString()}`;
+
+                // Render Payment Confirmation (View 7)
+                document.getElementById('confirm-order-id').textContent = `Order ${this.state.activeOrder.orderId}`;
+                document.getElementById('payment-amount-sent').textContent = `₱${calc.grandTotal.toLocaleString()}`;
+
+                if (this.state.activeOrder.paymentScreenshot) {
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    document.getElementById('upload-preview-container').classList.remove('hidden');
+                    document.getElementById('upload-preview-img').src = this.state.activeOrder.paymentScreenshot;
+                }
+
+                if (this.state.currentStep === 7) {
+                    this.startTimer();
+                }
+
+                // Render Order Receipt (View 8)
+                document.getElementById('receipt-order-id').textContent = `Order ${this.state.activeOrder.orderId}`;
+                document.getElementById('receipt-total-paid').textContent = `₱${calc.grandTotal.toLocaleString()}`;
+                document.getElementById('tracking-cust-info').textContent = `${this.state.deliveryDetails.name} • ${this.state.deliveryDetails.phone}`;
+            }
+        }
+
+        // Initialize App on DOM Load
+        let appState;
+        window.addEventListener('DOMContentLoaded', () => {
+            appState = new CelestialAppState();
+            appState.navigateTo(appState.state.currentStep || 1);
+        });
+        const onboardingSteps = [
+          ['About Us','Understand why Celestial Lobby exists and the experience we aim to provide.'],
+          ['Understanding the 3S','Review Security, Secrecy, and Safety before proceeding.'],
+          ['The Non-Negotiables','Review the customer standards and confirm that you understand them.'],
+          ['Simplified Process Flow','See the customer journey from browsing and order submission through review, payment, confirmation, and fulfillment.'],
+          ['Store Overview','Get an introduction to the available celestial-stardust lineup.'],
+          ['Understanding the Calculation','Core items + add-ons + additional services + disclosed delivery charges = estimated total.'],
+          ['Final Acknowledgment','Confirm that you have reviewed and understood the onboarding information.'],
+          ['Purchasing Intent','Choose whether you are ready to proceed or would prefer to consider your budget first.']
+        ];
+        let onboardingIndex = 0;
+        function portalShow(target) {
+          ['home','guest','onboarding','regular'].forEach(id => {
+            const el=document.getElementById('portal-'+id);
+            if(el) el.classList.toggle('portal-hidden',id!==target);
+          });
+          document.getElementById('celestial-portal').style.display='block';
+          document.getElementById('store-app').style.display='none';
+          window.scrollTo(0,0);
+        }
+        function portalExpand(id,title,copy) {
+          const el=document.getElementById(id);
+          el.innerHTML='<b style="color:#f0cf87">'+title+'</b><p>'+copy+'</p>';
+          el.classList.remove('portal-hidden');
+        }
+        function portalNextOnboarding() {
+          if(onboardingIndex<onboardingSteps.length-1) onboardingIndex++;
+          else { portalEnterStore(); return; }
+          const step=onboardingSteps[onboardingIndex];
+          document.getElementById('onboard-label').textContent='STEP '+(onboardingIndex+1)+' OF 8 · '+step[0].toUpperCase();
+          document.getElementById('onboard-title').textContent=step[0];
+          document.getElementById('onboard-copy').textContent=step[1];
+          document.getElementById('onboard-progress').style.width=((onboardingIndex+1)/8*100)+'%';
+          if(onboardingIndex===7) document.querySelector('#portal-onboarding .portal-btn').textContent='I am ready to enter the store';
+        }
+        function portalEnterStore() {
+          document.getElementById('celestial-portal').style.display='none';
+          document.getElementById('store-app').style.display='block';
+          if(window.appState) appState.navigateTo(1);
+          window.scrollTo(0,0);
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+          document.getElementById('store-app').style.display='none';
+          portalShow('home');
+        });
+    </script>
+</body>
+</html>
