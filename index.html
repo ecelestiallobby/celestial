@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Celestial Lobby - Store Architecture</title>
+    <title>CELESTIAL LOBBY — Client Portal</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -115,80 +115,82 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-    
-#celestial-portal{max-width:896px;width:100%;margin:0 auto;padding:28px 16px 42px;color:#e2e8f0}
-#celestial-portal .portal-panel{background:rgba(20,18,41,.78);border:1px solid rgba(160,140,255,.18);border-radius:18px;padding:22px;box-shadow:0 8px 32px #0006}
-#celestial-portal .portal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
-#celestial-portal .portal-tile{display:block;text-align:left;width:100%;padding:18px;border-radius:14px;background:rgba(20,18,41,.72);border:1px solid rgba(160,140,255,.2);color:#e2e8f0;transition:.2s}
-#celestial-portal .portal-tile:hover{border-color:#dfb76c;transform:translateY(-2px)}
-#celestial-portal .portal-tile b{display:block;color:#f0cf87;letter-spacing:.8px;margin:7px 0}
-#celestial-portal .portal-tile small{color:#b7a9df}
-#celestial-portal .portal-kicker{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#dfb76c}
-#celestial-portal h2{font-size:clamp(25px,4vw,36px);font-weight:800;letter-spacing:1px;color:#f0cf87;margin:8px 0}
-#celestial-portal p{color:#b9c0d2;font-size:13px;line-height:1.6}
-#celestial-portal .portal-btn{padding:11px 17px;border-radius:10px;background:linear-gradient(135deg,#f5d77f,#c79d50);color:#100e1b;font-weight:800}
-#celestial-portal .portal-secondary{padding:10px 14px;border:1px solid #dfb76c;border-radius:10px;color:#f0cf87;background:transparent}
-#celestial-portal .portal-foot{border-top:1px solid rgba(160,140,255,.18);margin-top:25px;padding-top:14px;display:flex;gap:16px;flex-wrap:wrap;font-size:10px;color:#9ca3af}
-#celestial-portal .portal-foot a{color:#b9c0d2;text-decoration:none}
-#celestial-portal .portal-hidden{display:none!important}
-#celestial-portal .portal-step{color:#dfb76c;font-size:11px;letter-spacing:1px}
-#celestial-portal .portal-progress{height:4px;background:#29213f;border-radius:8px;margin:14px 0;overflow:hidden}
-#celestial-portal .portal-progress span{display:block;height:100%;background:#dfb76c;width:12.5%;transition:width .2s}
-#store-app{display:none}
-#handling-card-priority,#handling-card-express{display:none!important}
-@media(max-width:520px){#celestial-portal .portal-grid{grid-template-columns:1fr}#celestial-portal{padding:20px 13px 35px}}
 
-</style>
+        .portal-shell{min-height:100vh;max-width:100%;background:radial-gradient(ellipse at 50% -10%,rgba(117,78,207,.22),transparent 55%),linear-gradient(160deg,#080b17,#0b1020 55%,#080a14);color:#e9e5f4;padding:env(safe-area-inset-top) 18px env(safe-area-inset-bottom);}
+        .portal-header{max-width:760px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:22px 0 18px;border-bottom:1px solid rgba(223,183,108,.18)}
+        .portal-brand{display:flex;align-items:center;gap:11px}.brand-orbit{width:38px;height:38px;border:1px solid #cba45f;border-radius:50%;display:grid;place-items:center;color:#e6c77f;font-size:22px;background:rgba(111,77,166,.2)}.brand-name{font-size:13px;font-weight:900;letter-spacing:.19em;color:#ead29a}.brand-sub{font-size:9px;letter-spacing:.14em;color:#988db6;text-transform:uppercase;margin-top:3px}.demo-chip{font-size:8px;letter-spacing:.13em;border:1px solid rgba(223,183,108,.4);color:#d8b76e;border-radius:20px;padding:6px 9px}
+        .portal-main{max-width:760px;margin:0 auto;padding:36px 0 30px;min-height:calc(100vh - 155px)}.portal-eyebrow,.portal-topline span,.step-meta{font-size:9px;letter-spacing:.2em;color:#b69b65;font-weight:800}.portal-title{font-size:clamp(27px,6vw,42px);line-height:1.08;margin:13px 0;color:#f2e9d3;letter-spacing:-.04em}.portal-lead,.section-copy{font-size:13px;line-height:1.7;color:#aaa5bc;max-width:520px}.destination-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:30px}.destination-card{min-height:190px;text-align:left;padding:18px 15px;border:1px solid rgba(169,143,220,.2);border-radius:15px;background:linear-gradient(145deg,rgba(35,30,62,.88),rgba(14,19,36,.94));display:flex;flex-direction:column;align-items:flex-start;color:#eee;transition:.2s}.destination-card:hover{border-color:rgba(223,183,108,.65);transform:translateY(-2px)}.dest-icon{font-size:23px;color:#e2c47d;margin-bottom:17px}.dest-title{font-weight:800;font-size:14px;color:#f1dfb5}.dest-desc{font-size:11px;line-height:1.55;color:#a9a2ba;margin-top:8px}.dest-action{font-size:10px;color:#d8b76e;margin-top:auto;padding-top:17px;letter-spacing:.05em}.dest-action b{margin-left:8px}.portal-note{margin-top:18px;padding:13px 15px;border-left:2px solid #c4a25f;background:rgba(207,172,101,.06);font-size:11px;color:#aaa4b8;line-height:1.6}.portal-note strong{color:#e4c783}.portal-view{display:none}.portal-view.active{display:block}.portal-topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.text-back,.text-link{background:none;border:0;color:#c9ad72;font-size:11px;padding:4px 0}.section-title{font-size:26px;line-height:1.15;color:#f0dfb7;margin:0 0 8px;font-weight:800}.portal-panel{border:1px solid rgba(162,137,207,.2);background:rgba(21,23,43,.68);border-radius:13px;margin:10px 0;overflow:hidden}.expand-head{width:100%;background:transparent;color:#eee;text-align:left;display:flex;align-items:center;justify-content:space-between;padding:15px 16px}.expand-head span:first-child{display:flex;flex-direction:column;gap:4px}.expand-head small{font-size:8px;letter-spacing:.17em;color:#b59a67}.expand-head b{font-size:13px;color:#e9dfc7}.expand-head>span:last-child{font-size:18px;color:#c9a95f}.expand-body{display:none;padding:0 16px 16px;font-size:12px;line-height:1.75;color:#bbb5c9}.expand-body.open{display:block}.small-caveat{font-size:10px;color:#938ba4;line-height:1.6;margin-top:12px}.number-list{padding-left:20px;line-height:1.95}.faq-category{border-top:1px solid rgba(170,145,213,.13);padding:8px 0}.faq-category>button{width:100%;text-align:left;background:none;color:#e6d6b3;font-size:11px;padding:5px 0}.faq-answers{display:none;color:#b9b2c8;font-size:11px;line-height:1.7;padding:8px 0}.faq-answers.open{display:block}.primary-action,.secondary-action{border-radius:10px;padding:12px 17px;font-size:11px;font-weight:800;letter-spacing:.04em}.primary-action{background:linear-gradient(135deg,#f0d48c,#c49b52);color:#171321;box-shadow:0 5px 20px rgba(192,151,75,.15)}.secondary-action{background:#17192c;border:1px solid rgba(178,153,211,.22);color:#c3bbd0}.primary-action.full{width:100%;margin-top:17px}.onboard-progress{height:3px;background:#25223a;border-radius:5px;overflow:hidden;margin-bottom:10px}.onboard-progress>div{height:100%;width:12.5%;background:#d9b96f;transition:width .2s}.step-meta{margin-bottom:18px}.onboard-copy{font-size:13px;line-height:1.8;color:#c3bdce;margin-top:18px}.onboard-extra{margin-top:18px;padding:15px;border:1px solid rgba(178,153,211,.2);border-radius:12px;background:rgba(23,24,45,.55);font-size:11px;line-height:1.7;color:#c7bfd2}.onboard-actions{display:flex;justify-content:space-between;gap:12px;margin-top:25px}.onboard-actions button{min-width:105px}.gate-panel{padding:18px}.gate-panel label{display:block;color:#b9a06c;font-size:9px;letter-spacing:.14em;margin-bottom:14px}.gate-panel input{display:block;width:100%;margin-top:7px;background:#090d19;border:1px solid rgba(169,143,220,.3);border-radius:8px;padding:12px;color:#f4e9d0;font-size:12px;outline:none}.form-message{font-size:11px;color:#e8b6a3;margin-top:10px;min-height:15px}.archive-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0 8px}.archive-tile{padding:15px;border:1px solid rgba(190,159,103,.27);border-radius:12px;background:#17192c;color:#d8bd80;text-align:left;display:flex;flex-direction:column;gap:6px}.archive-tile b{font-size:13px;color:#eee2c7}.archive-tile small{font-size:9px;color:#9c94aa}.function-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:22px}.function-grid button{padding:14px 8px;border:1px solid rgba(169,143,220,.22);border-radius:11px;background:rgba(25,26,48,.8);display:flex;flex-direction:column;align-items:center;gap:6px;color:#d7bb7d}.function-grid button span{font-size:21px}.function-grid button b{font-size:11px;color:#f0e5ce}.function-grid button small{font-size:9px;color:#a9a1b9}.service-strip{display:flex;justify-content:space-between;gap:5px;margin:15px 0;padding:11px 7px;border-top:1px solid rgba(169,143,220,.15);border-bottom:1px solid rgba(169,143,220,.15);font-size:9px;color:#b8a77d}.portal-footer{max-width:760px;margin:auto;border-top:1px solid rgba(223,183,108,.16);padding:17px 0 10px;display:flex;justify-content:center;gap:9px;flex-wrap:wrap;font-size:8px;letter-spacing:.11em;color:#9c91a9}.portal-footer i{font-style:normal;color:#685b79}.demo-disclaimer{text-align:center;font-size:8px;letter-spacing:.08em;color:#81798e;padding:0 0 14px}.store-lobby-return{position:fixed;bottom:16px;right:14px;z-index:60}.store-lobby-return button{border:1px solid rgba(223,183,108,.45);border-radius:22px;background:#151326;color:#e5c77d;padding:10px 14px;font-size:10px;box-shadow:0 4px 18px #0008}.portal-shell button:focus-visible{outline:2px solid #e1c17a;outline-offset:3px}
+        @media(max-width:620px){.portal-shell{padding-left:15px;padding-right:15px}.portal-header{padding-top:17px}.portal-main{padding-top:28px;min-height:calc(100vh - 145px)}.destination-grid{grid-template-columns:1fr;gap:9px;margin-top:22px}.destination-card{min-height:unset;display:grid;grid-template-columns:32px 1fr;column-gap:10px;padding:14px}.dest-icon{grid-row:1/4;margin:2px 0 0;font-size:20px}.dest-title{font-size:13px}.dest-desc{margin-top:3px}.dest-action{grid-column:2;padding-top:8px}.portal-title{font-size:30px}.section-title{font-size:23px}.function-grid button{padding:12px 4px}.service-strip{font-size:8px}}
+
+    </style>
 </head>
 <body class="flex flex-col min-h-screen justify-between pb-16 md:pb-0">
 
+    <!-- CELESTIAL LOBBY PORTAL: the three customer destinations -->
+    <div id="portal-app" class="portal-shell">
+      <header class="portal-header">
+        <div class="portal-brand"><div class="brand-orbit">✦</div><div><div class="brand-name">CELESTIAL LOBBY</div><div class="brand-sub">A private client environment</div></div></div>
+        <div class="demo-chip">DEMO ENVIRONMENT</div>
+      </header>
+      <main class="portal-main">
+        <section id="portal-landing" class="portal-view active">
+          <div class="portal-eyebrow">WELCOME TO THE LOBBY</div>
+          <h1 class="portal-title">Choose your destination.</h1>
+          <p class="portal-lead">Explore the public environment or continue through your client access route.</p>
+          <div class="destination-grid">
+            <button class="destination-card" onclick="Portal.open('guest')"><span class="dest-icon">◈</span><span class="dest-title">Guest Environment</span><span class="dest-desc">Explore Celestial Lobby, standards, policies and FAQs.</span><span class="dest-action">Explore <b>↗</b></span></button>
+            <button class="destination-card" onclick="Portal.startOnboarding()"><span class="dest-icon">✧</span><span class="dest-title">New Client</span><span class="dest-desc">Review the client journey and prepare for your first order.</span><span class="dest-action">Begin onboarding <b>↗</b></span></button>
+            <button class="destination-card" onclick="Portal.open('regular-gate')"><span class="dest-icon">⌑</span><span class="dest-title">Regular Client</span><span class="dest-desc">Enter with your Access ID and APG code.</span><span class="dest-action">Access portal <b>↗</b></span></button>
+          </div>
+          <div class="portal-note"><strong>Access Gate</strong> is the shared verification mechanism behind client access. It is not a separate destination.</div>
+        </section>
 
-<section id="celestial-portal">
- <div id="portal-home">
-  <div class="portal-kicker">The gateway is open</div><h2>Choose your destination.</h2>
-  <p>A unified Celestial Lobby: discover the public environment, begin your first ascension, or enter your regular client space. The Access Gate works behind these routes; it is not a fourth destination.</p>
-  <div class="portal-grid">
-   <button class="portal-tile" onclick="portalShow('guest')"><small>01 / PUBLIC ACCESS</small><b>GUEST ENVIRONMENT</b><small>Explore the Lobby and public information.</small></button>
-   <button class="portal-tile" onclick="portalShow('onboarding')"><small>02 / FIRST ASCENSION</small><b>NEW CLIENT</b><small>Complete the guided introduction.</small></button>
-   <button class="portal-tile" onclick="portalShow('regular')"><small>03 / CLIENT ACCESS</small><b>REGULAR CLIENT</b><small>Enter using your Access ID and APG code.</small></button>
-  </div>
-  <p style="font-size:10px;margin-top:18px">DEMO PREVIEW — Access checks, payment verification, order records, and browser storage are simulated. Do not use real customer or payment information.</p>
- </div>
- <div id="portal-guest" class="portal-hidden">
-  <button class="portal-secondary" onclick="portalShow('home')">← Destinations</button>
-  <div class="portal-kicker" style="margin-top:20px">Public environment</div><h2>Welcome to the Lobby.</h2><p>Explore the public-facing information before entering the client environment.</p>
-  <div class="portal-grid">
-   <button class="portal-tile" onclick="portalExpand('guest-detail','The Celestials','The Celestial Archive will contain the realm information and lore supplied by the owner.')"><b>THE CELESTIALS</b><small>Celestial archive</small></button>
-   <button class="portal-tile" onclick="portalExpand('guest-detail','The Founders','Four Founder profiles. Biographies and source material will be supplied by the owner.')"><b>THE FOUNDERS</b><small>Founders archive</small></button>
-   <button class="portal-tile" onclick="portalExpand('guest-detail','The 3S','Security · Secrecy · Safety. Review the standards that guide the client experience.')"><b>THE 3S</b><small>Security · Secrecy · Safety</small></button>
-   <button class="portal-tile" onclick="portalExpand('guest-detail','The 10 Non-Negotiables','The customer standards and non-negotiable policies will be presented here.')"><b>THE 10 NON-NEGOTIABLES</b><small>Customer standards</small></button>
-   <button class="portal-tile" onclick="portalExpand('guest-detail','Frequently Asked Questions','Answers about the business, orders, availability, pricing, packaging, delivery, and customer support.')"><b>FREQUENTLY ASKED QUESTIONS</b><small>Customer information</small></button>
-   <button class="portal-tile" onclick="portalExpand('guest-detail','Behind the Scenes','Celestial Lab · Celestial Fleet · Celestial Inspectors. High-level introductions only.')"><b>BEHIND THE SCENES</b><small>Our divisions</small></button>
-  </div>
-  <div id="guest-detail" class="portal-panel portal-hidden" style="margin-top:14px"></div>
-  <div class="portal-foot"><a href="#terms">TERMS & CONDITIONS</a><a href="#privacy">DATA PRIVACY</a><a href="#infosec">INFORMATION SECURITY</a></div>
- </div>
- <div id="portal-onboarding" class="portal-hidden">
-  <button class="portal-secondary" onclick="portalShow('home')">← Destinations</button>
-  <div class="portal-kicker" style="margin-top:20px">New client · first ascension</div><h2>Your introduction to Celestial Lobby.</h2>
-  <div class="portal-panel"><div class="portal-step" id="onboard-label">STEP 1 OF 8 · ABOUT US</div><div class="portal-progress"><span id="onboard-progress"></span></div>
-   <h3 id="onboard-title" style="font-size:20px;color:#f0cf87;font-weight:800">About Us</h3><p id="onboard-copy">Understand why Celestial Lobby exists and the experience we aim to provide.</p>
-   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="portal-btn" onclick="portalNextOnboarding()">I understand — continue</button><button class="portal-secondary" onclick="portalShow('home')">Leave for now</button></div>
-  </div>
- </div>
- <div id="portal-regular" class="portal-hidden">
-  <button class="portal-secondary" onclick="portalShow('home')">← Destinations</button>
-  <div class="portal-kicker" style="margin-top:20px">Regular client · shared access gate</div><h2>Identify your access.</h2>
-  <div class="portal-panel">
-   <label style="display:block;color:#b9c0d2;font-size:12px;margin:10px 0">ACCESS ID<input id="portal-access-id" placeholder="Enter your Access ID" style="display:block;width:100%;padding:12px;margin-top:6px;border-radius:8px;background:#090817;border:1px solid #493d68;color:white"></label>
-   <label style="display:block;color:#b9c0d2;font-size:12px;margin:10px 0">APG CODE<input id="portal-apg" type="password" placeholder="Enter your APG code" style="display:block;width:100%;padding:12px;margin-top:6px;border-radius:8px;background:#090817;border:1px solid #493d68;color:white"></label>
-   <p style="font-size:10px">Demo access only. This prototype does not validate credentials against a secure server.</p>
-   <button class="portal-btn" onclick="portalEnterStore()">Continue to client environment · Demo</button>
-  </div>
- </div>
-</section>
+        <section id="portal-guest" class="portal-view">
+          <div class="portal-topline"><button class="text-back" onclick="Portal.home()">← Lobby</button><span>PUBLIC ENVIRONMENT</span></div>
+          <h2 class="section-title">Guest Environment</h2><p class="section-copy">A concise introduction to the Celestial Lobby experience.</p>
+          <div class="portal-panel"><button class="expand-head" onclick="Portal.toggle('guest-celestials')"><span><small>ARCHIVE</small><b>The Celestials</b></span><span>＋</span></button><div id="guest-celestials" class="expand-body">The Celestial Archive is reserved for the story and realm details supplied by the owner. Its full archive will be added when the official lore is provided.</div></div>
+          <div class="portal-panel"><button class="expand-head" onclick="Portal.toggle('guest-founders')"><span><small>ARCHIVE</small><b>The Founders</b></span><span>＋</span></button><div id="guest-founders" class="expand-body">The Founders Archive will contain four founder profiles. The biographies are intentionally left for the owner's source material.</div></div>
+          <div class="portal-panel"><button class="expand-head" onclick="Portal.toggle('guest-3s')"><span><small>OUR COMMITMENT</small><b>The 3S Standards</b></span><span>＋</span></button><div id="guest-3s" class="expand-body"><b>Security</b> — appropriate access controls and protection of client information.<br><br><b>Secrecy</b> — information is limited to authorized purposes and retained only as necessary.<br><br><b>Safety</b> — orders are intended to be checked, packaged appropriately and handled through documented quality procedures.<p class="small-caveat">Actual safeguards depend on the systems and procedures in operation. This demo does not provide encryption or guaranteed deletion.</p></div></div>
+          <div class="portal-panel"><button class="expand-head" onclick="Portal.toggle('guest-10n')"><span><small>CLIENT STANDARDS</small><b>The 10 Non-Negotiables</b></span><span>＋</span></button><div id="guest-10n" class="expand-body"><ol class="number-list"><li>No COD</li><li>No Meet Ups</li><li>No Refunds*</li><li>No Rush Orders</li><li>No Spamming</li><li>No Rudeness</li><li>No Nosy Probes</li><li>No Nuisance</li><li>No Threats</li><li>No Bogus Transactions</li></ol><p class="small-caveat">*Policy wording and exceptions require review against applicable consumer law. Statutory customer rights are not removed by this demo.</p></div></div>
+          <div class="portal-panel"><button class="expand-head" onclick="Portal.toggle('guest-bts')"><span><small>OPERATIONS</small><b>Behind the Scenes</b></span><span>＋</span></button><div id="guest-bts" class="expand-body"><b>Celestial Lab</b> — product testing and evaluation.<br><br><b>Celestial Fleet</b> — operations-side coordination.<br><br><b>Celestial Inspectors</b> — quality assurance and inspection.</div></div>
+          <div class="portal-panel"><button class="expand-head" onclick="Portal.toggle('guest-faq')"><span><small>HELP CENTRE</small><b>Frequently Asked Questions</b></span><span>＋</span></button><div id="guest-faq" class="expand-body"><div class="faq-category"><button onclick="Portal.toggle('faq-about')">01 · About Us & 3S Standards　＋</button><div id="faq-about" class="faq-answers">Where is Celestial Lobby based? — Business location details will be published when finalized.<br><br>What are the 3S Standards? — Security, Secrecy and Safety guide the intended client experience.</div></div><div class="faq-category"><button onclick="Portal.toggle('faq-orders')">02 · Orders & Processing　＋</button><div id="faq-orders" class="faq-answers">How do I order? — Review onboarding, select available items, submit order details and payment proof for manual review.<br><br>Can I request a rush order? — No. Standard processing and verification timelines apply.</div></div><div class="faq-category"><button onclick="Portal.toggle('faq-products')">03 · Products & Availability　＋</button><div id="faq-products" class="faq-answers">Are all items always available? — Availability and current pricing must be confirmed in the authorized store environment.</div></div><div class="faq-category"><button onclick="Portal.toggle('faq-payments')">04 · Pricing & Payments　＋</button><div id="faq-payments" class="faq-answers">Is COD available? — No. Payment is reviewed manually before order confirmation in this prototype.</div></div><div class="faq-category"><button onclick="Portal.toggle('faq-packaging')">05 · Packaging　＋</button><div id="faq-packaging" class="faq-answers">Are packaging fees included? — Any applicable packaging fee should be disclosed before the customer commits.</div></div><div class="faq-category"><button onclick="Portal.toggle('faq-delivery')">06 · Delivery & Fulfillment　＋</button><div id="faq-delivery" class="faq-answers">What fulfillment methods are available? — Delivery, pickup or drop-off, subject to confirmation. Meet-ups are not offered.</div></div><div class="faq-category"><button onclick="Portal.toggle('faq-support')">07 · Customer Support & Resolutions　＋</button><div id="faq-support" class="faq-answers">How can I raise a concern? — Contact the support channel published by Celestial Lobby. Email: ecelestiallobby@gmail.com (confirm before production use).</div></div></div></div>
+          <div class="portal-panel"><button class="expand-head" onclick="Portal.toggle('guest-info')"><span><small>INFORMATION</small><b>Terms · Data Privacy · InfoSec</b></span><span>＋</span></button><div id="guest-info" class="expand-body"><b>Terms & Conditions</b><p>Customer-facing terms are a working draft and must be finalized before launch.</p><b>Data Privacy</b><p>This prototype stores entered information in this browser only. Do not enter real customer or sensitive information.</p><b>Information Security</b><p>This static GitHub Pages demo has no secure server-side authentication or database access control.</p></div></div>
+          <button class="primary-action full" onclick="Portal.open('regular-gate')">Continue to Client Access</button>
+        </section>
 
-    <div id="store-app">
+        <section id="portal-onboarding" class="portal-view">
+          <div class="portal-topline"><button class="text-back" onclick="Portal.home()">← Lobby</button><span>NEW CLIENT JOURNEY</span></div>
+          <div class="onboard-progress"><div id="onboard-progress-fill"></div></div><div class="step-meta" id="onboard-step-meta">STEP 1 OF 8</div>
+          <h2 class="section-title" id="onboard-title">About Us</h2><div class="onboard-copy" id="onboard-copy"></div>
+          <div id="onboard-extra" class="onboard-extra"></div>
+          <div class="onboard-actions"><button class="secondary-action" id="onboard-back" onclick="Portal.onboard(-1)" disabled>Back</button><button class="primary-action" id="onboard-next" onclick="Portal.onboard(1)">Continue</button></div>
+        </section>
+
+        <section id="portal-regular-gate" class="portal-view">
+          <div class="portal-topline"><button class="text-back" onclick="Portal.home()">← Lobby</button><span>CLIENT ACCESS GATE</span></div>
+          <h2 class="section-title">Regular Client</h2><p class="section-copy">Enter your system-generated identifiers to continue.</p>
+          <div class="portal-panel gate-panel"><label>ACCESS ID<input id="gate-access-id" autocomplete="off" placeholder="Enter Access ID"></label><label>APG CODE<input id="gate-apg" autocomplete="off" placeholder="Enter APG code"></label><button class="primary-action full" onclick="Portal.verifyAccess()">Verify & Enter</button><p id="gate-message" class="form-message"></p><p class="small-caveat">Demo note: this gate only compares values saved in this browser. It is not secure authentication.</p></div>
+          <button class="text-link" onclick="Portal.startOnboarding()">New here? Begin New Client onboarding</button>
+        </section>
+
+        <section id="portal-regular-home" class="portal-view">
+          <div class="portal-topline"><button class="text-back" onclick="Portal.home()">← Lobby</button><span>REGULAR CLIENT ENVIRONMENT</span></div>
+          <h2 class="section-title">Client Dashboard</h2>
+          <div class="archive-grid"><button class="archive-tile" onclick="Portal.toggle('regular-celestials')">✦ <b>Celestials</b><small>Archive</small></button><button class="archive-tile" onclick="Portal.toggle('regular-founders')">✧ <b>Founders</b><small>Archive</small></button></div>
+          <div id="regular-celestials" class="expand-body">Celestial Archive content will be added from the official lore supplied by the owner.</div><div id="regular-founders" class="expand-body">Four Founder profiles are planned. Source biographies are pending.</div>
+          <div class="function-grid"><button onclick="Portal.enterStore()"><span>◈</span><b>Store</b><small>Browse & order</small></button><button onclick="Portal.showTracker()"><span>⌁</span><b>Order Tracker</b><small>Find an order</small></button><button onclick="Portal.showHistory()"><span>▤</span><b>Order History</b><small>Saved on device</small></button></div>
+          <div class="service-strip"><span>Quotation</span><span>Canvass</span><span>Personalize</span><span>Promotions</span></div>
+          <div id="client-order-panel" class="portal-panel hidden"></div>
+          <button class="text-back" onclick="Portal.home()">Sign out to Lobby</button>
+        </section>
+      </main>
+      <footer class="portal-footer"><span>TERMS & CONDITIONS</span><i>|</i><span>DATA PRIVACY</span><i>|</i><span>INFORMATION SECURITY</span></footer>
+      <div class="demo-disclaimer">DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.</div>
+    </div>
+
+    <div id="store-app" class="hidden"><div class="mx-auto max-w-4xl px-4 pt-3"><div class="rounded-lg border border-amber-400/30 bg-amber-950/30 p-3 text-[10px] leading-relaxed text-amber-100">DEMO ONLY — This store uses browser LocalStorage. Access codes, order records, uploaded payment images and payment status are not protected by server-side authentication. Do not enter real customer or payment information. No live payment verification or fulfillment is connected.</div></div>
+
+
     <!-- TOP HEADER / NAV BAR -->
     <header class="sticky top-0 z-40 w-full glass-card border-b border-celestial-border/30 px-4 py-3">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
@@ -207,7 +209,6 @@
 
             <!-- Header Quick Actions -->
             <div class="flex items-center space-x-3">
-                <button onclick="portalShow('home')" title="Return to Lobby" class="text-xs px-2.5 py-1.5 rounded-lg border border-purple-500/30 text-amber-200">Lobby</button>
                 <button onclick="appState.clearState()" title="Reset Demo Data" class="text-xs px-2.5 py-1.5 rounded-lg bg-red-950/40 text-red-300 border border-red-500/30 hover:bg-red-900/50 transition">
                     <i class="fa-solid fa-rotate-left mr-1"></i> Reset
                 </button>
@@ -436,44 +437,15 @@
                 <p class="text-xs text-purple-200">Choose your preferred service level and apply discounts.</p>
             </div>
 
-            <!-- Special Handling Cards -->
-            <div class="space-y-3">
-                <div onclick="appState.toggleHandling('priority')" id="handling-card-priority" class="glass-card p-4 rounded-xl cursor-pointer border transition flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center border border-amber-400/30">
-                            <i class="fa-solid fa-crown text-lg"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-white text-sm">Priority Delivery</h4>
-                            <p class="text-[11px] text-purple-300">(Go Rush Priority)</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <span class="font-bold text-amber-300 text-sm">₱250</span>
-                        <div id="radio-priority" class="w-5 h-5 rounded-full border border-amber-400 flex items-center justify-center text-amber-300">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
-                    </div>
+            <!-- Standard Processing: expedited services are not offered under the No Rush Orders policy -->
+            <div class="glass-card p-4 rounded-xl border border-amber-400/30 flex items-center justify-between" id="handling-card-priority">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-amber-500/15 text-amber-300 flex items-center justify-center border border-amber-400/30"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div><h4 class="font-bold text-white text-sm">Standard Processing</h4><p class="text-[11px] text-purple-300">Orders follow the regular verification and preparation queue. Rush handling is not available.</p></div>
                 </div>
-
-                <div onclick="appState.toggleHandling('express')" id="handling-card-express" class="glass-card p-4 rounded-xl cursor-pointer border transition flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center border border-purple-400/30">
-                            <i class="fa-solid fa-stopwatch text-lg"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-white text-sm">30-Minute Go Rush</h4>
-                            <p class="text-[11px] text-purple-300">Ultra-fast priority dispatch</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <span class="font-bold text-amber-300 text-sm">₱500</span>
-                        <div id="radio-express" class="w-5 h-5 rounded-full border border-purple-400/50 flex items-center justify-center text-transparent">
-                            <i class="fa-solid fa-check text-xs"></i>
-                        </div>
-                    </div>
-                </div>
+                <div class="flex items-center gap-3"><span class="font-bold text-amber-300 text-sm">Included</span><div id="radio-priority" class="w-5 h-5 rounded-full border border-amber-400 flex items-center justify-center text-amber-300"><i class="fa-solid fa-check text-xs"></i></div></div>
             </div>
+            <div id="handling-card-express" class="hidden"><div id="radio-express"></div></div>
 
             <!-- Promo Code Input -->
             <div class="glass-card p-4 rounded-xl space-y-2">
@@ -489,7 +461,7 @@
             <div id="handling-notice-box" class="glass-card p-3 rounded-xl border border-indigo-500/30 flex items-start space-x-3 bg-indigo-950/30">
                 <i class="fa-solid fa-circle-info text-amber-300 text-base mt-0.5"></i>
                 <p class="text-[11px] text-purple-200 leading-relaxed">
-                    Priority service is currently selected. Guaranteed fast-track processing for your active realm server.
+                    Standard processing is selected. Orders are handled in the regular verification and preparation queue; expedited or rush processing is not offered.
                 </p>
             </div>
 
@@ -546,7 +518,7 @@
                     <label class="text-[11px] text-purple-300 block mb-1">Full Name</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-3 top-3 text-purple-400 text-xs"></i>
-                        <input type="text" id="cust-name" value="Juan Dela Cruz" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+                        <input type="text" id="cust-name" value="" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
                     </div>
                 </div>
 
@@ -554,7 +526,7 @@
                     <label class="text-[11px] text-purple-300 block mb-1">Contact Number</label>
                     <div class="relative">
                         <i class="fa-solid fa-phone absolute left-3 top-3 text-purple-400 text-xs"></i>
-                        <input type="text" id="cust-phone" value="0917 123 4567" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+                        <input type="text" id="cust-phone" value="" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
                     </div>
                 </div>
 
@@ -562,7 +534,7 @@
                     <label class="text-[11px] text-purple-300 block mb-1">Delivery Address / Destination</label>
                     <div class="relative">
                         <i class="fa-solid fa-location-dot absolute left-3 top-3 text-purple-400 text-xs"></i>
-                        <input type="text" id="cust-address" value="123 Celestial St., Davao City" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
+                        <input type="text" id="cust-address" value="" onchange="appState.saveCheckoutDetails()" class="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400">
                     </div>
                 </div>
             </div>
@@ -578,8 +550,7 @@
                         </div>
                         <span class="text-amber-300 font-bold">₱0</span>
                     </label>
-
-                    <label onclick="appState.setDeliveryMethod('Pickup')" class="flex items-center justify-between p-2.5 rounded-lg border border-purple-500/30 bg-slate-950/40 cursor-pointer hover:border-amber-400">
+<label onclick="appState.setDeliveryMethod('Pickup')" class="flex items-center justify-between p-2.5 rounded-lg border border-purple-500/30 bg-slate-950/40 cursor-pointer hover:border-amber-400">
                         <div class="flex items-center space-x-2">
                             <input type="radio" name="delivery_method" value="Pickup" class="accent-amber-400">
                             <span class="text-purple-200">Pickup</span>
@@ -794,10 +765,41 @@
             <span>No-Nos</span>
         </button>
     </nav>
-
+    <div class="store-lobby-return"><button onclick="Portal.returnToDashboard()">← Return to Lobby</button></div>
     </div><!-- /store-app -->
+
     <!-- JAVASCRIPT STATE & LOGIC ENGINE -->
     <script>
+
+        const Portal = (() => {
+          const steps = [
+            ['About Us','Celestial Lobby is a compact client environment built around clear information, transparent processes and a considered customer experience. This introduction explains how the environment is intended to work.','The complete business story and location details will be published after the owner confirms the final copy.'],
+            ['Understanding the 3S','Our 3S standards are Security, Secrecy and Safety. They describe the principles intended to guide access, privacy-conscious handling and order quality.','Security: appropriate access controls. Secrecy: information limited to authorized purposes. Safety: documented checks and careful fulfillment. This static demo does not provide encryption or guaranteed privacy.'],
+            ['The 10 Non-Negotiables','Please review the ten client standards before continuing.','1. No COD · 2. No Meet Ups · 3. No Refunds* · 4. No Rush Orders · 5. No Spamming · 6. No Rudeness · 7. No Nosy Probes · 8. No Nuisance · 9. No Threats · 10. No Bogus Transactions. *Final policy wording must preserve rights required by law.'],
+            ['Simplified Process Flow','The intended customer journey is designed to make each stage clear.','Browse available items → review selections and add-ons → review disclosed charges → submit order details → submit payment proof → wait for manual verification and confirmation → fulfillment and status updates.'],
+            ['Store Overview','The store uses a restrained celestial-stardust presentation rather than an oversized catalogue.','The original store flow is retained behind client access. Current availability and prices shown there are prototype content and must be confirmed before any real use.'],
+            ['Understanding the Calculation','Review how the estimated total is formed before you place an order.','Core items + add-ons + disclosed additional services + applicable delivery or handling charges − eligible discounts = estimated total. No hidden charge should be added after commitment.'],
+            ['Final Acknowledgment','Confirm that you have reviewed the introduction, standards, process and demo limitations.','By continuing, you acknowledge this is a prototype. The access code generated here is stored only in this browser and is not a secure account credential.'],
+            ['Purchasing Intent','Are you ready to explore the store, or would you prefer to consider your budget first?','Choose “Continue to Store” to enter the prototype, or leave onboarding and return to the Lobby.']
+          ];
+          let step=0;
+          function show(id){document.querySelectorAll('.portal-view').forEach(v=>v.classList.remove('active'));const el=document.getElementById('portal-'+id);if(el)el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+          function home(){show('landing');}
+          function open(id){show(id);}
+          function toggle(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
+          function startOnboarding(){step=0;renderStep();show('onboarding');}
+          function renderStep(){const d=steps[step];document.getElementById('onboard-step-meta').textContent=`STEP ${step+1} OF 8`;document.getElementById('onboard-progress-fill').style.width=`${(step+1)*12.5}%`;document.getElementById('onboard-title').textContent=d[0];document.getElementById('onboard-copy').textContent=d[1];document.getElementById('onboard-extra').textContent=d[2];if(step===7){document.getElementById('onboard-extra').innerHTML=d[2]+'<br><br><label><input type="radio" name="purchase-intent" value="now" checked> I am ready to explore the store</label><br><label><input type="radio" name="purchase-intent" value="later"> I will think about it first</label><p class="small-caveat">You can leave without placing an order.</p>';}document.getElementById('onboard-back').disabled=step===0;document.getElementById('onboard-next').textContent=step===7?'Continue to Store':'Continue';}
+          function onboard(delta){if(step===7&&delta>0){const intent=document.querySelector('input[name="purchase-intent"]:checked');if(intent&&intent.value==='later'){home();return;}createDemoCredentials();enterStore();return;}step=Math.max(0,Math.min(7,step+delta));renderStep();}
+          function createDemoCredentials(){let creds;try{creds=JSON.parse(localStorage.getItem('CL_DEMO_ACCESS')||'null')}catch(e){}if(!creds){const rand=(n)=>Math.random().toString(36).slice(2,2+n).toUpperCase();creds={accessId:'CL-'+rand(4)+'-'+rand(4),apg:'APG-'+rand(6)};localStorage.setItem('CL_DEMO_ACCESS',JSON.stringify(creds));}alert('Welcome on your fist ascension process\n\nDEMO ACCESS ID: '+creds.accessId+'\nDEMO APG CODE: '+creds.apg+'\n\nKeep these only for this browser demo.');}
+          function verifyAccess(){const a=document.getElementById('gate-access-id').value.trim().toUpperCase(),p=document.getElementById('gate-apg').value.trim().toUpperCase();let c;try{c=JSON.parse(localStorage.getItem('CL_DEMO_ACCESS')||'null')}catch(e){}const msg=document.getElementById('gate-message');if(c&&a===c.accessId&&p===c.apg){msg.style.color='#a8d8b0';msg.textContent='Access verified for this browser demo.';setTimeout(()=>{alert('Get ready to warp');show('regular-home');},250);}else{msg.style.color='#e8b6a3';msg.textContent='No matching demo credentials found. Complete New Client onboarding in this browser first.';}}
+          function enterStore(){document.getElementById('portal-app').classList.add('hidden');document.getElementById('store-app').classList.remove('hidden');if(window.appState)window.appState.navigateTo(1);window.scrollTo(0,0);}
+          function returnToDashboard(){document.getElementById('store-app').classList.add('hidden');document.getElementById('portal-app').classList.remove('hidden');show('regular-home');}
+          function returnToLobby(){document.getElementById('store-app').classList.add('hidden');document.getElementById('portal-app').classList.remove('hidden');home();}
+          function showTracker(){const panel=document.getElementById('client-order-panel');const id=window.appState?.state?.activeOrder?.orderId||'';panel.classList.remove('hidden');panel.innerHTML='<div class="expand-head"><b>Order Tracker</b></div><div class="expand-body open"><label style="font-size:10px;color:#cdb47b">ORDER ID<input id="tracker-id" placeholder="Enter Order ID" style="display:block;width:100%;margin-top:7px;padding:10px;background:#090d19;border:1px solid #51446e;border-radius:7px;color:#fff"></label><button class="primary-action full" onclick="Portal.lookupOrder()">Track Order</button><div id="tracker-result" class="small-caveat"></div></div>';document.getElementById('tracker-id').value='';panel.scrollIntoView({behavior:'smooth',block:'nearest'});}
+          function lookupOrder(){const val=document.getElementById('tracker-id').value.trim();const order=window.appState?.state?.activeOrder;const out=document.getElementById('tracker-result');if(order&&val===order.orderId){out.textContent='Demo order found · Status: '+(order.status||'submitted')+'. Payment and order review are simulated; no live confirmation is connected.';}else{out.textContent='NO MATCHING ORDER FOUND. Check the Order ID or contact Customer Assistance.';}}
+          function showHistory(){const panel=document.getElementById('client-order-panel');panel.classList.remove('hidden');const order=window.appState?.state?.activeOrder;panel.innerHTML='<div class="expand-head"><b>Order History</b></div><div class="expand-body open">'+(order?('<b>'+order.orderId+'</b><br>Current demo record · '+(order.status||'submitted')+'<br><span class="small-caveat">Only this browser’s local demo record is available.</span>'):'No local demo orders found.')+'</div>';panel.scrollIntoView({behavior:'smooth',block:'nearest'});}
+          return {home,open,toggle,startOnboarding,onboard,verifyAccess,enterStore,returnToDashboard,returnToLobby,showTracker,lookupOrder,showHistory};
+        })();
         /**
          * Celestial Lobby - Application Data Catalog
          */
@@ -838,13 +840,13 @@
                         lubricant: 0,
                         accessory: 0
                     },
-                    specialHandling: 'standard', // standard service only
+                    specialHandling: 'standard',
                     promoCode: '',
                     discount: 0,
                     deliveryDetails: {
-                        name: 'Juan Dela Cruz',
-                        phone: '0917 123 4567',
-                        address: '123 Celestial St., Davao City',
+                        name: '',
+                        phone: '',
+                        address: '',
                         method: 'Standard Rider Delivery'
                     },
                     activeOrder: {
@@ -995,7 +997,6 @@
                 const updateDisplay = () => {
                     const elapsed = Date.now() - startTime;
                     const remaining = Math.max(0, duration - elapsed);
-
                     const minutes = Math.floor(remaining / (1000 * 60));
                     const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
@@ -1055,7 +1056,8 @@
                 });
 
                 let handlingCost = 0;
-                let handlingName = 'Standard Service';
+                let handlingName = 'Standard Processing';
+                handlingCost = 0;
 
                 const itemsTotal = stardustSubtotal + addonsSubtotal;
                 const grandTotal = Math.max(0, itemsTotal + handlingCost - this.state.discount);
@@ -1171,7 +1173,7 @@
                 document.getElementById('extras-subtotal').textContent = `₱${calc.itemsTotal.toLocaleString()}`;
 
                 // Render Special Handling (View 5)
-                const isPriority = this.state.specialHandling === 'priority';
+                const isPriority = true;
                 document.getElementById('handling-card-priority').className = isPriority ? 
                     'glass-card p-4 rounded-xl cursor-pointer border border-amber-400/80 bg-purple-950/40 transition flex items-center justify-between' :
                     'glass-card p-4 rounded-xl cursor-pointer border border-purple-500/20 transition flex items-center justify-between opacity-70';
@@ -1230,52 +1232,9 @@
         let appState;
         window.addEventListener('DOMContentLoaded', () => {
             appState = new CelestialAppState();
+            window.appState = appState;
             appState.navigateTo(appState.state.currentStep || 1);
-        });
-        const onboardingSteps = [
-          ['About Us','Understand why Celestial Lobby exists and the experience we aim to provide.'],
-          ['Understanding the 3S','Review Security, Secrecy, and Safety before proceeding.'],
-          ['The Non-Negotiables','Review the customer standards and confirm that you understand them.'],
-          ['Simplified Process Flow','See the customer journey from browsing and order submission through review, payment, confirmation, and fulfillment.'],
-          ['Store Overview','Get an introduction to the available celestial-stardust lineup.'],
-          ['Understanding the Calculation','Core items + add-ons + additional services + disclosed delivery charges = estimated total.'],
-          ['Final Acknowledgment','Confirm that you have reviewed and understood the onboarding information.'],
-          ['Purchasing Intent','Choose whether you are ready to proceed or would prefer to consider your budget first.']
-        ];
-        let onboardingIndex = 0;
-        function portalShow(target) {
-          ['home','guest','onboarding','regular'].forEach(id => {
-            const el=document.getElementById('portal-'+id);
-            if(el) el.classList.toggle('portal-hidden',id!==target);
-          });
-          document.getElementById('celestial-portal').style.display='block';
-          document.getElementById('store-app').style.display='none';
-          window.scrollTo(0,0);
-        }
-        function portalExpand(id,title,copy) {
-          const el=document.getElementById(id);
-          el.innerHTML='<b style="color:#f0cf87">'+title+'</b><p>'+copy+'</p>';
-          el.classList.remove('portal-hidden');
-        }
-        function portalNextOnboarding() {
-          if(onboardingIndex<onboardingSteps.length-1) onboardingIndex++;
-          else { portalEnterStore(); return; }
-          const step=onboardingSteps[onboardingIndex];
-          document.getElementById('onboard-label').textContent='STEP '+(onboardingIndex+1)+' OF 8 · '+step[0].toUpperCase();
-          document.getElementById('onboard-title').textContent=step[0];
-          document.getElementById('onboard-copy').textContent=step[1];
-          document.getElementById('onboard-progress').style.width=((onboardingIndex+1)/8*100)+'%';
-          if(onboardingIndex===7) document.querySelector('#portal-onboarding .portal-btn').textContent='I am ready to enter the store';
-        }
-        function portalEnterStore() {
-          document.getElementById('celestial-portal').style.display='none';
-          document.getElementById('store-app').style.display='block';
-          if(window.appState) appState.navigateTo(1);
-          window.scrollTo(0,0);
-        }
-        window.addEventListener('DOMContentLoaded', () => {
-          document.getElementById('store-app').style.display='none';
-          portalShow('home');
+            document.getElementById('store-app').classList.add('hidden');
         });
     </script>
 </body>
