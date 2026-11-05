@@ -1,0 +1,8 @@
+{
+  "name": "Celestial Lobby",
+  "description": "Celestial Lobby — A private client portal and celestial realm store ecosystem.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
