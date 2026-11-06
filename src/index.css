@@ -565,6 +565,26 @@
   color: #685b79;
 }
 
+.portal-footer-link {
+  border: 0;
+  padding: 6px 2px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.portal-footer-link:hover,
+.portal-footer-link:focus-visible {
+  color: #e6c77f;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  outline: none;
+}
+
 .demo-disclaimer {
   text-align: center;
   font-size: 8px;
