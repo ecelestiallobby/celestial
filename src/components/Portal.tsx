@@ -11,6 +11,7 @@ interface PortalProps {
 }
 
 type PortalView = 'landing' | 'guest' | 'onboarding' | 'regular-gate' | 'regular-home';
+type GuestPage = 'home' | '3s' | 'no-nos' | 'faqs' | 'track-order';
 
 export const Portal: React.FC<PortalProps> = ({
   onEnterStore,
@@ -19,6 +20,7 @@ export const Portal: React.FC<PortalProps> = ({
   onUpdateStatus
 }) => {
   const [view, setView] = useState<PortalView>('landing');
+  const [guestPage, setGuestPage] = useState<GuestPage>('home');
   const [onboardStep, setOnboardStep] = useState(0);
   const [purchaseIntent, setPurchaseIntent] = useState<'now' | 'later'>('now');
 
@@ -179,77 +181,149 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
-        {/* GUEST VIEW */}
+        {/* GUEST ENVIRONMENT */}
         {view === 'guest' && (
           <section className="animate-fadeIn">
-            <div className="portal-topline">
-              <button className="text-back flex items-center gap-1" onClick={() => setView('landing')}>
-                ← Lobby
-              </button>
-              <span>PUBLIC ENVIRONMENT</span>
-            </div>
-            <h2 className="section-title">Guest Environment</h2>
-            <p className="section-copy">Explore the people and begin the introduction to the Celestial Lobby experience.</p>
+            <nav className="guest-nav" aria-label="Guest Environment navigation">
+              <button className={guestPage === 'home' ? 'active' : ''} onClick={() => setGuestPage('home')}>Home</button>
+              <button className={guestPage === '3s' ? 'active' : ''} onClick={() => setGuestPage('3s')}>3S</button>
+              <button className={guestPage === 'no-nos' ? 'active' : ''} onClick={() => setGuestPage('no-nos')}>No-Nos</button>
+              <button className={guestPage === 'faqs' ? 'active' : ''} onClick={() => setGuestPage('faqs')}>FAQs</button>
+              <button onClick={onEnterStore}>STORE</button>
+              <button className={guestPage === 'track-order' ? 'active' : ''} onClick={() => {
+                setGuestPage('track-order');
+                setTrackerQuery('');
+                setTrackerResult(null);
+              }}>Track Order</button>
+            </nav>
 
-            <div className="portal-panel mt-6">
-              <button className="expand-head" onClick={() => setGuestCelestialsOpen(!guestCelestialsOpen)}>
-                <span>
-                  <small>ARCHIVE</small>
-                  <b>Celestials</b>
-                </span>
-                <span>{guestCelestialsOpen ? '－' : '＋'}</span>
-              </button>
-              {guestCelestialsOpen && (
-                <div className="expand-body border-t border-purple-500/10 pt-3">
-                  The Celestial Archive is reserved for the story and realm details supplied by the owner. Its full archive will be added when the official lore is provided.
+            {guestPage === 'home' && (
+              <>
+                <div className="portal-topline">
+                  <button className="text-back" onClick={() => setView('landing')}>← Back</button>
+                  <span>PUBLIC ENVIRONMENT</span>
                 </div>
-              )}
-            </div>
+                <h2 className="section-title">Guest Environment</h2>
+                <p className="section-copy">Explore the Celestial Lobby and begin your introduction.</p>
 
-            <div className="portal-panel">
-              <button className="expand-head" onClick={() => setGuestFoundersOpen(!guestFoundersOpen)}>
-                <span>
-                  <small>ARCHIVE</small>
-                  <b>Founders</b>
-                </span>
-                <span>{guestFoundersOpen ? '－' : '＋'}</span>
-              </button>
-              {guestFoundersOpen && (
-                <div className="expand-body border-t border-purple-500/10 pt-3">
-                  The Founders Archive will contain four founder profiles. The biographies are intentionally left for the owner&apos;s source material.
+                <div className="portal-panel mt-6">
+                  <button className="expand-head" aria-expanded={guestCelestialsOpen} onClick={() => setGuestCelestialsOpen(!guestCelestialsOpen)}>
+                    <span><small>ARCHIVE</small><b>Celestials</b></span>
+                    <span>{guestCelestialsOpen ? '－' : '＋'}</span>
+                  </button>
+                  {guestCelestialsOpen && (
+                    <div className="expand-body border-t border-purple-500/10 pt-3">
+                      The Celestials archive will be expanded with the official content supplied for this section.
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="portal-panel">
-              <div className="expand-head">
-                <span>
-                  <small>INTRODUCTION</small>
-                  <b>Onboarding Session</b>
-                </span>
-                <span>→</span>
-              </div>
-              <div className="expand-body pt-0">
-                Begin the guided eight-step introduction to the Celestial Lobby, including its 3S standards, ten non-negotiables, process flow, store overview and purchasing information.
-                <br /><br />
-                <button className="primary-action" onClick={startOnboarding}>
-                  Begin Onboarding
-                </button>
-              </div>
-            </div>
+                <div className="portal-panel">
+                  <button className="expand-head" aria-expanded={guestFoundersOpen} onClick={() => setGuestFoundersOpen(!guestFoundersOpen)}>
+                    <span><small>ARCHIVE</small><b>Founders</b></span>
+                    <span>{guestFoundersOpen ? '－' : '＋'}</span>
+                  </button>
+                  {guestFoundersOpen && (
+                    <div className="expand-body border-t border-purple-500/10 pt-3">
+                      The Founders archive will be expanded with the official founder profiles supplied for this section.
+                    </div>
+                  )}
+                </div>
 
-            <div className="mt-5 flex justify-center">
-              <button
-                className="primary-action"
-                onClick={() => {
-                  setActiveHomePanel('tracker');
-                  setView('regular-gate');
-                  setGateMessage(null);
-                }}
-              >
-                Track Order <span aria-hidden="true">→</span>
-              </button>
-            </div>
+                <div className="portal-panel">
+                  <div className="expand-head">
+                    <span><small>INTRODUCTION</small><b>Onboarding Session</b></span>
+                    <span>→</span>
+                  </div>
+                  <div className="expand-body pt-0">
+                    Start the guided eight-step introduction to the Celestial Lobby.
+                    <br /><br />
+                    <button className="primary-action" onClick={startOnboarding}>Begin Onboarding</button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {guestPage === '3s' && (
+              <div className="guest-content-page">
+                <div className="portal-topline">
+                  <button className="text-back" onClick={() => setGuestPage('home')}>← Home</button>
+                  <span>GUEST ENVIRONMENT</span>
+                </div>
+                <h2 className="section-title">3S</h2>
+                <p className="section-copy">The 3S page is ready. Its detailed content can be added in the next instruction.</p>
+                <div className="portal-panel p-4">
+                  <p className="expand-body">3S information will appear here.</p>
+                </div>
+              </div>
+            )}
+
+            {guestPage === 'no-nos' && (
+              <div className="guest-content-page">
+                <div className="portal-topline">
+                  <button className="text-back" onClick={() => setGuestPage('home')}>← Home</button>
+                  <span>GUEST ENVIRONMENT</span>
+                </div>
+                <h2 className="section-title">Non-Negotiables</h2>
+                <p className="section-copy">The No-Nos page is ready. Its detailed content can be added in the next instruction.</p>
+                <div className="portal-panel p-4">
+                  <p className="expand-body">Non-negotiable information will appear here.</p>
+                </div>
+              </div>
+            )}
+
+            {guestPage === 'faqs' && (
+              <div className="guest-content-page">
+                <div className="portal-topline">
+                  <button className="text-back" onClick={() => setGuestPage('home')}>← Home</button>
+                  <span>GUEST ENVIRONMENT</span>
+                </div>
+                <h2 className="section-title">FAQs</h2>
+                <p className="section-copy">Frequently asked questions will be organized on this page. Categories and answers can be added in the next instruction.</p>
+                <div className="portal-panel p-4">
+                  <p className="expand-body">FAQ content will appear here.</p>
+                </div>
+              </div>
+            )}
+
+            {guestPage === 'track-order' && (
+              <div className="guest-content-page">
+                <div className="portal-topline">
+                  <button className="text-back" onClick={() => setGuestPage('home')}>← Home</button>
+                  <span>ORDER SERVICES</span>
+                </div>
+                <h2 className="section-title">Track Order</h2>
+                <p className="section-copy">Enter your Order ID to check its current status.</p>
+                <div className="portal-panel gate-panel mt-4">
+                  <label>
+                    ORDER ID
+                    <input
+                      value={trackerQuery}
+                      onChange={(e) => setTrackerQuery(e.target.value)}
+                      placeholder="Enter your Order ID"
+                      autoComplete="off"
+                      spellCheck="false"
+                    />
+                  </label>
+                  <button className="primary-action full" onClick={handleLookupOrder}>Track Order</button>
+                  {trackerResult && (
+                    <p className="form-message font-medium" style={{ color: trackerResult.found ? '#a8d8b0' : '#e8b6a3' }}>
+                      {trackerResult.message}
+                    </p>
+                  )}
+                  {trackerResult?.found && activeOrder && (
+                    <div className="mt-4 pt-4 border-t border-purple-500/20">
+                      <OrderTimeline
+                        order={activeOrder}
+                        deliveryDetails={deliveryDetails}
+                        onUpdateStatus={onUpdateStatus}
+                        onEnterStore={onEnterStore}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </section>
         )}
 
