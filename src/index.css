@@ -1097,3 +1097,239 @@ button {
 }
 
 /* Homepage footer links deployment refresh — November 2026 */
+
+
+/* CELESTIAL LOBBY — unified visual system across portal and Store */
+:root {
+  --cl-night: #080a14;
+  --cl-night-soft: #101329;
+  --cl-panel: rgba(20, 18, 41, 0.72);
+  --cl-panel-strong: rgba(14, 16, 32, 0.94);
+  --cl-purple: #8f79c7;
+  --cl-purple-soft: rgba(143, 121, 199, 0.22);
+  --cl-gold: #d8b76e;
+  --cl-gold-bright: #f0d48c;
+  --cl-ivory: #eee8d9;
+  --cl-muted: #aaa5bc;
+  --cl-line: rgba(223, 183, 108, 0.2);
+  --cl-radius: 16px;
+}
+
+html {
+  background: var(--cl-night);
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--cl-night);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(111, 77, 166, 0.2), transparent 48%),
+    radial-gradient(circle at 90% 75%, rgba(199, 112, 255, 0.08), transparent 42%),
+    linear-gradient(160deg, #080a14 0%, #0c1020 58%, #080a14 100%);
+  color: var(--cl-ivory);
+}
+
+.portal-shell,
+#root > div {
+  background-color: transparent;
+}
+
+.portal-header {
+  width: 100%;
+  max-width: 1120px;
+  min-width: 0;
+  margin: 0 auto;
+  color: var(--cl-ivory);
+  border-bottom: 1px solid var(--cl-line);
+}
+
+.portal-brand {
+  min-width: 0;
+  border-radius: 10px;
+}
+
+.portal-brand:focus-visible,
+.portal-footer-link:focus-visible,
+.store-header button:focus-visible,
+.store-footer button:focus-visible {
+  outline: 2px solid var(--cl-gold-bright);
+  outline-offset: 3px;
+}
+
+.portal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 13px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 18px auto 0;
+  padding: 18px 12px 12px;
+  border-top: 1px solid var(--cl-line);
+  color: var(--cl-muted);
+}
+
+.portal-footer-link {
+  min-height: 36px;
+  padding: 6px 3px;
+  border: 0;
+  background: transparent;
+  color: #c9b987;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.portal-footer-link:hover {
+  color: var(--cl-gold-bright);
+}
+
+.demo-disclaimer {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 8px 12px max(12px, env(safe-area-inset-bottom));
+  color: #9189a7;
+  text-align: center;
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+.store-header {
+  position: sticky;
+  top: 0;
+  margin-top: 0;
+  padding-top: max(12px, env(safe-area-inset-top));
+  background: rgba(8, 10, 20, 0.92);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.store-header .max-w-4xl,
+.store-header > div {
+  min-width: 0;
+}
+
+.store-header h1,
+.store-header h2,
+.store-header h3 {
+  color: var(--cl-gold-bright);
+}
+
+.store-header button,
+.store-header [role="button"] {
+  touch-action: manipulation;
+}
+
+.store-footer {
+  margin-top: 28px;
+  margin-bottom: 66px;
+}
+
+.store-disclaimer {
+  margin-bottom: 58px;
+}
+
+.glass-card {
+  background: var(--cl-panel);
+  border-color: rgba(143, 121, 199, 0.2);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+}
+
+.glass-card-interactive:hover {
+  border-color: rgba(216, 183, 110, 0.48);
+}
+
+.portal-panel,
+.destination-card {
+  border-color: rgba(143, 121, 199, 0.24);
+}
+
+.destination-card,
+.portal-panel {
+  background-color: var(--cl-panel);
+}
+
+.btn-gold,
+.primary-action {
+  background-image: linear-gradient(135deg, #f0d48c 0%, #c79d50 100%);
+  color: #11101a;
+}
+
+button,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.store-header .step-btn {
+  min-height: 38px;
+  white-space: nowrap;
+}
+
+.store-header .max-w-4xl.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(216, 183, 110, 0.35) transparent;
+}
+
+@media (max-width: 620px) {
+  .portal-footer {
+    gap: 4px 9px;
+    padding-top: 14px;
+  }
+
+  .portal-footer-link {
+    min-height: 40px;
+    font-size: 10px;
+  }
+
+  .portal-footer > i {
+    opacity: 0.35;
+  }
+
+  .store-header {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .store-header .max-w-4xl:first-child {
+    gap: 8px;
+  }
+
+  .store-header .brand-name,
+  .store-header h1 {
+    letter-spacing: 0.1em;
+    font-size: clamp(10px, 3vw, 14px);
+  }
+
+  .store-header .step-btn {
+    font-size: 10px;
+  }
+
+  .store-footer {
+    margin-bottom: 72px;
+  }
+
+  .store-disclaimer {
+    margin-bottom: 68px;
+  }
+}
+
+@media (min-width: 900px) {
+  .portal-shell {
+    padding-left: max(28px, env(safe-area-inset-left));
+    padding-right: max(28px, env(safe-area-inset-right));
+  }
+
+  .portal-main {
+    max-width: 1120px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card-interactive,
+  .portal-footer-link {
+    transition: none;
+  }
+}
