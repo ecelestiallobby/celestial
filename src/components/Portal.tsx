@@ -70,7 +70,7 @@ export const Portal: React.FC<PortalProps> = ({
     const saved = readOnboardingRecord();
     if (saved?.status === 'restricted' && saved.restrictionUntil && Date.now() < saved.restrictionUntil) { setOnboardingRecord(saved); setRestrictionReason(saved.restrictionReason); setView('restriction'); return; }
     const step = saved && saved.status !== 'completed' ? Math.max(0, Math.min(7, saved.step)) : 0;
-    const record: OnboardingRecord = saved && saved.status !== 'completed' ? { ...saved, status: 'in-progress', restrictionUntil: null } : { status: 'in-progress', step: 0, startedAt: Date.now(), restrictionUntil: null, restrictionReason: '', termsAccepted: false, helpUsed: false };
+    const record: OnboardingRecord = saved && saved.status !== 'completed' ? { ...saved, status: 'in-progress', startedAt: Date.now(), restrictionUntil: null } : { status: 'in-progress', step: 0, startedAt: Date.now(), restrictionUntil: null, restrictionReason: '', termsAccepted: false, helpUsed: false };
     persistOnboarding(record); setOnboardStep(step); setPurchaseIntent('now'); setShowExitWarning(false); setView('onboarding'); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

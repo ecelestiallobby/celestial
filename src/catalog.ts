@@ -33,9 +33,9 @@ export const ONBOARDING_STEPS = [
     extra: 'Security: appropriate access controls. Secrecy: information limited to authorized purposes. Safety: documented checks and careful fulfillment. This static demo does not provide encryption or guaranteed privacy.'
   },
   {
-    title: 'The 10 Non-Negotiables',
-    copy: 'Please review the ten client standards before continuing.',
-    extra: '1. No COD · 2. No Meet Ups · 3. No Refunds* · 4. No Rush Orders · 5. No Spamming · 6. No Rudeness · 7. No Nosy Probes · 8. No Nuisance · 9. No Threats · 10. No Bogus Transactions. *Final policy wording must preserve rights required by law.'
+    title: 'Understanding the No-Nos',
+    copy: 'Please review the official No-Nos information before continuing.',
+    extra: 'The official No-Nos content will be displayed here once confirmed by the owner. Please consult the Guest Environment No-Nos page for the currently approved guidance.'
   },
   {
     title: 'Simplified Process Flow',
@@ -55,11 +55,11 @@ export const ONBOARDING_STEPS = [
   {
     title: 'Final Acknowledgment',
     copy: 'Confirm that you have reviewed the introduction, standards, process and demo limitations.',
-    extra: 'By continuing, you acknowledge this is a prototype. The access code generated here is stored only in this browser and is not a secure account credential.'
+    extra: 'Completing onboarding does not generate an Access ID or APG, create a Regular Client account, or approve account access.'
   },
   {
     title: 'Purchasing Intent',
     copy: 'Are you ready to explore the store, or would you prefer to consider your budget first?',
-    extra: 'Choose “Continue to Store” to enter the prototype, or leave onboarding and return to the Lobby.'
+    extra: 'Choose “I am ready to explore the store” to proceed to the final Terms and Policies review. Choosing to wait will pause the journey and activate the 24-hour viewing-only restriction.'
   }
 ];
