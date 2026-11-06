@@ -4,6 +4,7 @@ import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
 
 interface PortalProps {
+  initialView?: 'landing' | 'terms' | 'privacy' | 'info-sec' | 'contact';
   onEnterStore: () => void;
   activeOrder: ActiveOrder;
   deliveryDetails?: DeliveryDetails;
@@ -20,12 +21,13 @@ const readOnboardingRecord = (): OnboardingRecord | null => { try { const raw = 
 type GuestPage = 'home' | '3s' | 'no-nos' | 'faqs' | 'track-order';
 
 export const Portal: React.FC<PortalProps> = ({
+  initialView = 'landing',
   onEnterStore,
   activeOrder,
   deliveryDetails,
   onUpdateStatus
 }) => {
-  const [view, setView] = useState<PortalView>('landing');
+  const [view, setView] = useState<PortalView>(initialView);
   const [guestPage, setGuestPage] = useState<GuestPage>('home');
   const [onboardStep, setOnboardStep] = useState(0);
   const [purchaseIntent, setPurchaseIntent] = useState<'now' | 'later'>('now');
@@ -76,6 +78,14 @@ export const Portal: React.FC<PortalProps> = ({
 
   const requestOnboardingExit = () => setShowExitWarning(true);
   const confirmOnboardingExit = () => applyOnboardingRestriction('You chose to leave or navigate away while onboarding was active.');
+  const isOnboardingActive = view === 'onboarding' || view === 'onboarding-terms';
+  const handleChromeNavigation = (destination: PortalView) => {
+    if (isOnboardingActive) {
+      requestOnboardingExit();
+      return;
+    }
+    setView(destination);
+  };
 
   useEffect(() => {
     const saved = readOnboardingRecord();
@@ -168,8 +178,8 @@ export const Portal: React.FC<PortalProps> = ({
   return (
     <div className="portal-shell min-h-screen flex flex-col justify-between">
       {/* Top Header */}
-      <header className={`portal-header ${view === 'onboarding' || view === 'onboarding-terms' ? 'hidden' : ''}`}>
-        <div className="portal-brand cursor-pointer" onClick={() => setView('landing')}>
+      <header className="portal-header">
+        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} onClick={() => handleChromeNavigation('landing')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') handleChromeNavigation('landing'); }}>
           <div className="brand-orbit">✦</div>
           <div>
             <div className="brand-name">CELESTIAL LOBBY</div>
@@ -784,14 +794,14 @@ export const Portal: React.FC<PortalProps> = ({
       </main>
 
       {/* Footer */}
-      <footer className={`portal-footer ${view === 'onboarding' || view === 'onboarding-terms' ? 'hidden' : ''}`} aria-label="Legal and contact links">
-        <button type="button" className="portal-footer-link" onClick={() => setView('terms')}>Terms and Conditions</button>
+      <footer className="portal-footer" aria-label="Legal and contact links">
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>Terms and Conditions</button>
         <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => setView('privacy')}>Data and Privacy</button>
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>Data and Privacy</button>
         <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => setView('info-sec')}>Info Sec</button>
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>Info Sec</button>
         <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => setView('contact')}>Contact Us</button>
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('contact')}>Contact Us</button>
       </footer>
       <div className={`demo-disclaimer ${view === 'onboarding' || view === 'onboarding-terms' ? 'hidden' : ''}`}>
         DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.
