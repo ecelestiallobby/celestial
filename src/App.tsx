@@ -35,6 +35,7 @@ const DEFAULT_STATE: CelestialState = {
 
 export const App: React.FC = () => {
   const [mode, setMode] = useState<'portal' | 'store'>('portal');
+  const [portalStartView, setPortalStartView] = useState<'landing' | 'terms' | 'privacy' | 'info-sec' | 'contact'>('landing');
 
   const [state, setState] = useState<CelestialState>(() => {
     try {
@@ -67,6 +68,7 @@ export const App: React.FC = () => {
     <div className="min-h-screen text-slate-100 bg-[#05040a]">
       {mode === 'portal' ? (
         <Portal
+          initialView={portalStartView}
           activeOrder={state.activeOrder}
           deliveryDetails={state.deliveryDetails}
           onUpdateStatus={(newStatus) => {
@@ -88,6 +90,12 @@ export const App: React.FC = () => {
           state={state}
           setState={setState}
           onReturnToLobby={() => {
+            setPortalStartView('landing');
+            setMode('portal');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onOpenPortalPage={(page) => {
+            setPortalStartView(page);
             setMode('portal');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
