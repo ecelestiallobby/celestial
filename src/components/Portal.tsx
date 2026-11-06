@@ -10,7 +10,7 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'guest' | 'onboarding' | 'regular-gate' | 'regular-home';
+type PortalView = 'landing' | 'guest' | 'onboarding' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact';
 type GuestPage = 'home' | '3s' | 'no-nos' | 'faqs' | 'track-order';
 
 export const Portal: React.FC<PortalProps> = ({
@@ -696,15 +696,66 @@ export const Portal: React.FC<PortalProps> = ({
             </div>
           </section>
         )}
+        {/* HOMEPAGE FOOTNOTE PAGES */}
+        {view === 'terms' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline">
+              <button className="text-back" onClick={() => setView('landing')}>← Homepage</button>
+              <span>CELESTIAL LOBBY</span>
+            </div>
+            <h2 className="section-title">Terms and Conditions</h2>
+            <p className="section-copy">The official Terms and Conditions page. Its governing terms and full content will be published here.</p>
+            <div className="portal-panel p-4"><p className="expand-body">Terms and Conditions content is pending publication.</p></div>
+          </section>
+        )}
+
+        {view === 'privacy' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline">
+              <button className="text-back" onClick={() => setView('landing')}>← Homepage</button>
+              <span>CELESTIAL LOBBY</span>
+            </div>
+            <h2 className="section-title">Data and Privacy</h2>
+            <p className="section-copy">Information about data handling, privacy practices, and client information will be provided on this page.</p>
+            <div className="portal-panel p-4"><p className="expand-body">Data and Privacy content is pending publication.</p></div>
+          </section>
+        )}
+
+        {view === 'info-sec' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline">
+              <button className="text-back" onClick={() => setView('landing')}>← Homepage</button>
+              <span>CELESTIAL LOBBY</span>
+            </div>
+            <h2 className="section-title">Info Sec</h2>
+            <p className="section-copy">Information Security guidance and relevant security notices will be published on this page.</p>
+            <div className="portal-panel p-4"><p className="expand-body">Information Security content is pending publication.</p></div>
+          </section>
+        )}
+
+        {view === 'contact' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline">
+              <button className="text-back" onClick={() => setView('landing')}>← Homepage</button>
+              <span>CELESTIAL LOBBY</span>
+            </div>
+            <h2 className="section-title">Contact Us</h2>
+            <p className="section-copy">Official contact channels and customer assistance information will be listed here.</p>
+            <div className="portal-panel p-4"><p className="expand-body">Contact details are pending publication.</p></div>
+          </section>
+        )}
+
       </main>
 
       {/* Footer */}
-      <footer className="portal-footer">
-        <span>TERMS &amp; CONDITIONS</span>
-        <i>|</i>
-        <span>DATA PRIVACY</span>
-        <i>|</i>
-        <span>INFORMATION SECURITY</span>
+      <footer className="portal-footer" aria-label="Legal and contact links">
+        <button type="button" className="portal-footer-link" onClick={() => setView('terms')}>Terms and Conditions</button>
+        <i aria-hidden="true">|</i>
+        <button type="button" className="portal-footer-link" onClick={() => setView('privacy')}>Data and Privacy</button>
+        <i aria-hidden="true">|</i>
+        <button type="button" className="portal-footer-link" onClick={() => setView('info-sec')}>Info Sec</button>
+        <i aria-hidden="true">|</i>
+        <button type="button" className="portal-footer-link" onClick={() => setView('contact')}>Contact Us</button>
       </footer>
       <div className="demo-disclaimer">
         DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.
