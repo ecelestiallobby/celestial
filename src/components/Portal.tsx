@@ -160,10 +160,6 @@ export const Portal: React.FC<PortalProps> = ({
         {/* LANDING VIEW */}
         {view === 'landing' && (
           <section className="animate-fadeIn">
-            <div className="portal-eyebrow">WELCOME TO THE LOBBY</div>
-            <h1 className="portal-title">Choose your destination.</h1>
-            <p className="portal-lead">Explore the public environment or continue through your client access route.</p>
-
             <div className="destination-grid">
               <button className="destination-card" onClick={() => setView('guest')}>
                 <span className="dest-icon">◈</span>
@@ -180,43 +176,6 @@ export const Portal: React.FC<PortalProps> = ({
               </button>
             </div>
 
-            <div className="portal-note">
-              <strong>Access Gate</strong> is the shared verification mechanism behind client access. It is not a separate destination.
-            </div>
-
-            {/* Active Order Quick Tracker Card on Landing */}
-            {activeOrder && activeOrder.orderId && (
-              <div className="mt-6 p-4 rounded-xl border border-amber-400/30 bg-purple-950/40 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 shadow-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-sm">
-                    ⌁
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-white font-mono">{activeOrder.orderId}</span>
-                      <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-semibold uppercase">
-                        {activeOrder.status.replace(/_/g, ' ')}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-purple-300 mt-0.5">
-                      Visual Tracking Timeline: Confirmed &bull; Processing &bull; In Transit &bull; Delivered
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setView('regular-home');
-                    setActiveHomePanel('tracker');
-                    setTrackerQuery(activeOrder.orderId);
-                    setTrackerResult({ found: true, message: `Active order ${activeOrder.orderId} loaded.` });
-                  }}
-                  className="btn-gold px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer flex items-center gap-1.5"
-                >
-                  <span>Track Order</span>
-                  <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
-              </div>
-            )}
           </section>
         )}
 
