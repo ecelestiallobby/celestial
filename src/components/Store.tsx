@@ -6,6 +6,7 @@ interface StoreProps {
   state: CelestialState;
   setState: React.Dispatch<React.SetStateAction<CelestialState>>;
   onReturnToLobby: () => void;
+  onOpenPortalPage: (page: 'terms' | 'privacy' | 'info-sec' | 'contact') => void;
   onReset: () => void;
 }
 
@@ -13,6 +14,7 @@ export const Store: React.FC<StoreProps> = ({
   state,
   setState,
   onReturnToLobby,
+  onOpenPortalPage,
   onReset
 }) => {
   const [promoInput, setPromoInput] = useState(state.promoCode || '');
@@ -172,8 +174,8 @@ export const Store: React.FC<StoreProps> = ({
         </div>
       </div>
 
-      {/* TOP HEADER / NAV BAR */}
-      <header className="sticky top-0 z-40 w-full glass-card border-b border-purple-500/20 px-4 py-3 mt-2">
+      {/* TOP HEADER / NAV BAR — shared Celestial Lobby visual identity */}
+      <header className="store-header portal-header sticky top-0 z-40 w-full glass-card border-b border-purple-500/20 px-4 py-3 mt-2">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigateTo(1)}>
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-900 to-indigo-900 flex items-center justify-center border border-amber-400/50 shadow-lg shadow-purple-900/40">
@@ -1105,6 +1107,18 @@ export const Store: React.FC<StoreProps> = ({
           </section>
         )}
       </main>
+
+      {/* Shared legal and contact footer */}
+      <footer className="portal-footer store-footer" aria-label="Legal and contact links">
+        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('terms')}>Terms and Conditions</button>
+        <i aria-hidden="true">|</i>
+        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('privacy')}>Data and Privacy</button>
+        <i aria-hidden="true">|</i>
+        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('info-sec')}>Info Sec</button>
+        <i aria-hidden="true">|</i>
+        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('contact')}>Contact Us</button>
+      </footer>
+      <div className="demo-disclaimer store-disclaimer">DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.</div>
 
       {/* MOBILE PERSISTENT BOTTOM TAB BAR */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-card border-t border-purple-500/30 py-2 px-4 flex justify-around items-center text-[10px]">
