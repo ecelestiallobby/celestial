@@ -172,13 +172,6 @@ export const Portal: React.FC<PortalProps> = ({
                 <span className="dest-action">Explore <b>↗</b></span>
               </button>
 
-              <button className="destination-card" onClick={startOnboarding}>
-                <span className="dest-icon">✧</span>
-                <span className="dest-title">New Client</span>
-                <span className="dest-desc">Review the client journey and prepare for your first order.</span>
-                <span className="dest-action">Begin onboarding <b>↗</b></span>
-              </button>
-
               <button className="destination-card" onClick={() => { setView('regular-gate'); setGateMessage(null); }}>
                 <span className="dest-icon">⌑</span>
                 <span className="dest-title">Regular Client</span>
