@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ONBOARDING_STEPS } from '../catalog';
 import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
@@ -10,7 +10,7 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'guest' | 'onboarding' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact';
+type PortalView = 'landing' | 'guest' | 'onboarding' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact';
 type GuestPage = 'home' | '3s' | 'no-nos' | 'faqs' | 'track-order';
 
 export const Portal: React.FC<PortalProps> = ({
@@ -35,8 +35,10 @@ export const Portal: React.FC<PortalProps> = ({
   const [apgInput, setApgInput] = useState('');
   const [gateMessage, setGateMessage] = useState<{ text: string; success: boolean } | null>(null);
 
-  // Credentials dialog
-  const [showCredsModal, setShowCredsModal] = useState<DemoAccessCredentials | null>(null);
+  // Remove credentials created by the previous onboarding demo. Account issuance is not enabled yet.
+  useEffect(() => {
+    localStorage.removeItem('CL_DEMO_ACCESS');
+  }, []);
 
   // Tracker & History in Regular Home
   const [activeHomePanel, setActiveHomePanel] = useState<'none' | 'tracker' | 'history'>('tracker');
@@ -52,34 +54,10 @@ export const Portal: React.FC<PortalProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const createDemoCredentials = (): DemoAccessCredentials => {
-    let creds: DemoAccessCredentials | null = null;
-    try {
-      const saved = localStorage.getItem('CL_DEMO_ACCESS');
-      if (saved) creds = JSON.parse(saved);
-    } catch {
-      // ignore
-    }
-
-    if (!creds) {
-      const rand = (n: number) => Math.random().toString(36).slice(2, 2 + n).toUpperCase();
-      creds = {
-        accessId: 'CL-' + rand(4) + '-' + rand(4),
-        apg: 'APG-' + rand(6)
-      };
-      localStorage.setItem('CL_DEMO_ACCESS', JSON.stringify(creds));
-    }
-    return creds;
-  };
-
   const handleOnboardContinue = () => {
     if (onboardStep === 7) {
-      if (purchaseIntent === 'later') {
-        setView('landing');
-        return;
-      }
-      const creds = createDemoCredentials();
-      setShowCredsModal(creds);
+      setView('onboarding-submitted');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     setOnboardStep(prev => Math.min(7, prev + 1));
@@ -118,7 +96,7 @@ export const Portal: React.FC<PortalProps> = ({
       }, 700);
     } else {
       setGateMessage({
-        text: 'No matching demo credentials found. Complete New Client onboarding in this browser first to generate access keys.',
+        text: 'No active client credentials are being issued yet. Completing onboarding does not create an account or grant dashboard access.',
         success: false
       });
     }
@@ -394,6 +372,35 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
+        {/* ONBOARDING SUBMISSION CONFIRMATION */}
+        {view === 'onboarding-submitted' && (
+          <section className="animate-fadeIn">
+            <div className="portal-topline">
+              <span>NEW CLIENT JOURNEY</span>
+              <span>SUBMISSION STATUS</span>
+            </div>
+            <div className="portal-panel p-5 md:p-6 mt-4">
+              <div className="text-center space-y-3">
+                <div className="text-3xl text-amber-300">✦</div>
+                <h2 className="section-title">ONBOARDING SUBMISSION RECEIVED</h2>
+                <p className="section-copy mx-auto">Your onboarding responses have been completed in this browser demo. This is not an account approval or account activation.</p>
+              </div>
+              <div className="mt-5 rounded-xl border border-purple-500/20 bg-slate-950/50 p-4 space-y-2 text-xs leading-relaxed text-purple-100">
+                <p><strong className="text-amber-300">What happens now?</strong></p>
+                <p>1. Your onboarding flow is complete.</p>
+                <p>2. No Access ID or APG code has been generated or saved.</p>
+                <p>3. No Regular Client Dashboard account has been created or approved.</p>
+                <p>4. Account eligibility, restrictions, and access permissions will be configured later by the owner.</p>
+                <p>5. You can return to the Guest Environment to explore its public information.</p>
+              </div>
+              <button className="primary-action full mt-5" onClick={() => { setGuestPage('home'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                Return to Guest Environment
+              </button>
+              <p className="small-caveat text-center">Store and client-account permissions are not being granted by this confirmation.</p>
+            </div>
+          </section>
+        )}
+
         {/* REGULAR GATE VIEW */}
         {view === 'regular-gate' && (
           <section className="animate-fadeIn">
@@ -405,7 +412,7 @@ export const Portal: React.FC<PortalProps> = ({
             </div>
 
             <h2 className="section-title">Regular Client</h2>
-            <p className="section-copy">Enter your system-generated identifiers to continue.</p>
+            <p className="section-copy">Client account access is not enabled yet. Access IDs and APG codes will only be issued after the account restrictions and eligibility rules are finalized.</p>
 
             <div className="portal-panel gate-panel mt-4">
               <label>
@@ -452,36 +459,7 @@ export const Portal: React.FC<PortalProps> = ({
               <button className="text-link text-left" onClick={startOnboarding}>
                 New here? Begin New Client onboarding
               </button>
-              {(() => {
-                try {
-                  const saved = localStorage.getItem('CL_DEMO_ACCESS');
-                  if (saved) {
-                    const parsed: DemoAccessCredentials = JSON.parse(saved);
-                    return (
-                      <div className="p-3 bg-purple-950/30 border border-purple-500/20 rounded-lg text-xs text-purple-300">
-                        <span className="text-[10px] uppercase text-amber-300 font-bold block mb-1">
-                          Saved in this browser:
-                        </span>
-                        <div className="font-mono text-white text-[11px]">
-                          Access ID: {parsed.accessId} · APG: {parsed.apg}
-                        </div>
-                        <button
-                          className="mt-2 text-[10px] text-amber-300 underline font-semibold"
-                          onClick={() => {
-                            setAccessIdInput(parsed.accessId);
-                            setApgInput(parsed.apg);
-                          }}
-                        >
-                          Auto-fill credentials
-                        </button>
-                      </div>
-                    );
-                  }
-                } catch {
-                  // ignore
-                }
-                return null;
-              })()}
+              <p className="small-caveat">New client onboarding currently creates no account credentials. Account access will be introduced after the owner defines the eligibility and restriction rules.</p>
             </div>
           </section>
         )}
@@ -761,47 +739,6 @@ export const Portal: React.FC<PortalProps> = ({
         DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.
       </div>
 
-      {/* Generated Credentials Modal */}
-      {showCredsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
-          <div className="glass-card max-w-sm w-full p-6 rounded-2xl border border-amber-400/50 shadow-2xl space-y-4">
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 flex items-center justify-center text-xl">
-                ✦
-              </div>
-              <h3 className="text-lg font-bold text-amber-300 uppercase">Ascension Process Complete</h3>
-              <p className="text-xs text-purple-200 mt-1">
-                Your browser demo access credentials have been initialized:
-              </p>
-            </div>
-
-            <div className="bg-slate-950/80 p-3 rounded-xl border border-purple-500/30 space-y-2 font-mono text-xs">
-              <div className="flex justify-between items-center">
-                <span className="text-purple-400">ACCESS ID:</span>
-                <span className="text-amber-300 font-bold">{showCredsModal.accessId}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-purple-400">APG CODE:</span>
-                <span className="text-amber-300 font-bold">{showCredsModal.apg}</span>
-              </div>
-            </div>
-
-            <p className="text-[10px] text-gray-400 leading-relaxed text-center">
-              Saved automatically to this browser. You can now access the Client Dashboard or enter the Store directly.
-            </p>
-
-            <button
-              className="w-full btn-gold py-3 rounded-xl text-xs uppercase tracking-wider font-bold"
-              onClick={() => {
-                setShowCredsModal(null);
-                onEnterStore();
-              }}
-            >
-              Enter Orbit Store ↗
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
