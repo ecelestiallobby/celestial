@@ -650,3 +650,371 @@
     font-size: 8px;
   }
 }
+
+/* Responsive layout safeguards — desktop, tablet and mobile */
+:root {
+  color-scheme: dark;
+  --layout-gutter: clamp(12px, 3vw, 28px);
+  --control-height: 44px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 76px;
+}
+
+body,
+#root {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+  font: inherit;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+.portal-shell {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-left: max(var(--layout-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--layout-gutter), env(safe-area-inset-right));
+  overflow-x: clip;
+}
+
+.portal-header,
+.portal-main,
+.portal-footer {
+  width: 100%;
+  max-width: 1120px;
+}
+
+.portal-header {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.portal-main {
+  min-width: 0;
+}
+
+.destination-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  align-items: stretch;
+}
+
+.destination-card,
+.portal-panel,
+.gate-panel,
+.archive-tile,
+.onboard-extra {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.destination-card {
+  width: 100%;
+  min-height: clamp(160px, 18vw, 210px);
+}
+
+.portal-panel {
+  width: 100%;
+}
+
+.portal-title {
+  font-size: clamp(1.75rem, 4vw, 2.8rem);
+  overflow-wrap: anywhere;
+}
+
+.section-title {
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  overflow-wrap: anywhere;
+}
+
+.primary-action,
+.secondary-action,
+.expand-head,
+.archive-tile,
+.function-grid button,
+.store-lobby-return button {
+  min-height: var(--control-height);
+}
+
+.onboard-actions {
+  flex-wrap: wrap;
+}
+
+.onboard-actions button {
+  flex: 1 1 140px;
+}
+
+.archive-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.function-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+}
+
+.service-strip {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.store-lobby-return {
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(14px, env(safe-area-inset-bottom));
+}
+
+/* Store screens use Tailwind utility classes; these rules keep their
+   cards, forms, grids and action controls inside the available viewport. */
+#root > div,
+#root main,
+#root section,
+#root article {
+  min-width: 0;
+}
+
+#root .mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#root .glass-card,
+#root .glass-card-interactive {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#root input,
+#root select,
+#root textarea {
+  width: 100%;
+  min-width: 0;
+}
+
+#root input[type="checkbox"],
+#root input[type="radio"] {
+  width: auto;
+  min-width: auto;
+}
+
+#root button {
+  overflow-wrap: anywhere;
+}
+
+#root .overflow-x-auto {
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+#root table {
+  max-width: 100%;
+}
+
+#root .grid {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .portal-header,
+  .portal-main,
+  .portal-footer {
+    max-width: 100%;
+  }
+
+  .portal-main {
+    padding-top: clamp(22px, 4vw, 34px);
+  }
+
+  .destination-grid {
+    gap: clamp(10px, 2vw, 16px);
+  }
+}
+
+@media (max-width: 620px) {
+  :root {
+    --layout-gutter: 14px;
+  }
+
+  .portal-header {
+    align-items: flex-start;
+    padding-top: 16px;
+    padding-bottom: 14px;
+  }
+
+  .portal-brand {
+    min-width: 0;
+    flex: 1 1 190px;
+  }
+
+  .brand-name {
+    font-size: clamp(10px, 3vw, 13px);
+    letter-spacing: 0.12em;
+  }
+
+  .demo-chip {
+    font-size: 7px;
+    padding: 5px 7px;
+  }
+
+  .portal-main {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .destination-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .destination-card {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .portal-topline {
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .expand-head {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .expand-body {
+    padding-left: 14px;
+    padding-right: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .gate-panel {
+    padding: clamp(13px, 4vw, 18px);
+  }
+
+  .function-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .service-strip {
+    justify-content: flex-start;
+    gap: 8px 14px;
+    line-height: 1.5;
+  }
+
+  .portal-footer {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  #root .p-8 {
+    padding: clamp(16px, 5vw, 24px);
+  }
+
+  #root .p-6 {
+    padding: clamp(13px, 4vw, 20px);
+  }
+
+  #root .gap-4 {
+    gap: 12px;
+  }
+
+  #root .text-4xl {
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+  }
+
+  #root .store-lobby-return {
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --layout-gutter: 11px;
+    --control-height: 42px;
+  }
+
+  .portal-brand {
+    gap: 8px;
+  }
+
+  .brand-orbit {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    font-size: 18px;
+  }
+
+  .demo-chip {
+    letter-spacing: 0.06em;
+  }
+
+  .onboard-actions {
+    flex-direction: column;
+  }
+
+  .onboard-actions button {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .function-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .portal-main {
+    padding-top: 48px;
+    padding-bottom: 42px;
+  }
+
+  .destination-grid {
+    gap: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
