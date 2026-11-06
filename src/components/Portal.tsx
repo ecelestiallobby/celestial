@@ -176,6 +176,18 @@ export const Portal: React.FC<PortalProps> = ({
               </button>
             </div>
 
+            <div className="mt-5 flex justify-center">
+              <button
+                className="primary-action"
+                onClick={() => {
+                  setActiveHomePanel('tracker');
+                  setView('regular-gate');
+                  setGateMessage(null);
+                }}
+              >
+                Track Order <span aria-hidden="true">→</span>
+              </button>
+            </div>
           </section>
         )}
 
