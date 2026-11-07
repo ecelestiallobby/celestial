@@ -178,7 +178,7 @@ export const Portal: React.FC<PortalProps> = ({
         .replace(/[^A-Z0-9 ]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
-      const expected = 'THE POWER CELESTIAL BEINGS NUMBER ONE';
+      const expected = 'AVISALA ESHMA';
       if (transcript === expected) {
         setOwnerAccessMessage('Voice phrase recognized. Opening Owner Preview…');
         setVoiceAccessListening(false);
@@ -206,7 +206,7 @@ export const Portal: React.FC<PortalProps> = ({
 
   const handleOwnerAccessSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (ownerAccessPhrase.trim().toUpperCase().replace(/\s+/g, ' ') !== 'THE POWER CELESTIAL BEINGS NUMBER ONE') {
+    if (ownerAccessPhrase.trim().toUpperCase().replace(/\s+/g, ' ') !== 'AVISALA ESHMA') {
       setOwnerAccessMessage('Access phrase not recognized. Please try again.');
       return;
     }
