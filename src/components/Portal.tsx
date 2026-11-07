@@ -18,7 +18,7 @@ const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
 const ONBOARDING_TIMEOUT_MS = 30 * 60 * 1000;
 const RESTRICTION_MS = 24 * 60 * 60 * 1000;
 const readOnboardingRecord = (): OnboardingRecord | null => { try { const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY); if (!raw) return null; const parsed = JSON.parse(raw) as OnboardingRecord; const legacyCompleted = parsed.status === 'completed' ? Array.from({ length: 8 }, (_, index) => index) : Array.from({ length: Math.max(0, Math.min(8, parsed.step || 0)) }, (_, index) => index); return { ...parsed, completedSteps: Array.isArray(parsed.completedSteps) ? parsed.completedSteps : legacyCompleted, purchaseWindowStartedAt: parsed.purchaseWindowStartedAt ?? null, purchaseWindowOrderPlacedAt: parsed.purchaseWindowOrderPlacedAt ?? null }; } catch { return null; } };
-type GuestPage = 'home' | '3s' | 'no-nos' | 'faqs' | 'track-order';
+type GuestPage = 'home' | 'celestial-overview' | 'celestial-sectors' | 'lower-orbit' | 'central-orbit' | 'outer-orbit' | 'draconian-overview' | 'andromeda' | 'founders';
 
 export const Portal: React.FC<PortalProps> = ({
   initialView = 'landing',
@@ -37,9 +37,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [showRestrictionHelp, setShowRestrictionHelp] = useState(false);
   const [restrictionReason, setRestrictionReason] = useState('Your onboarding session was interrupted or declined.');
 
-  // Accordion / panel states
-  const [guestCelestialsOpen, setGuestCelestialsOpen] = useState(false);
-  const [guestFoundersOpen, setGuestFoundersOpen] = useState(false);
+  // Archive navigation is intentionally separate from the Store and management dashboards.
   const [regularCelestialsOpen, setRegularCelestialsOpen] = useState(false);
   const [regularFoundersOpen, setRegularFoundersOpen] = useState(false);
 
@@ -232,148 +230,231 @@ export const Portal: React.FC<PortalProps> = ({
         {/* GUEST ENVIRONMENT */}
         {view === 'guest' && (
           <section className="animate-fadeIn">
-            <nav className="guest-nav" aria-label="Guest Environment navigation">
-              <button className={guestPage === 'home' ? 'active' : ''} onClick={() => setGuestPage('home')}>Home</button>
-              <button className={guestPage === '3s' ? 'active' : ''} onClick={() => setGuestPage('3s')}>3S</button>
-              <button className={guestPage === 'no-nos' ? 'active' : ''} onClick={() => setGuestPage('no-nos')}>No-Nos</button>
-              <button className={guestPage === 'faqs' ? 'active' : ''} onClick={() => setGuestPage('faqs')}>FAQs</button>
-              <button onClick={handleGuestStoreAccess}>STORE</button>
-              <button className={guestPage === 'track-order' ? 'active' : ''} onClick={() => {
-                setGuestPage('track-order');
-                setTrackerQuery('');
-                setTrackerResult(null);
-              }}>Track Order</button>
-            </nav>
+            <div className="portal-topline">
+              <button className="text-back" onClick={() => guestPage === 'home' ? setView('landing') : setGuestPage('home')}>
+                {guestPage === 'home' ? '← Back' : '← Previous'}
+              </button>
+              <span>GUEST ENVIRONMENT · ARCHIVES</span>
+            </div>
 
             {guestPage === 'home' && (
-              <>
-                <div className="portal-topline">
-                  <button className="text-back" onClick={() => setView('landing')}>← Back</button>
-                  <span>PUBLIC ENVIRONMENT</span>
-                </div>
-                <h2 className="section-title">Guest Environment</h2>
-                <p className="section-copy">Explore the Celestial Lobby and begin your introduction.</p>
+              <div className="guest-content-page">
+                <p className="eyebrow">A GATEWAY BEYOND THE KNOWN</p>
+                <h2 className="section-title">Choose the archive that calls to you.</h2>
+                <p className="section-copy">Some realms reveal themselves to the curious. Others wait for those willing to ascend. Your journey begins with a choice.</p>
+
                 {onboardingRecord && onboardingRecord.status !== 'completed' && (
-                  <div className="portal-panel p-4 mt-4 border border-amber-400/40"><small className="text-amber-300 font-bold tracking-widest">YOUR JOURNEY IS WAITING</small><p className="section-copy mt-2">You have an unfinished onboarding process. Your progress is saved on this browser.</p>{onboardingRecord.status === 'restricted' && onboardingRecord.restrictionUntil && Date.now() < onboardingRecord.restrictionUntil && <p className="text-xs text-amber-200 mt-2">Viewing-only restriction is active. Your journey can resume when the 24-hour period expires.</p>}<button className="primary-action full mt-3" onClick={startOnboarding}>Continue Your Journey</button></div>
-                )}
-                {onboardingRecord?.status === 'completed' && onboardingRecord.termsAccepted && <div className="portal-panel p-4 mt-4 border border-amber-400/40"><small className="text-amber-300 font-bold tracking-widest">ONBOARDING COMPLETED</small><p className="section-copy mt-2">Your Terms and Policies acknowledgement is recorded in this browser demo.</p><p className="text-xs text-emerald-300 mt-2">{(onboardingRecord.completedSteps ?? []).length} of 8 onboarding steps completed.</p><button className="primary-action full mt-3" onClick={handleGuestStoreAccess}>Enter Guest Store</button></div>}
-
-                <div className="portal-panel mt-6">
-                  <button className="expand-head" aria-expanded={guestCelestialsOpen} onClick={() => setGuestCelestialsOpen(!guestCelestialsOpen)}>
-                    <span><small>ARCHIVE</small><b>Celestials</b></span>
-                    <span>{guestCelestialsOpen ? '－' : '＋'}</span>
-                  </button>
-                  {guestCelestialsOpen && (
-                    <div className="expand-body border-t border-purple-500/10 pt-3">
-                      The Celestials archive will be expanded with the official content supplied for this section.
-                    </div>
-                  )}
-                </div>
-
-                <div className="portal-panel">
-                  <button className="expand-head" aria-expanded={guestFoundersOpen} onClick={() => setGuestFoundersOpen(!guestFoundersOpen)}>
-                    <span><small>ARCHIVE</small><b>Founders</b></span>
-                    <span>{guestFoundersOpen ? '－' : '＋'}</span>
-                  </button>
-                  {guestFoundersOpen && (
-                    <div className="expand-body border-t border-purple-500/10 pt-3">
-                      The Founders archive will be expanded with the official founder profiles supplied for this section.
-                    </div>
-                  )}
-                </div>
-
-                <div className="portal-panel">
-                  <div className="expand-head">
-                    <span><small>INTRODUCTION</small><b>Onboarding Session</b></span>
-                    <span>→</span>
+                  <div className="portal-panel p-4 mt-5 border border-amber-400/40">
+                    <small className="text-amber-300 font-bold tracking-widest">YOUR JOURNEY IS WAITING</small>
+                    <p className="section-copy mt-2">Your onboarding progress is saved in this browser.</p>
+                    {onboardingRecord.status === 'restricted' && onboardingRecord.restrictionUntil && Date.now() < onboardingRecord.restrictionUntil && <p className="text-xs text-amber-200 mt-2">Viewing-only restriction is active. You may explore the public archives while Store access and onboarding continuation remain unavailable.</p>}
+                    <button className="primary-action full mt-3" onClick={startOnboarding}>Continue Your Journey</button>
                   </div>
+                )}
+                {onboardingRecord?.status === 'completed' && onboardingRecord.termsAccepted && (
+                  <div className="portal-panel p-4 mt-5 border border-amber-400/40">
+                    <small className="text-amber-300 font-bold tracking-widest">ASCENSION RECORDED</small>
+                    <p className="section-copy mt-2">Your eight-step introduction is complete in this browser demo.</p>
+                    <p className="text-xs text-emerald-300 mt-2">{(onboardingRecord.completedSteps ?? []).length} of 8 stages completed.</p>
+                    <button className="primary-action full mt-3" onClick={handleGuestStoreAccess}>Enter the Store</button>
+                  </div>
+                )}
+
+                <div className="destination-grid mt-6">
+                  <button className="destination-card" onClick={() => setGuestPage('celestial-overview')}>
+                    <span className="dest-icon">✧</span>
+                    <span className="dest-title">Celestials</span>
+                    <span className="dest-desc">Across the orbital realms, every source of Stardust carries a different promise. Discover what awakens when you draw closer.</span>
+                    <span className="dest-action">Enter the archive <b>↗</b></span>
+                  </button>
+                  <button className="destination-card" onClick={() => setGuestPage('founders')}>
+                    <span className="dest-icon">♛</span>
+                    <span className="dest-title">Founders</span>
+                    <span className="dest-desc">Behind every realm is an origin. Step into the archive of those who began the story.</span>
+                    <span className="dest-action">Discover the founders <b>↗</b></span>
+                  </button>
+                </div>
+
+                <div className="portal-panel mt-5">
+                  <div className="expand-head"><span><small>THE FIRST THRESHOLD</small><b>Onboarding Session</b></span><span>✦</span></div>
                   <div className="expand-body pt-0">
-                    Start the guided eight-step introduction to the Celestial Lobby.
+                    Before the next passage opens, learn the ways of this environment and decide when you are ready to proceed.
                     <br /><br />
                     <button className="primary-action" onClick={startOnboarding}>{onboardingRecord && onboardingRecord.status !== 'completed' ? 'Continue Your Journey' : 'Begin Your Journey'}</button>
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
-            {guestPage === '3s' && (
+            {guestPage === 'celestial-overview' && (
               <div className="guest-content-page">
-                <div className="portal-topline">
-                  <button className="text-back" onClick={() => setGuestPage('home')}>← Home</button>
-                  <span>GUEST ENVIRONMENT</span>
+                <p className="eyebrow">THE CELESTIAL ARCHIVE</p>
+                <h2 className="section-title">The Celestials</h2>
+                <p className="section-copy">Across the dimensional network, the Celestials endure through Stardust—the essence that sustains their existence, their gifts, and the powers woven into their being. Yet no two realms shape that essence alike. What one realm restores, another may transform.</p>
+                <div className="portal-panel p-4 mt-5">
+                  <small className="text-amber-300 font-bold tracking-widest">THE ESSENCE OF EXISTENCE</small>
+                  <p className="expand-body mt-2">Without Stardust, a Celestial may lose strength, skills, magic, and the abilities that define them. Their essence may fade until nothing remains. The origin of that Stardust matters: each realm bears its own nature.</p>
+                  <p className="text-sm text-purple-200 mt-3 italic">And when a being draws near to a realm and synchronizes with its dwellers, a different kind of awakening may begin.</p>
                 </div>
-                <h2 className="section-title">3S</h2>
-                <p className="section-copy">The 3S page is ready. Its detailed content can be added in the next instruction.</p>
-                <div className="portal-panel p-4">
-                  <p className="expand-body">3S information will appear here.</p>
+                <h3 className="section-title mt-6">Two paths beyond the threshold</h3>
+                <div className="destination-grid">
+                  <button className="destination-card" onClick={() => setGuestPage('celestial-sectors')}>
+                    <span className="dest-icon">☄</span><span className="dest-title">Celestial Sectors</span>
+                    <span className="dest-desc">Follow the orbital paths. Discover the dwellers, their essence, and the ascensions held within each realm.</span>
+                    <span className="dest-action">Explore the sectors <b>↗</b></span>
+                  </button>
+                  <button className="destination-card" onClick={() => setGuestPage('draconian-overview')}>
+                    <span className="dest-icon">♜</span><span className="dest-title">Draconian Archive</span>
+                    <span className="dest-desc">Beyond the recognized territories lies a domain of private influence, ancient bloodlines, and sovereign privilege.</span>
+                    <span className="dest-action">Approach the restricted archive <b>↗</b></span>
+                  </button>
                 </div>
               </div>
             )}
 
-            {guestPage === 'no-nos' && (
+            {guestPage === 'celestial-sectors' && (
               <div className="guest-content-page">
-                <div className="portal-topline">
-                  <button className="text-back" onClick={() => setGuestPage('home')}>← Home</button>
-                  <span>GUEST ENVIRONMENT</span>
+                <p className="eyebrow">CELESTIAL ARCHIVE · ORBITAL INDEX</p>
+                <h2 className="section-title">Where will you ascend?</h2>
+                <p className="section-copy">Every passage leads to a different nature. Choose the orbit that draws you closer; beyond it, another realm is waiting.</p>
+                <div className="portal-panel mt-4">
+                  <button className="expand-head" onClick={() => setGuestPage('lower-orbit')}><span><small>LOWER ORBIT SECTOR</small><b>Cloud9 · Mars</b></span><span>↗</span></button>
+                  <div className="expand-body pt-0">A gentler threshold, where restoration and momentum take their first form.</div>
                 </div>
-                <h2 className="section-title">Non-Negotiables</h2>
-                <p className="section-copy">The No-Nos page is ready. Its detailed content can be added in the next instruction.</p>
-                <div className="portal-panel p-4">
-                  <p className="expand-body">Non-negotiable information will appear here.</p>
+                <div className="portal-panel mt-3">
+                  <button className="expand-head" onClick={() => setGuestPage('central-orbit')}><span><small>CENTRAL ORBIT SECTOR</small><b>Venus · Saturn</b></span><span>↗</span></button>
+                  <div className="expand-body pt-0">Where refinement, synergy, and the shaping of greater builds begin to reveal themselves.</div>
+                </div>
+                <div className="portal-panel mt-3">
+                  <button className="expand-head" onClick={() => setGuestPage('outer-orbit')}><span><small>OUTER ORBIT SECTOR</small><b>Nibiru · Nemik</b></span><span>↗</span></button>
+                  <div className="expand-body pt-0">Beyond familiar limits, where endurance is tested and the unknown draws near.</div>
                 </div>
               </div>
             )}
 
-            {guestPage === 'faqs' && (
+            {guestPage === 'lower-orbit' && (
               <div className="guest-content-page">
-                <div className="portal-topline">
-                  <button className="text-back" onClick={() => setGuestPage('home')}>← Home</button>
-                  <span>GUEST ENVIRONMENT</span>
+                <p className="eyebrow">LOWER ORBIT SECTOR</p><h2 className="section-title">The first awakening.</h2>
+                <p className="section-copy">Some arrive seeking restoration. Others come to feel their energy return. Here, the first ascent is only the beginning.</p>
+                <div className="portal-panel mt-4 p-4">
+                  <small className="text-amber-300 font-bold tracking-widest">☁️ CLOUD9 · NEW SPAWN'S AREA</small>
+                  <h3 className="text-lg font-bold text-amber-100 mt-2">Aelunari — The Dreamborn</h3>
+                  <p className="expand-body mt-2">The Aelunari inhabit Cloud9, a tranquil pocket-realm suspended above the dimensional network. Their bodies naturally regenerate Stardust energy, making their server the preferred recovery zone for newly onboarded players and veteran players needing a quick reboost.</p>
+                  <p className="text-xs text-purple-200 mt-3">Trait: Low-Latency • Recovery • Respawn<br/>Difficulty: Easy<br/>Recommended: Beginners<br/>System: Rest. Recharge. Respawn.</p>
+                  <p className="text-sm italic text-amber-100 mt-3">Let your strength return. Feel the weight of the world fall away, and remember what it is to rise.</p>
                 </div>
-                <h2 className="section-title">FAQs</h2>
-                <p className="section-copy">Frequently asked questions will be organized on this page. Categories and answers can be added in the next instruction.</p>
-                <div className="portal-panel p-4">
-                  <p className="expand-body">FAQ content will appear here.</p>
+                <div className="portal-panel mt-3 p-4">
+                  <small className="text-amber-300 font-bold tracking-widest">🔴 MARS · MID-GAME RUSH</small>
+                  <h3 className="text-lg font-bold text-amber-100 mt-2">Kaelthari — The Redborn</h3>
+                  <p className="expand-body mt-2">The Kaelthari evolved beneath the crimson skies of Mars, where every encounter is built around speed, intensity, and rapid energy cycling. Their server is famous for Rush Instances—short, high-output sessions designed for players who want to rapidly refill their adrenaline meter before returning to the main queue.</p>
+                  <p className="text-xs text-purple-200 mt-3">Trait: Speed • Rush • High Output<br/>Difficulty: Easy<br/>Recommended: Regular Players<br/>System: Queue fast. Burn bright. Breed faster.</p>
+                  <p className="text-sm italic text-amber-100 mt-3">When stillness no longer satisfies, answer the call of the crimson rush.</p>
                 </div>
               </div>
             )}
 
-            {guestPage === 'track-order' && (
+            {guestPage === 'central-orbit' && (
               <div className="guest-content-page">
-                <div className="portal-topline">
-                  <button className="text-back" onClick={() => setGuestPage('home')}>← Home</button>
-                  <span>ORDER SERVICES</span>
+                <p className="eyebrow">CENTRAL ORBIT SECTOR</p><h2 className="section-title">Refinement has its price.</h2>
+                <p className="section-copy">Here, presence becomes influence. Synergy deepens, and every enhancement brings you closer to the build you were meant to command.</p>
+                <div className="portal-panel mt-4 p-4">
+                  <small className="text-amber-300 font-bold tracking-widest">🟣 VENUS · INCUBUS' FAVORITE</small>
+                  <h3 className="text-lg font-bold text-amber-100 mt-2">Vaelith — The Velvetborn</h3>
+                  <p className="expand-body mt-2">Venusian species renowned throughout the Galactic Federation for their exceptional Charm, Synergy, and Focus stats. Their server operates like a permanent high-tier guild instance, where experienced players pursue increasingly difficult encounters and rare leaderboard achievements.</p>
+                  <p className="text-xs text-purple-200 mt-3">Trait: Charm • Synergy • Elite Progression<br/>Difficulty: Mid-High<br/>Recommended: Advanced Players<br/>System: Velvet Aura. Elite Guild.</p>
+                  <p className="text-sm italic text-amber-100 mt-3">Some entrances are remembered. Others leave an impression that refuses to fade.</p>
                 </div>
-                <h2 className="section-title">Track Order</h2>
-                <p className="section-copy">Enter your Order ID to check its current status.</p>
-                <div className="portal-panel gate-panel mt-4">
-                  <label>
-                    ORDER ID
-                    <input
-                      value={trackerQuery}
-                      onChange={(e) => setTrackerQuery(e.target.value)}
-                      placeholder="Enter your Order ID"
-                      autoComplete="off"
-                      spellCheck="false"
-                    />
-                  </label>
-                  <button className="primary-action full" onClick={handleLookupOrder}>Track Order</button>
-                  {trackerResult && (
-                    <p className="form-message font-medium" style={{ color: trackerResult.found ? '#a8d8b0' : '#e8b6a3' }}>
-                      {trackerResult.message}
-                    </p>
-                  )}
-                  {trackerResult?.found && activeOrder && (
-                    <div className="mt-4 pt-4 border-t border-purple-500/20">
-                      <OrderTimeline
-                        order={activeOrder}
-                        deliveryDetails={deliveryDetails}
-                        onUpdateStatus={onUpdateStatus}
-                        onEnterStore={handleGuestStoreAccess}
-                      />
+                <div className="portal-panel mt-3 p-4">
+                  <small className="text-amber-300 font-bold tracking-widest">🪐 SATURN · THE EMPRESS BUILD</small>
+                  <h3 className="text-lg font-bold text-amber-100 mt-2">Seraphrin — The Ringborn</h3>
+                  <p className="expand-body mt-2">The Seraphrin dwell within Saturn's colossal ring system, constructing their civilization around ancient Empress Cores—legendary artifacts capable of dramatically enhancing player builds. Unlocking their server grants access to advanced Build Augmentation.</p>
+                  <p className="text-xs text-purple-200 mt-3">Trait: Build Enhancement • Augmentation • Raid Preparation<br/>Difficulty: High-Advance<br/>Recommended: B ranks<br/>System: Solid built. Hard Core. Endulgement.</p>
+                  <p className="text-sm italic text-amber-100 mt-3">A stronger form is not simply found. It is forged, refined, and claimed.</p>
+                </div>
+              </div>
+            )}
+
+            {guestPage === 'outer-orbit' && (
+              <div className="guest-content-page">
+                <p className="eyebrow">OUTER ORBIT SECTOR</p><h2 className="section-title">Beyond the familiar.</h2>
+                <p className="section-copy">The farther you travel, the less the old rules can promise you. Only those willing to face the unknown discover what waits beyond the edge.</p>
+                <div className="portal-panel mt-4 p-4">
+                  <small className="text-amber-300 font-bold tracking-widest">🌑 NIBIRU · CELESTIAL INVERTED REALM</small>
+                  <h3 className="text-lg font-bold text-amber-100 mt-2">Nhyxari — The Starborn</h3>
+                  <p className="expand-body mt-2">The Nhyxari are ancient entities who migrated through the void long before conventional star maps existed. Players who synchronize successfully with a Nhyxari can unlock powerful Vitality Buffs and temporary resistance to dimensional fatigue.</p>
+                  <p className="text-xs text-purple-200 mt-3">Traits: Vitality • Endurance • Raid Boss<br/>Difficulty: Boss<br/>Recommended: A Rank<br/>System: Void Migration | Dense Cores | Dark Fantasy</p>
+                  <p className="text-sm italic text-amber-100 mt-3">The void does not call everyone. Those who answer may return changed.</p>
+                </div>
+                <div className="portal-panel mt-3 p-4">
+                  <small className="text-amber-300 font-bold tracking-widest">⚫ NEMIK · THE ABYSSMAL ZONE</small>
+                  <h3 className="text-lg font-bold text-amber-100 mt-2">Xyrem — The Abyssals</h3>
+                  <p className="expand-body mt-2">Nobody knows where the Xyrem originated. Only fearless high-level players enter willingly. Those who survive gain access to some of the most unusual Endurance, Focus, and Limit-Break mechanics in the network.</p>
+                  <p className="text-xs text-purple-200 mt-3">Traits: Abyss • Endurance • Limit Break<br/>Difficulty: ☠️ ABYSS<br/>Recommended: S rank<br/>System: Unstable Rift. Zero Rules. Overwhelming Playstyle.</p>
+                  <p className="text-sm italic text-amber-100 mt-3">At the edge of every limit lies a question: how far are you willing to go?</p>
+                </div>
+              </div>
+            )}
+
+            {guestPage === 'draconian-overview' && (
+              <div className="guest-content-page">
+                <p className="eyebrow">RESTRICTED ARCHIVE · ANDROMEDA GALAXY</p>
+                <h2 className="section-title">The Draconians</h2>
+                <p className="section-copy">Some worlds invite exploration. Others are entered quietly, through circles where influence is inherited and access is never assumed. Beyond the recognized territories lies a private domain of prestige, sovereign bloodlines, and power held close.</p>
+                <div className="portal-panel p-4 mt-5">
+                  <small className="text-amber-300 font-bold tracking-widest">A PRIVATE DOMAIN</small>
+                  <p className="expand-body mt-2">The Draconian territories are a separate archive from the Celestial orbital realms. Here, discretion carries weight, lineage opens doors, and every invitation implies a world few are permitted to see.</p>
+                </div>
+                <button className="destination-card w-full mt-4 text-left" onClick={() => setGuestPage('andromeda')}>
+                  <span className="dest-icon">♛</span><span className="dest-title">Restricted Sector of Andromeda Galaxy</span>
+                  <span className="dest-desc">Approach the houses of the Draconian Empire and discover the bloodlines whose names command a room before they enter it.</span>
+                  <span className="dest-action">Request passage <b>↗</b></span>
+                </button>
+              </div>
+            )}
+
+            {guestPage === 'andromeda' && (
+              <div className="guest-content-page">
+                <p className="eyebrow">DRACONIAN ARCHIVE · RESTRICTED TERRITORY</p>
+                <h2 className="section-title">Restricted Sector of Andromeda Galaxy</h2>
+                <p className="section-copy">Beyond the public map, the old houses remain. Their power is not announced; it is understood. Enter their territory and discover what separates influence from sovereignty.</p>
+                <div className="portal-panel mt-4 p-4">
+                  <small className="text-amber-300 font-bold tracking-widest">🌍 HIGHYRTS · THE DRAGONBORN</small>
+                  <h3 className="text-lg font-bold text-amber-100 mt-2">Vhaerion — Reptalian Valkyries</h3>
+                  <p className="expand-body mt-2">The Vhaerion belong to the bureaucratic houses of the Draconian Empire. They specialize in Bonding Protocols, allowing compatible players to maintain unusually high energy and synergy during extended sessions.</p>
+                  <p className="text-xs text-purple-200 mt-3">Server Trait: Rapid • Elated • Ecstatic<br/>Difficulty: SS<br/>Recommended: S rank players<br/>System: Neverland Euphoria</p>
+                  <p className="text-sm italic text-amber-100 mt-3">An alliance can be an advantage. A bond, in the right hands, can become an empire.</p>
+                </div>
+                <div className="portal-panel mt-3 p-4">
+                  <small className="text-amber-300 font-bold tracking-widest">GOD-TIER DRACONIANS</small>
+                  <h3 className="text-lg font-bold text-amber-100 mt-2">Zhaevoryn</h3>
+                  <p className="expand-body mt-2">The ruling bloodlines of the Draconian Empire. They possess extraordinary energy density, and their ancient Sovereign Protocols are considered among the most powerful unpatched abilities in the Galactic Federation.</p>
+                  <p className="text-xs text-purple-200 mt-3">Server Trait: Supremacy • Sovereignty<br/>Difficulty: SSS<br/>Recommended: SS Rank players<br/>System: Ibiza Rave Ragnarok</p>
+                  <p className="text-sm italic text-amber-100 mt-3">There is wealth, there is influence, and then there is the authority to define the rules.</p>
+                </div>
+                <p className="text-xs text-purple-300 mt-4">The exact hierarchy and placement of these Draconian groups can be refined when the remaining official lore is supplied.</p>
+              </div>
+            )}
+
+            {guestPage === 'founders' && (
+              <div className="guest-content-page">
+                <p className="eyebrow">ORIGINS · FOUNDERS ARCHIVE</p>
+                <h2 className="section-title">Those who began the story.</h2>
+                <p className="section-copy">Every world has an origin. Every legacy begins with those who dared to imagine what did not yet exist. Enter the archive and meet the people behind the first chapter of CELESTIAL LOBBY.</p>
+                <div className="destination-grid mt-5">
+                  {[
+                    { name: 'Erson', role: 'Founder', symbol: '✦' },
+                    { name: 'Spencer', role: 'Founder', symbol: '✧' },
+                    { name: 'Eunice', role: 'Founder', symbol: '♛' },
+                    { name: 'Hono', role: 'Founder', symbol: '◇' }
+                  ].map((founder) => (
+                    <div className="portal-panel p-4" key={founder.name}>
+                      <div className="text-3xl text-amber-200">{founder.symbol}</div>
+                      <h3 className="text-lg font-bold text-amber-100 mt-2">{founder.name}</h3>
+                      <p className="text-xs text-purple-200 mt-1">{founder.role}</p>
                     </div>
-                  )}
+                  ))}
                 </div>
+                <p className="text-xs text-purple-300 mt-4">Founder biographies and individual profile details will be added when their official introductions are supplied.</p>
               </div>
             )}
           </section>
