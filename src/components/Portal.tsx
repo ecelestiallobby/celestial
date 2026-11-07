@@ -5,7 +5,7 @@ import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
 
 interface PortalProps {
-  initialView?: 'landing' | 'owner-preview' | 'guest' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
+  initialView?: 'landing' | 'owner-preview' | 'guest' | 'regular-home' | 'regular-gate' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
   onOwnerSessionChange?: (active: boolean) => void;
   onEnterStore: () => void;
   activeOrder: ActiveOrder;
@@ -43,6 +43,8 @@ export const Portal: React.FC<PortalProps> = ({
   const [showFloatingNotepad, setShowFloatingNotepad] = useState(false);
   const [showOwnerTools, setShowOwnerTools] = useState(false);
   const [guestPage, setGuestPage] = useState<GuestPage>('home');
+  const [activeEnvironment, setActiveEnvironment] = useState<'guest' | 'regular'>(() => initialView === 'regular-home' || initialView === 'regular-gate' ? 'regular' : 'guest');
+  const navigateEnvironmentHome = () => { if (activeEnvironment === 'regular') { setView('regular-home'); } else { setGuestPage('home'); setView('guest'); } window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const [threeSOpen, setThreeSOpen] = useState({ security: false, secrecy: false, safety: false });
   const allThreeSOpen = threeSOpen.security && threeSOpen.secrecy && threeSOpen.safety;
   const setAllThreeS = (open: boolean) => setThreeSOpen({ security: open, secrecy: open, safety: open });
@@ -343,7 +345,7 @@ export const Portal: React.FC<PortalProps> = ({
     <div className="portal-shell min-h-screen flex flex-col justify-between">
       {/* Top Header */}
       <header className="portal-header">
-        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home; tap the emblem five times for Owner Access" onClick={() => { if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { handleChromeNavigation('landing'); } }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { handleChromeNavigation('landing'); } } }}>
+        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home; tap the emblem five times for Owner Access" onClick={() => { if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { navigateEnvironmentHome(); } }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { navigateEnvironmentHome(); } } }}>
           <div className="brand-orbit">✦</div>
           <div>
             <div className="brand-name">CELESTIAL LOBBY</div>
@@ -376,8 +378,8 @@ export const Portal: React.FC<PortalProps> = ({
               <h3 className="section-title mt-2">Simulation environment</h3>
               <p className="section-copy">Inspect the pages and navigation currently implemented in this website. Business dashboards and live management controls are not yet connected. Preview-only changes must not be treated as live business records.</p>
               <div className="flex flex-wrap gap-3 mt-4">
-                <button className="primary-action" onClick={() => { setView('guest'); setGuestPage('home'); }}>Open Guest Environment</button>
-                <button className="secondary-action" onClick={() => setView('landing')}>Customer View</button>
+                <button className="primary-action" onClick={() => { setActiveEnvironment('guest'); setView('guest'); setGuestPage('home'); }}>Open Guest Environment</button>
+                <button className="secondary-action" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); }}>Regular Client Preview</button>
                 <button className="text-back" onClick={exitOwnerOverride}>Exit Owner Override</button>
               </div>
             </div>
@@ -396,14 +398,14 @@ export const Portal: React.FC<PortalProps> = ({
         {view === 'landing' && (
           <section className="animate-fadeIn">
             <div className="destination-grid">
-              <button className="destination-card" onClick={() => setView('guest')}>
+              <button className="destination-card" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); }}>
                 <span className="dest-icon">◈</span>
                 <span className="dest-title">Guest Environment</span>
                 <span className="dest-desc">Explore Celestial Lobby, standards, policies and FAQs.</span>
                 <span className="dest-action">Explore <b>↗</b></span>
               </button>
 
-              <button className="destination-card" onClick={() => { setView('regular-gate'); setGateMessage(null); }}>
+              <button className="destination-card" onClick={() => { setActiveEnvironment('regular'); setView('regular-gate'); setGateMessage(null); }}>
                 <span className="dest-icon">⌑</span>
                 <span className="dest-title">Regular Client</span>
                 <span className="dest-desc">Enter with your Access ID and APG code.</span>
@@ -753,10 +755,10 @@ export const Portal: React.FC<PortalProps> = ({
         {view === 'onboarding-terms' && <section className="animate-fadeIn"><div className="portal-topline"><span>NEW CLIENT JOURNEY</span><span>FINAL REVIEW</span></div><div className="portal-panel p-5 mt-4 space-y-3"><h2 className="section-title">Congratulations on completing onboarding</h2><p className="section-copy">Before entering the Guest Store, review the CELESTIAL LOBBY Terms and Policies.</p><div className="rounded-xl border border-purple-500/20 bg-slate-950/50 p-4 text-xs leading-relaxed text-purple-100 space-y-2"><p><strong className="text-amber-300">Please review these subjects:</strong></p><p>• Pricing and item information</p><p>• Accepted payment methods</p><p>• Ordering methods and processes</p><p>• Applicable policies, restrictions and service guidelines</p><p className="text-purple-300">The complete official policy wording must be published and confirmed by the owner before this demo is used for real transactions.</p></div><label className="flex items-start gap-3 text-sm text-purple-100 leading-relaxed"><input type="checkbox" checked={termsAccepted} onChange={e => setTermsAccepted(e.target.checked)} className="mt-1 accent-amber-400" /><span>I have read and understand the CELESTIAL LOBBY Terms and Policies, including pricing, payment methods, ordering processes, restrictions and service guidelines.</span></label><button className="primary-action full" disabled={!termsAccepted} onClick={handleTermsAcceptance} style={{ opacity: termsAccepted ? 1 : 0.45, cursor: termsAccepted ? 'pointer' : 'not-allowed' }}>Continue to Store</button><button className="secondary-action w-full mt-2" onClick={() => applyOnboardingRestriction('You declined the final Terms and Policies agreement.')}>I Do Not Agree — Leave</button>{showExitWarning && <div className="rounded-xl border border-amber-400/40 p-3 mt-3 text-sm" role="alertdialog" aria-modal="true"><strong className="text-amber-200">YOUR JOURNEY IS STILL IN PROGRESS</strong><p className="mt-2 text-purple-100">Leaving now activates the 24-hour viewing-only restriction.</p><div className="flex flex-col sm:flex-row gap-2 mt-3"><button className="primary-action flex-1" onClick={() => setShowExitWarning(false)}>Stay and Review</button><button className="secondary-action flex-1" onClick={confirmOnboardingExit}>Leave</button></div></div>}</div></section>}
 
         {/* 24-HOUR VIEWING-ONLY RESTRICTION */}
-        {view === 'restriction' && <section className="animate-fadeIn"><div className="portal-topline"><span>GUEST ENVIRONMENT</span><span>VIEWING-ONLY STATUS</span></div><div className="portal-panel p-5 mt-4 space-y-3"><h2 className="section-title">Your Journey Is Temporarily Paused</h2><p className="section-copy">{restrictionReason}</p><p className="text-sm text-purple-100">A 24-hour viewing-only restriction is active. You may browse permitted public Guest Environment information, but cannot enter the Store or continue onboarding until the restriction expires.</p>{onboardingRecord?.restrictionUntil && <p className="text-xs text-amber-200">Restriction ends: {new Date(onboardingRecord.restrictionUntil).toLocaleString()}</p>}{onboardingRecord?.helpUsed ? <p className="small-caveat">Your one-time Help explanation has already been used in this browser demo.</p> : <button className="secondary-action w-full" onClick={() => { const saved = readOnboardingRecord(); if (saved && !saved.helpUsed) { persistOnboarding({ ...saved, helpUsed: true }); setShowRestrictionHelp(true); } }}>Why can't I continue? — One-time Help</button>}{showRestrictionHelp && <div className="rounded-xl border border-purple-500/30 p-3 text-xs leading-relaxed text-purple-100"><strong className="text-amber-200">Why this restriction exists</strong><p className="mt-2">The onboarding process is designed to help customers become informed buyers who understand CELESTIAL LOBBY's procedures, conditions and service guidelines before proceeding. Your previous interruption or decision was recorded as the reason for this temporary pause.</p></div>}<button className="primary-action full" onClick={() => { setGuestPage('home'); setView('guest'); }}>Return to Guest Homepage</button></div></section>}
+        {view === 'restriction' && <section className="animate-fadeIn"><div className="portal-topline"><span>GUEST ENVIRONMENT</span><span>VIEWING-ONLY STATUS</span></div><div className="portal-panel p-5 mt-4 space-y-3"><h2 className="section-title">Your Journey Is Temporarily Paused</h2><p className="section-copy">{restrictionReason}</p><p className="text-sm text-purple-100">A 24-hour viewing-only restriction is active. You may browse permitted public Guest Environment information, but cannot enter the Store or continue onboarding until the restriction expires.</p>{onboardingRecord?.restrictionUntil && <p className="text-xs text-amber-200">Restriction ends: {new Date(onboardingRecord.restrictionUntil).toLocaleString()}</p>}{onboardingRecord?.helpUsed ? <p className="small-caveat">Your one-time Help explanation has already been used in this browser demo.</p> : <button className="secondary-action w-full" onClick={() => { const saved = readOnboardingRecord(); if (saved && !saved.helpUsed) { persistOnboarding({ ...saved, helpUsed: true }); setShowRestrictionHelp(true); } }}>Why can't I continue? — One-time Help</button>}{showRestrictionHelp && <div className="rounded-xl border border-purple-500/30 p-3 text-xs leading-relaxed text-purple-100"><strong className="text-amber-200">Why this restriction exists</strong><p className="mt-2">The onboarding process is designed to help customers become informed buyers who understand CELESTIAL LOBBY's procedures, conditions and service guidelines before proceeding. Your previous interruption or decision was recorded as the reason for this temporary pause.</p></div>}<button className="primary-action full" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); }}>Return to Guest Homepage</button></div></section>}
 
         {/* STORE ACCESS GATE */}
-        {view === 'store-locked' && <section className="animate-fadeIn"><div className="portal-topline"><button className="text-back" onClick={() => { setGuestPage('home'); setView('guest'); }}>← Guest Homepage</button><span>STORE ACCESS</span></div><div className="portal-panel p-5 mt-4"><h2 className="section-title">Guest Store Access Not Yet Available</h2><p className="section-copy">Complete the onboarding journey and accept the CELESTIAL LOBBY Terms and Policies before entering the Guest Store.</p><button className="primary-action full" onClick={() => { setGuestPage('home'); setView('guest'); }}>Return to Guest Homepage</button></div></section>}
+        {view === 'store-locked' && <section className="animate-fadeIn"><div className="portal-topline"><button className="text-back" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); }}>← Guest Homepage</button><span>STORE ACCESS</span></div><div className="portal-panel p-5 mt-4"><h2 className="section-title">Guest Store Access Not Yet Available</h2><p className="section-copy">Complete the onboarding journey and accept the CELESTIAL LOBBY Terms and Policies before entering the Guest Store.</p><button className="primary-action full" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); }}>Return to Guest Homepage</button></div></section>}
 
         {/* ONBOARDING SUBMISSION CONFIRMATION */}
         {view === 'onboarding-submitted' && (
@@ -1213,8 +1215,20 @@ export const Portal: React.FC<PortalProps> = ({
 
       </main>
 
+      {ownerSessionUntil > Date.now() && view !== 'onboarding' && view !== 'onboarding-terms' && (
+        <nav className="owner-preview-dock" aria-label="Persistent owner preview controls">
+          <span className="owner-preview-dock-label">OWNER PREVIEW</span>
+          <button type="button" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Designer</button>
+          <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest View</button>
+          <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Client View</button>
+          <button type="button" className="owner-preview-exit" onClick={exitOwnerOverride}>Exit Override</button>
+        </nav>
+      )}
+
       {/* Footer */}
-      <footer className="portal-footer" aria-label="Legal and contact links">
+      <footer className="portal-footer" aria-label="Shared environment navigation and legal links">
+        <button type="button" className="portal-footer-link" onClick={navigateEnvironmentHome}>Home</button>
+        <i aria-hidden="true">|</i>
         <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>Terms and Conditions</button>
         <i aria-hidden="true">|</i>
         <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>Data and Privacy</button>
