@@ -4,7 +4,8 @@ import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
 
 interface PortalProps {
-  initialView?: 'landing' | 'guest' | 'terms' | 'privacy' | 'info-sec' | 'contact';
+  initialView?: 'landing' | 'owner-preview' | 'guest' | 'terms' | 'privacy' | 'info-sec' | 'contact';
+  onOwnerSessionChange?: (active: boolean) => void;
   onEnterStore: () => void;
   activeOrder: ActiveOrder;
   deliveryDetails?: DeliveryDetails;
@@ -26,6 +27,7 @@ type GuestPage = 'home' | 'celestial-overview' | 'celestial-sectors' | 'lower-or
 export const Portal: React.FC<PortalProps> = ({
   initialView = 'landing',
   onEnterStore,
+  onOwnerSessionChange,
   activeOrder,
   deliveryDetails,
   onUpdateStatus
@@ -176,6 +178,7 @@ export const Portal: React.FC<PortalProps> = ({
     const expiresAt = Date.now() + OWNER_SESSION_MS;
     try { localStorage.setItem(OWNER_SESSION_KEY, String(expiresAt)); } catch { /* browser storage may be unavailable */ }
     setOwnerSessionUntil(expiresAt);
+    onOwnerSessionChange?.(true);
     setView('owner-preview');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -183,6 +186,7 @@ export const Portal: React.FC<PortalProps> = ({
   const exitOwnerOverride = () => {
     try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
     setOwnerSessionUntil(0);
+    onOwnerSessionChange?.(false);
     setView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -217,12 +221,14 @@ export const Portal: React.FC<PortalProps> = ({
     if (remaining <= 0) {
       try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
       setOwnerSessionUntil(0);
+      onOwnerSessionChange?.(false);
       if (view === 'owner-preview') setView('landing');
       return;
     }
     const timer = window.setTimeout(() => {
       try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
       setOwnerSessionUntil(0);
+      onOwnerSessionChange?.(false);
       setView(current => current === 'owner-preview' ? 'landing' : current);
     }, remaining);
     return () => window.clearTimeout(timer);
@@ -1050,49 +1056,6 @@ export const Portal: React.FC<PortalProps> = ({
         )}
 
       </main>
-
-      {/* OWNER SESSION FLOATING TOOLS: available on every portal view */}
-      {ownerSessionUntil > Date.now() && (
-        <>
-          {showOwnerTools && (
-            <div className="fixed bottom-24 right-3 z-[120] w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-amber-300/40 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-bold tracking-[0.2em] text-amber-300">OWNER OVERRIDE</p>
-                  <p className="mt-1 text-sm font-semibold text-white">Navigation controls</p>
-                </div>
-                <button type="button" className="text-lg text-purple-200" aria-label="Close owner controls" onClick={() => setShowOwnerTools(false)}>×</button>
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-purple-100">These controls let you leave a page or reset this browser's onboarding demo while your Owner session is active.</p>
-              <div className="mt-3 grid gap-2">
-                <button type="button" className="secondary-action w-full" onClick={returnToOwnerPreview}>Return to Owner Preview</button>
-                <button type="button" className="secondary-action w-full" onClick={() => { setShowExitWarning(false); setGuestPage('home'); setView('guest'); setShowOwnerTools(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Exit to Guest Homepage</button>
-                <button type="button" className="primary-action w-full" onClick={resetOnboardingForOwner}>Reset &amp; Restart Onboarding</button>
-              </div>
-              <p className="mt-3 text-[10px] leading-relaxed text-amber-100/70">Reset removes the saved onboarding progress and demo restriction from this browser only. It does not affect live or server-side records.</p>
-            </div>
-          )}
-
-          {showFloatingNotepad && (
-            <div className="fixed bottom-24 left-3 z-[120] w-[min(22rem,calc(100vw-1.5rem))] rounded-2xl border border-purple-300/40 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-md">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-bold tracking-[0.2em] text-amber-300">OWNER NOTEPAD</p>
-                  <p className="mt-1 text-sm font-semibold text-white">Private working notes</p>
-                </div>
-                <button type="button" className="text-lg text-purple-200" aria-label="Close owner notepad" onClick={() => setShowFloatingNotepad(false)}>×</button>
-              </div>
-              <textarea className="mt-3 min-h-40 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-3 text-sm text-slate-100" rows={7} value={ownerNotepad} onChange={(event) => handleOwnerNotepadChange(event.target.value)} placeholder="Development notes, page corrections, test ideas, and reminders..." aria-label="Floating owner notepad" />
-              <p className="mt-2 text-[10px] leading-relaxed text-purple-200/80">Saved in this browser only. Do not enter passwords, payment details, or sensitive customer information.</p>
-            </div>
-          )}
-
-          <div className="fixed bottom-4 right-3 z-[121] flex flex-col items-end gap-2">
-            <button type="button" className="rounded-full border border-purple-300/50 bg-slate-950/95 px-4 py-2.5 text-xs font-bold text-purple-100 shadow-xl" onClick={() => setShowFloatingNotepad(value => !value)} aria-expanded={showFloatingNotepad}>✎ {showFloatingNotepad ? 'Close Notepad' : 'Owner Notepad'}</button>
-            <button type="button" className="rounded-full border border-amber-300/60 bg-amber-400 px-4 py-2.5 text-xs font-extrabold text-slate-950 shadow-xl" onClick={() => setShowOwnerTools(value => !value)} aria-expanded={showOwnerTools}>✦ Owner Override</button>
-          </div>
-        </>
-      )}
 
       {/* Footer */}
       <footer className="portal-footer" aria-label="Legal and contact links">
