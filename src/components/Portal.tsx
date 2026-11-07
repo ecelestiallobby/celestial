@@ -4,7 +4,7 @@ import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
 
 interface PortalProps {
-  initialView?: 'landing' | 'terms' | 'privacy' | 'info-sec' | 'contact';
+  initialView?: 'landing' | 'guest' | 'terms' | 'privacy' | 'info-sec' | 'contact';
   onEnterStore: () => void;
   activeOrder: ActiveOrder;
   deliveryDetails?: DeliveryDetails;
@@ -13,11 +13,11 @@ interface PortalProps {
 
 type PortalView = 'landing' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact';
 
-type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; };
+type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
 const ONBOARDING_TIMEOUT_MS = 30 * 60 * 1000;
 const RESTRICTION_MS = 24 * 60 * 60 * 1000;
-const readOnboardingRecord = (): OnboardingRecord | null => { try { const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY); return raw ? JSON.parse(raw) as OnboardingRecord : null; } catch { return null; } };
+const readOnboardingRecord = (): OnboardingRecord | null => { try { const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY); if (!raw) return null; const parsed = JSON.parse(raw) as OnboardingRecord; const legacyCompleted = parsed.status === 'completed' ? Array.from({ length: 8 }, (_, index) => index) : Array.from({ length: Math.max(0, Math.min(8, parsed.step || 0)) }, (_, index) => index); return { ...parsed, completedSteps: Array.isArray(parsed.completedSteps) ? parsed.completedSteps : legacyCompleted, purchaseWindowStartedAt: parsed.purchaseWindowStartedAt ?? null, purchaseWindowOrderPlacedAt: parsed.purchaseWindowOrderPlacedAt ?? null }; } catch { return null; } };
 type GuestPage = 'home' | '3s' | 'no-nos' | 'faqs' | 'track-order';
 
 export const Portal: React.FC<PortalProps> = ({
@@ -64,7 +64,7 @@ export const Portal: React.FC<PortalProps> = ({
 
   const applyOnboardingRestriction = (reason: string) => {
     const previous = readOnboardingRecord() || onboardingRecord;
-    const record: OnboardingRecord = { status: 'restricted', step: previous?.step ?? onboardStep, startedAt: previous?.startedAt ?? Date.now(), restrictionUntil: Date.now() + RESTRICTION_MS, restrictionReason: reason, termsAccepted: false, helpUsed: previous?.helpUsed ?? false };
+    const record: OnboardingRecord = { status: 'restricted', step: previous?.step ?? onboardStep, startedAt: previous?.startedAt ?? Date.now(), restrictionUntil: Date.now() + RESTRICTION_MS, restrictionReason: reason, termsAccepted: false, helpUsed: previous?.helpUsed ?? false, completedSteps: previous?.completedSteps ?? [], purchaseWindowStartedAt: previous?.purchaseWindowStartedAt ?? null, purchaseWindowOrderPlacedAt: previous?.purchaseWindowOrderPlacedAt ?? null };
     try { sessionStorage.removeItem('CL_ONBOARDING_ACTIVE_SESSION'); } catch { /* best effort */ } persistOnboarding(record); setRestrictionReason(reason); setShowExitWarning(false); setShowRestrictionHelp(false); setGuestPage('home'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -72,7 +72,7 @@ export const Portal: React.FC<PortalProps> = ({
     const saved = readOnboardingRecord();
     if (saved?.status === 'restricted' && saved.restrictionUntil && Date.now() < saved.restrictionUntil) { setOnboardingRecord(saved); setRestrictionReason(saved.restrictionReason); setView('restriction'); return; }
     const step = saved && saved.status !== 'completed' ? Math.max(0, Math.min(7, saved.step)) : 0;
-    const record: OnboardingRecord = saved && saved.status !== 'completed' ? { ...saved, status: 'in-progress', startedAt: Date.now(), restrictionUntil: null } : { status: 'in-progress', step: 0, startedAt: Date.now(), restrictionUntil: null, restrictionReason: '', termsAccepted: false, helpUsed: false };
+    const record: OnboardingRecord = saved && saved.status !== 'completed' ? { ...saved, status: 'in-progress', startedAt: Date.now(), restrictionUntil: null, purchaseWindowStartedAt: null, purchaseWindowOrderPlacedAt: null } : { status: 'in-progress', step: 0, startedAt: Date.now(), restrictionUntil: null, restrictionReason: '', termsAccepted: false, helpUsed: false, completedSteps: [], purchaseWindowStartedAt: null, purchaseWindowOrderPlacedAt: null };
     persistOnboarding(record); try { sessionStorage.setItem('CL_ONBOARDING_ACTIVE_SESSION', '1'); } catch { /* best effort */ } setOnboardStep(step); setPurchaseIntent('now'); setShowExitWarning(false); setView('onboarding'); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -89,6 +89,10 @@ export const Portal: React.FC<PortalProps> = ({
 
   useEffect(() => {
     const saved = readOnboardingRecord();
+    if (saved?.status === 'completed' && saved.purchaseWindowStartedAt && !saved.purchaseWindowOrderPlacedAt && Date.now() - saved.purchaseWindowStartedAt >= 60 * 60 * 1000) {
+      applyOnboardingRestriction('The one-hour purchasing window expired before an order was placed.');
+      return;
+    }
     let activeSession = false;
     try { activeSession = sessionStorage.getItem('CL_ONBOARDING_ACTIVE_SESSION') === '1'; } catch { /* unavailable */ }
     if (saved?.status === 'in-progress' && !activeSession) {
@@ -111,17 +115,17 @@ export const Portal: React.FC<PortalProps> = ({
 
   const handleOnboardContinue = () => {
     if (onboardStep === 7) {
-      if (purchaseIntent === 'later') { applyOnboardingRestriction('You declined the purchasing-intent step for now.'); return; }
-      const saved = readOnboardingRecord(); if (saved) persistOnboarding({ ...saved, status: 'in-progress', step: 7, restrictionUntil: null, restrictionReason: '' });
+      if (purchaseIntent === 'later') { applyOnboardingRestriction('You chose not to proceed with purchasing intent at this time.'); return; }
+      const saved = readOnboardingRecord(); if (saved) persistOnboarding({ ...saved, status: 'in-progress', step: 7, completedSteps: Array.from(new Set([...(saved.completedSteps ?? []), 7])), purchaseWindowStartedAt: saved.purchaseWindowStartedAt ?? Date.now(), purchaseWindowOrderPlacedAt: null, restrictionUntil: null, restrictionReason: '' });
       setView('onboarding-terms'); window.scrollTo({ top: 0, behavior: 'smooth' }); return;
     }
-    const nextStep = Math.min(7, onboardStep + 1); setOnboardStep(nextStep); const saved = readOnboardingRecord(); if (saved) persistOnboarding({ ...saved, step: nextStep }); window.scrollTo({ top: 0, behavior: 'smooth' });
+    const nextStep = Math.min(7, onboardStep + 1); setOnboardStep(nextStep); const saved = readOnboardingRecord(); if (saved) persistOnboarding({ ...saved, step: nextStep, completedSteps: Array.from(new Set([...(saved.completedSteps ?? []), onboardStep])) }); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleOnboardBack = () => { const previousStep = Math.max(0, onboardStep - 1); setOnboardStep(previousStep); const saved = readOnboardingRecord(); if (saved) persistOnboarding({ ...saved, step: previousStep }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   const handleGuestStoreAccess = () => { const saved = readOnboardingRecord(); if (saved?.status === 'completed' && saved.termsAccepted) { onEnterStore(); return; } setView('store-locked'); };
-  const handleTermsAcceptance = () => { const saved = readOnboardingRecord(); if (!saved) return; try { sessionStorage.removeItem('CL_ONBOARDING_ACTIVE_SESSION'); } catch { /* best effort */ } persistOnboarding({ ...saved, status: 'completed', termsAccepted: true, restrictionUntil: null }); setTermsAccepted(true); onEnterStore(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const handleTermsAcceptance = () => { const saved = readOnboardingRecord(); if (!saved) return; try { sessionStorage.removeItem('CL_ONBOARDING_ACTIVE_SESSION'); } catch { /* best effort */ } persistOnboarding({ ...saved, status: 'completed', termsAccepted: true, completedSteps: Array.from({ length: 8 }, (_, index) => index), restrictionUntil: null }); setTermsAccepted(true); onEnterStore(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   const handleVerifyAccess = () => {
     const a = accessIdInput.trim().toUpperCase();
@@ -240,7 +244,7 @@ export const Portal: React.FC<PortalProps> = ({
                 {onboardingRecord && onboardingRecord.status !== 'completed' && (
                   <div className="portal-panel p-4 mt-4 border border-amber-400/40"><small className="text-amber-300 font-bold tracking-widest">YOUR JOURNEY IS WAITING</small><p className="section-copy mt-2">You have an unfinished onboarding process. Your progress is saved on this browser.</p>{onboardingRecord.status === 'restricted' && onboardingRecord.restrictionUntil && Date.now() < onboardingRecord.restrictionUntil && <p className="text-xs text-amber-200 mt-2">Viewing-only restriction is active. Your journey can resume when the 24-hour period expires.</p>}<button className="primary-action full mt-3" onClick={startOnboarding}>Continue Your Journey</button></div>
                 )}
-                {onboardingRecord?.status === 'completed' && onboardingRecord.termsAccepted && <div className="portal-panel p-4 mt-4 border border-amber-400/40"><small className="text-amber-300 font-bold tracking-widest">ONBOARDING COMPLETED</small><p className="section-copy mt-2">Your Terms and Policies acknowledgement is recorded in this browser demo.</p><button className="primary-action full mt-3" onClick={handleGuestStoreAccess}>Enter Guest Store</button></div>}
+                {onboardingRecord?.status === 'completed' && onboardingRecord.termsAccepted && <div className="portal-panel p-4 mt-4 border border-amber-400/40"><small className="text-amber-300 font-bold tracking-widest">ONBOARDING COMPLETED</small><p className="section-copy mt-2">Your Terms and Policies acknowledgement is recorded in this browser demo.</p><p className="text-xs text-emerald-300 mt-2">{(onboardingRecord.completedSteps ?? []).length} of 8 onboarding steps completed.</p><button className="primary-action full mt-3" onClick={handleGuestStoreAccess}>Enter Guest Store</button></div>}
 
                 <div className="portal-panel mt-6">
                   <button className="expand-head" aria-expanded={guestCelestialsOpen} onClick={() => setGuestCelestialsOpen(!guestCelestialsOpen)}>
@@ -376,7 +380,14 @@ export const Portal: React.FC<PortalProps> = ({
             <div className="onboard-progress">
               <div style={{ width: `${(onboardStep + 1) * 12.5}%` }}></div>
             </div>
-            <div className="step-meta">STEP {onboardStep + 1} OF 8</div>
+            <div className="step-meta">STEP {onboardStep + 1} OF 8 · {(onboardingRecord?.completedSteps ?? []).length} COMPLETED</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 mb-5" aria-label="Onboarding step completion">
+              {ONBOARDING_STEPS.map((step, index) => {
+                const completed = (onboardingRecord?.completedSteps ?? []).includes(index);
+                const current = index === onboardStep;
+                return <div key={step.title} className={`rounded-lg border px-2 py-2 text-[10px] leading-snug ${completed ? 'border-emerald-400/40 bg-emerald-950/30 text-emerald-200' : current ? 'border-amber-400/50 bg-amber-950/20 text-amber-200' : 'border-purple-500/20 bg-slate-950/30 text-purple-300'}`}><span className="block font-bold">{completed ? '✓ COMPLETED' : current ? '● CURRENT' : '○ UPCOMING'}</span><span className="block mt-1">{index + 1}. {step.title}</span></div>;
+              })}
+            </div>
 
             <h2 className="section-title">{ONBOARDING_STEPS[onboardStep].title}</h2>
             <div className="onboard-copy">{ONBOARDING_STEPS[onboardStep].copy}</div>
@@ -405,9 +416,9 @@ export const Portal: React.FC<PortalProps> = ({
                       onChange={() => setPurchaseIntent('later')}
                       className="accent-amber-400"
                     />
-                    <span>I will think about it first</span>
+                    <span>I am not ready to purchase right now</span>
                   </label>
-                  <p className="small-caveat mt-2">You can leave without placing an order.</p>
+                  <p className="small-caveat mt-2">Choosing not to proceed exits to the Guest Environment homepage and activates the 24-hour viewing-only restriction.</p>
                 </div>
               )}
             </div>
@@ -424,7 +435,7 @@ export const Portal: React.FC<PortalProps> = ({
                 className="primary-action"
                 onClick={handleOnboardContinue}
               >
-                {onboardStep === 7 ? 'Continue to Store' : 'Continue'}
+                {onboardStep === 7 ? (purchaseIntent === 'later' ? 'Exit Home' : 'Continue to Store') : 'Continue'}
               </button>
             </div>
             {showExitWarning && <div className="portal-panel p-4 mt-5 border border-amber-400/40" role="alertdialog" aria-modal="true" aria-labelledby="leave-onboarding-title"><h3 id="leave-onboarding-title" className="text-amber-200 font-bold">YOUR JOURNEY IS STILL IN PROGRESS</h3><p className="text-sm text-purple-100 mt-2">Leaving now will end this onboarding session and activate a 24-hour viewing-only restriction. Your current step will be saved where browser storage allows.</p><div className="flex flex-col sm:flex-row gap-2 mt-4"><button className="primary-action flex-1" onClick={() => setShowExitWarning(false)}>Continue Onboarding</button><button className="secondary-action flex-1" onClick={confirmOnboardingExit}>Leave Onboarding</button></div></div>}
