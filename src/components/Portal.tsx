@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import hoenoPosterBase64 from '../assets/hoeno-3s.webp.b64?raw';
 import { ONBOARDING_STEPS } from '../catalog';
 import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
@@ -1101,7 +1102,7 @@ export const Portal: React.FC<PortalProps> = ({
 
             <figure className="three-s-feature">
               <img
-                src={`${import.meta.env.BASE_URL}assets/hoeno-3s.webp`}
+                src={`data:image/webp;base64,${hoenoPosterBase64.trim()}`}
                 alt="Hoeno founder portrait with the words Secretive. Secured. Safe."
                 loading="lazy"
                 decoding="async"
