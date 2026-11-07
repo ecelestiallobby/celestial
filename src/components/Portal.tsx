@@ -793,8 +793,8 @@ export const Portal: React.FC<PortalProps> = ({
         {view === 'regular-gate' && (
           <section className="animate-fadeIn">
             <div className="portal-topline">
-              <button className="text-back flex items-center gap-1" onClick={() => setView('landing')}>
-                ← Lobby
+              <button className="text-back flex items-center gap-1" onClick={navigateEnvironmentHome}>
+                ← Client Home
               </button>
               <span>CLIENT ACCESS GATE</span>
             </div>
@@ -1216,11 +1216,11 @@ export const Portal: React.FC<PortalProps> = ({
       </main>
 
       {ownerSessionUntil > Date.now() && view !== 'onboarding' && view !== 'onboarding-terms' && (
-        <nav className="owner-preview-dock" aria-label="Persistent owner preview controls">
+        <nav className="owner-preview-dock" aria-label="Persistent Owner Preview controls">
           <span className="owner-preview-dock-label">OWNER PREVIEW</span>
-          <button type="button" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Designer</button>
+          <button type="button" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner Workspace</button>
           <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest View</button>
-          <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Client View</button>
+          <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Regular Client Preview</button>
           <button type="button" className="owner-preview-exit" onClick={exitOwnerOverride}>Exit Override</button>
         </nav>
       )}
