@@ -69,6 +69,7 @@ export const App: React.FC = () => {
 
   useEffect(() => { try { localStorage.setItem(OWNER_NOTEPAD_KEY, ownerNotes); } catch { /* best effort */ } }, [ownerNotes]);
   useEffect(() => { try { localStorage.setItem(OWNER_FEEDBACK_KEY, JSON.stringify(feedbackItems)); } catch { /* best effort */ } }, [feedbackItems]);
+  useEffect(() => { if (!ownerActive) return; const expiresAt = Number(localStorage.getItem(OWNER_SESSION_KEY) || 0); const delay = expiresAt - Date.now(); if (delay <= 0) { setOwnerActive(false); return; } const timer = window.setTimeout(() => { localStorage.removeItem(OWNER_SESSION_KEY); setOwnerActive(false); setOwnerPanel('none'); }, delay); return () => window.clearTimeout(timer); }, [ownerActive]);
   useEffect(() => () => { if (referenceImageUrl) URL.revokeObjectURL(referenceImageUrl); }, [referenceImageUrl]);
 
   const handleReset = () => {
