@@ -255,7 +255,7 @@ export const Portal: React.FC<PortalProps> = ({
               <small className="text-amber-300 font-bold tracking-widest">SESSION STATUS</small>
               <p className="expand-body mt-2">This browser remembers Owner access until:</p>
               <p className="text-sm text-amber-200 font-semibold mt-2">{ownerSessionUntil ? new Date(ownerSessionUntil).toLocaleString() : 'No active session'}</p>
-              <p className="text-xs text-purple-200 mt-3">Access is stored locally in this browser for up to 24 hours. Another browser or device will not have this saved session.</p>
+              <p className="text-xs text-purple-200 mt-3">Access is stored locally in this browser for up to 24 hours. Another browser or device will not have this saved session. A network change will not automatically trigger re-login in this local-only setup.</p>
             </div>
             <div className="portal-panel p-4 mt-4">
               <small className="text-amber-300 font-bold tracking-widest">PREVIEW WORKSPACE</small>
