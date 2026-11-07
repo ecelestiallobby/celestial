@@ -32,6 +32,11 @@ export const Portal: React.FC<PortalProps> = ({
 }) => {
   const [view, setView] = useState<PortalView>(initialView);
   const [ownerSessionUntil, setOwnerSessionUntil] = useState<number>(() => readOwnerSession());
+  const [ownerTriggerTaps, setOwnerTriggerTaps] = useState(0);
+  const [showOwnerAccessField, setShowOwnerAccessField] = useState(false);
+  const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
+  const [ownerAccessMessage, setOwnerAccessMessage] = useState('');
+  const [ownerNotepad, setOwnerNotepad] = useState(() => { try { return localStorage.getItem('CL_OWNER_NOTEPAD_V1') || ''; } catch { return ''; } });
   const [guestPage, setGuestPage] = useState<GuestPage>('home');
   const [onboardStep, setOnboardStep] = useState(0);
   const [purchaseIntent, setPurchaseIntent] = useState<'now' | 'later'>('now');
@@ -138,6 +143,33 @@ export const Portal: React.FC<PortalProps> = ({
 
   const handleOnboardBack = () => { const previousStep = Math.max(0, onboardStep - 1); setOnboardStep(previousStep); const saved = readOnboardingRecord(); if (saved) persistOnboarding({ ...saved, step: previousStep }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
+  const activateOwnerTrigger = () => {
+    if (ownerSessionUntil > Date.now()) {
+      setView('owner-preview');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    setOwnerAccessPhrase('');
+    setOwnerAccessMessage('');
+    setShowOwnerAccessField(true);
+  };
+
+  const handleOwnerAccessSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (ownerAccessPhrase.trim().toUpperCase() !== 'CELESTIAL ARMY') {
+      setOwnerAccessMessage('Access phrase not recognized. Please try again.');
+      return;
+    }
+    setShowOwnerAccessField(false);
+    setOwnerAccessPhrase('');
+    enterOwnerOverride();
+  };
+
+  const handleOwnerNotepadChange = (value: string) => {
+    setOwnerNotepad(value);
+    try { localStorage.setItem('CL_OWNER_NOTEPAD_V1', value); } catch { /* best effort */ }
+  };
+
   const enterOwnerOverride = () => {
     const expiresAt = Date.now() + OWNER_SESSION_MS;
     try { localStorage.setItem(OWNER_SESSION_KEY, String(expiresAt)); } catch { /* browser storage may be unavailable */ }
@@ -229,7 +261,7 @@ export const Portal: React.FC<PortalProps> = ({
     <div className="portal-shell min-h-screen flex flex-col justify-between">
       {/* Top Header */}
       <header className="portal-header">
-        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} onClick={() => handleChromeNavigation('landing')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') handleChromeNavigation('landing'); }}>
+        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home; tap the emblem five times for Owner Access" onClick={() => { if (view === 'landing' && !showOwnerAccessField) { setOwnerTriggerTaps(current => { const next = current + 1; if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); return 0; } return next; }); } else { handleChromeNavigation('landing'); } }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (view === 'landing' && !showOwnerAccessField) { setOwnerTriggerTaps(current => { const next = current + 1; if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); return 0; } return next; }); } else { handleChromeNavigation('landing'); } } }}>
           <div className="brand-orbit">✦</div>
           <div>
             <div className="brand-name">CELESTIAL LOBBY</div>
@@ -260,11 +292,19 @@ export const Portal: React.FC<PortalProps> = ({
             <div className="portal-panel p-4 mt-4">
               <small className="text-amber-300 font-bold tracking-widest">PREVIEW WORKSPACE</small>
               <h3 className="section-title mt-2">Simulation environment</h3>
-              <p className="section-copy">The Owner Preview entry point is active. Store, order, inventory, promotion, and dashboard simulation tools will be connected in their respective build phases. No live business records are changed here.</p>
+              <p className="section-copy">Inspect the pages and navigation currently implemented in this website. Business dashboards and live management controls are not yet connected. Preview-only changes must not be treated as live business records.</p>
               <div className="flex flex-wrap gap-3 mt-4">
-                <button className="primary-action" onClick={() => setView('landing')}>Customer View</button>
+                <button className="primary-action" onClick={() => { setView('guest'); setGuestPage('home'); }}>Open Guest Environment</button>
+                <button className="secondary-action" onClick={() => setView('landing')}>Customer View</button>
                 <button className="text-back" onClick={exitOwnerOverride}>Exit Owner Override</button>
               </div>
+            </div>
+            <div className="portal-panel p-4 mt-4">
+              <small className="text-amber-300 font-bold tracking-widest">OWNER NOTEPAD</small>
+              <h3 className="section-title mt-2">Private working notes</h3>
+              <p className="section-copy">Notes are saved in this browser only. Do not enter passwords, payment details, customer data, or other sensitive information.</p>
+              <textarea className="w-full mt-3 rounded-lg border border-purple-400/30 bg-slate-950/70 p-3 text-sm text-slate-100 min-h-40" rows={7} value={ownerNotepad} onChange={(event) => handleOwnerNotepadChange(event.target.value)} placeholder="Write development notes, page corrections, test ideas, and reminders..." aria-label="Owner notepad" />
+              <p className="small-caveat">Saved locally in this browser profile. Clearing browser data may erase these notes.</p>
             </div>
             <p className="text-xs text-amber-200/80 mt-4">LOCAL BROWSER ACCESS ONLY · Not server-verified authentication. Anyone with access to this browser profile can open this preview.</p>
           </section>
@@ -288,14 +328,30 @@ export const Portal: React.FC<PortalProps> = ({
                 <span className="dest-action">Access portal <b>↗</b></span>
               </button>
 
-              <button className="destination-card" onClick={() => ownerSessionUntil > Date.now() ? setView('owner-preview') : enterOwnerOverride()}>
-                <span className="dest-icon">♜</span>
-                <span className="dest-title">Owner Override</span>
-                <span className="dest-desc">{ownerSessionUntil > Date.now() ? 'Your Owner session is remembered on this browser.' : 'Open the Owner Preview on this browser.'}</span>
-                <span className="dest-action">{ownerSessionUntil > Date.now() ? 'Resume Owner access' : 'Enter Owner Preview'} <b>↗</b></span>
-              </button>
+
             </div>
 
+            {showOwnerAccessField && (
+              <div className="portal-panel p-4 mt-5" role="region" aria-label="Owner access">
+                <small className="text-amber-300 font-bold tracking-widest">RESTRICTED OWNER ACCESS</small>
+                {ownerSessionUntil > Date.now() ? (
+                  <>
+                    <p className="section-copy mt-2">Your Owner session is remembered on this browser.</p>
+                    <button className="primary-action mt-3" onClick={activateOwnerTrigger}>Resume Owner Preview</button>
+                  </>
+                ) : (
+                  <form className="gate-panel p-0 mt-3" onSubmit={handleOwnerAccessSubmit}>
+                    <label htmlFor="owner-access-phrase">ENTER OWNER ACCESS PHRASE
+                      <input id="owner-access-phrase" type="password" autoComplete="off" value={ownerAccessPhrase} onChange={(event) => setOwnerAccessPhrase(event.target.value)} placeholder="Enter access phrase" />
+                    </label>
+                    {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
+                    <button className="primary-action" type="submit">Continue to Owner Preview</button>
+                    <button className="text-back ml-4" type="button" onClick={() => { setShowOwnerAccessField(false); setOwnerAccessPhrase(''); setOwnerAccessMessage(''); }}>Cancel</button>
+                  </form>
+                )}
+                <p className="small-caveat">Browser-local convenience gate only. The phrase is present in the public website code and is not secure authentication.</p>
+              </div>
+            )}
           </section>
         )}
 
