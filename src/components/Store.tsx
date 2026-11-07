@@ -6,6 +6,7 @@ interface StoreProps {
   state: CelestialState;
   setState: React.Dispatch<React.SetStateAction<CelestialState>>;
   onReturnToLobby: () => void;
+  onPurchaseWindowExpired: () => void;
   onOpenPortalPage: (page: 'terms' | 'privacy' | 'info-sec' | 'contact') => void;
   onReset: () => void;
 }
@@ -14,6 +15,7 @@ export const Store: React.FC<StoreProps> = ({
   state,
   setState,
   onReturnToLobby,
+  onPurchaseWindowExpired,
   onOpenPortalPage,
   onReset
 }) => {
@@ -38,6 +40,26 @@ export const Store: React.FC<StoreProps> = ({
   const handlingCost = 0;
   const handlingName = 'Standard Processing';
   const grandTotal = Math.max(0, itemsTotal + handlingCost - state.discount);
+
+  // One-hour purchasing-intent deadline; separate from the payment timer below.
+  useEffect(() => {
+    const checkPurchaseWindow = () => {
+      try {
+        const raw = localStorage.getItem('CL_GUEST_ONBOARDING_V1');
+        if (!raw) return;
+        const record = JSON.parse(raw);
+        if (typeof record.purchaseWindowStartedAt !== 'number' || record.purchaseWindowOrderPlacedAt || record.status === 'restricted') return;
+        if (Date.now() - record.purchaseWindowStartedAt >= 60 * 60 * 1000) {
+          const now = Date.now();
+          localStorage.setItem('CL_GUEST_ONBOARDING_V1', JSON.stringify({ ...record, status: 'restricted', restrictionUntil: now + 24 * 60 * 60 * 1000, restrictionReason: 'The one-hour purchasing window expired before an order was placed.', termsAccepted: false }));
+          onPurchaseWindowExpired();
+        }
+      } catch { /* best effort in this browser demo */ }
+    };
+    checkPurchaseWindow();
+    const timer = window.setInterval(checkPurchaseWindow, 1000);
+    return () => window.clearInterval(timer);
+  }, [onPurchaseWindowExpired]);
 
   // Timer logic for View 7
   useEffect(() => {
@@ -118,6 +140,21 @@ export const Store: React.FC<StoreProps> = ({
   };
 
   const placeOrder = () => {
+    try {
+      const raw = localStorage.getItem('CL_GUEST_ONBOARDING_V1');
+      if (raw) {
+        const record = JSON.parse(raw);
+        if (typeof record.purchaseWindowStartedAt === 'number' && !record.purchaseWindowOrderPlacedAt) {
+          if (Date.now() - record.purchaseWindowStartedAt >= 60 * 60 * 1000) {
+            const nowMs = Date.now();
+            localStorage.setItem('CL_GUEST_ONBOARDING_V1', JSON.stringify({ ...record, status: 'restricted', restrictionUntil: nowMs + 24 * 60 * 60 * 1000, restrictionReason: 'The one-hour purchasing window expired before an order was placed.', termsAccepted: false }));
+            onPurchaseWindowExpired();
+            return;
+          }
+          localStorage.setItem('CL_GUEST_ONBOARDING_V1', JSON.stringify({ ...record, purchaseWindowOrderPlacedAt: Date.now() }));
+        }
+      }
+    } catch { /* best effort in this browser demo */ }
     const now = new Date();
     const timeStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
       ' • ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
