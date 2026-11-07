@@ -89,7 +89,7 @@ export const Portal: React.FC<PortalProps> = ({
 
   useEffect(() => {
     const saved = readOnboardingRecord();
-    if (saved?.status === 'completed' && saved.purchaseWindowStartedAt && !saved.purchaseWindowOrderPlacedAt && Date.now() - saved.purchaseWindowStartedAt >= 60 * 60 * 1000) {
+    if (saved && saved.status !== 'restricted' && saved.purchaseWindowStartedAt && !saved.purchaseWindowOrderPlacedAt && Date.now() - saved.purchaseWindowStartedAt >= 60 * 60 * 1000) {
       applyOnboardingRestriction('The one-hour purchasing window expired before an order was placed.');
       return;
     }
@@ -100,6 +100,18 @@ export const Portal: React.FC<PortalProps> = ({
       persistOnboarding(interrupted);
       setRestrictionReason(interrupted.restrictionReason);
     }
+  }, []);
+
+  useEffect(() => {
+    const checkPurchaseDeadline = () => {
+      const saved = readOnboardingRecord();
+      if (saved && saved.status !== 'restricted' && saved.purchaseWindowStartedAt && !saved.purchaseWindowOrderPlacedAt && Date.now() - saved.purchaseWindowStartedAt >= 60 * 60 * 1000) {
+        applyOnboardingRestriction('The one-hour purchasing window expired before an order was placed.');
+      }
+    };
+    const timer = window.setInterval(checkPurchaseDeadline, 1000);
+    checkPurchaseDeadline();
+    return () => window.clearInterval(timer);
   }, []);
 
   useEffect(() => {
