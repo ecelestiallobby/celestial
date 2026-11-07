@@ -1546,3 +1546,49 @@ button,
   .three-s-accordion .expand-head em { font-size: 9px; }
   .three-s-guarantee-row { grid-template-columns: 72px minmax(0, 1fr); gap: 8px; }
 }
+
+
+/* Persistent Owner Preview controls remain available while inspecting any route. */
+.owner-preview-dock {
+  position: fixed;
+  z-index: 80;
+  left: 10px;
+  right: 10px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px;
+  border: 1px solid rgba(112, 151, 255, .45);
+  border-radius: 15px;
+  background: rgba(7, 11, 25, .96);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .48);
+  backdrop-filter: blur(14px);
+}
+.owner-preview-dock-label {
+  width: 100%;
+  color: #a9c4ff;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+.owner-preview-dock button {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid rgba(130, 157, 220, .3);
+  border-radius: 9px;
+  background: rgba(31, 43, 76, .9);
+  color: #e8edff;
+  font-size: 10px;
+  font-weight: 700;
+}
+.owner-preview-dock .owner-preview-exit {
+  border-color: rgba(239, 172, 112, .5);
+  color: #ffd3a2;
+}
+.portal-shell:has(.owner-preview-dock) {
+  padding-bottom: 105px;
+}
