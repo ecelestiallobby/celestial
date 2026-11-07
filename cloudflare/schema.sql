@@ -1,0 +1,12 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,access_id TEXT NOT NULL UNIQUE,display_name TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('OWNER','ADMIN','SALES','CLIENT','CELESTIAL_ARMY')),password_hash TEXT NOT NULL,password_salt TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'ACTIVE' CHECK(status IN ('ACTIVE','SUSPENDED','DISABLED')),must_reset INTEGER NOT NULL DEFAULT 1,created_at TEXT NOT NULL,updated_at TEXT);
+CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,token_hash TEXT NOT NULL UNIQUE,expires_at TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+CREATE TABLE IF NOT EXISTS login_attempts(id INTEGER PRIMARY KEY AUTOINCREMENT,access_id TEXT NOT NULL,success INTEGER NOT NULL,attempted_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_login_attempts_access_time ON login_attempts(access_id,attempted_at);
+CREATE TABLE IF NOT EXISTS orders(id TEXT PRIMARY KEY,reference TEXT NOT NULL UNIQUE,user_id TEXT NOT NULL REFERENCES users(id),status TEXT NOT NULL,items_json TEXT NOT NULL,delivery_json TEXT NOT NULL,total_amount REAL NOT NULL DEFAULT 0,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id,created_at);
+CREATE TABLE IF NOT EXISTS inventory(id TEXT PRIMARY KEY,sku TEXT UNIQUE,name TEXT NOT NULL,stock REAL NOT NULL DEFAULT 0,unit_price REAL NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 1,updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS access_codes(code TEXT PRIMARY KEY,type TEXT NOT NULL,value REAL NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 1,expires_at TEXT,max_uses INTEGER,uses INTEGER NOT NULL DEFAULT 0,created_by TEXT REFERENCES users(id),created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS audit_logs(id INTEGER PRIMARY KEY AUTOINCREMENT,actor_id TEXT,action TEXT NOT NULL,target_type TEXT NOT NULL,target_id TEXT,before_json TEXT,after_json TEXT,created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at DESC);
