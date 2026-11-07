@@ -160,7 +160,7 @@ export const Portal: React.FC<PortalProps> = ({
 
   const handleOwnerAccessSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (ownerAccessPhrase.trim().toUpperCase() !== 'CELESTIAL ARMY') {
+    if (ownerAccessPhrase.trim().toUpperCase().replace(/\\s+/g, ' ') !== 'THE POWER CELESTIAL BEINGS NUMBER ONE') {
       setOwnerAccessMessage('Access phrase not recognized. Please try again.');
       return;
     }
