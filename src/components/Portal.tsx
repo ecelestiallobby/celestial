@@ -261,7 +261,7 @@ export const Portal: React.FC<PortalProps> = ({
     <div className="portal-shell min-h-screen flex flex-col justify-between">
       {/* Top Header */}
       <header className="portal-header">
-        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home; tap the emblem five times for Owner Access" onClick={() => { if (view === 'landing' && !showOwnerAccessField) { setOwnerTriggerTaps(current => { const next = current + 1; if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); return 0; } return next; }); } else { handleChromeNavigation('landing'); } }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (view === 'landing' && !showOwnerAccessField) { setOwnerTriggerTaps(current => { const next = current + 1; if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); return 0; } return next; }); } else { handleChromeNavigation('landing'); } } }}>
+        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home; tap the emblem five times for Owner Access" onClick={() => { if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { handleChromeNavigation('landing'); } }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { handleChromeNavigation('landing'); } } }}>
           <div className="brand-orbit">✦</div>
           <div>
             <div className="brand-name">CELESTIAL LOBBY</div>
@@ -342,7 +342,7 @@ export const Portal: React.FC<PortalProps> = ({
                 ) : (
                   <form className="gate-panel p-0 mt-3" onSubmit={handleOwnerAccessSubmit}>
                     <label htmlFor="owner-access-phrase">ENTER OWNER ACCESS PHRASE
-                      <input id="owner-access-phrase" type="password" autoComplete="off" value={ownerAccessPhrase} onChange={(event) => setOwnerAccessPhrase(event.target.value)} placeholder="Enter access phrase" />
+                      <input id="owner-access-phrase" type="password" autoComplete="off" required value={ownerAccessPhrase} onChange={(event) => setOwnerAccessPhrase(event.target.value)} placeholder="Enter access phrase" />
                     </label>
                     {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
                     <button className="primary-action" type="submit">Continue to Owner Preview</button>
