@@ -60,6 +60,6 @@ export const ONBOARDING_STEPS = [
   {
     title: 'Purchasing Intent',
     copy: 'Are you ready to explore the store, or would you prefer to consider your budget first?',
-    extra: 'Choose “I am ready to explore the store” to proceed to the final Terms and Policies review. Choosing to wait will pause the journey and activate the 24-hour viewing-only restriction.'
+    extra: 'Choose “I am ready to explore the store” to proceed to the final Terms and Policies review. The one-hour purchasing window begins when you press Continue to Store; place your order within that hour. Choosing “I am not ready to purchase right now” exits to the Guest Environment homepage and activates the 24-hour viewing-only restriction.'
   }
 ];
