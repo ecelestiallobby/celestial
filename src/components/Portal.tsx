@@ -1086,40 +1086,103 @@ export const Portal: React.FC<PortalProps> = ({
 
 
         {view === 'three-s' && (
-          <section className="guest-content-page animate-fadeIn" aria-labelledby="three-s-title">
+          <section className="guest-content-page animate-fadeIn three-s-page" aria-labelledby="three-s-title">
             <div className="portal-topline">
               <button className="text-back" onClick={() => setView('landing')}>← Homepage</button>
               <span>OUR STANDARDS</span>
             </div>
-            <p className="eyebrow">CELESTIAL LOBBY · CLIENT COMMITMENT</p>
-            <h2 id="three-s-title" className="section-title">The 3S Framework</h2>
-            <h3 className="text-lg font-semibold text-amber-200 mt-2">Our Commitment to You</h3>
-            <p className="section-copy mt-3">Security, Secrecy and Safety are the three principles that guide how we protect client information, manage access and handle orders.</p>
-            <div className="grid grid-cols-3 gap-2 my-5">
-              <div className="portal-panel p-3 text-center"><span className="block text-xl" aria-hidden="true">◈</span><b className="text-[10px] tracking-wider">SECURITY</b><small className="block text-[9px] text-slate-400 mt-1">Identity protection</small></div>
-              <div className="portal-panel p-3 text-center"><span className="block text-xl" aria-hidden="true">◉</span><b className="text-[10px] tracking-wider">SECRECY</b><small className="block text-[9px] text-slate-400 mt-1">Privacy & discretion</small></div>
-              <div className="portal-panel p-3 text-center"><span className="block text-xl" aria-hidden="true">⬡</span><b className="text-[10px] tracking-wider">SAFETY</b><small className="block text-[9px] text-slate-400 mt-1">Handling integrity</small></div>
+
+            <div className="three-s-intro">
+              <p className="eyebrow">CELESTIAL LOBBY · CLIENT COMMITMENT</p>
+              <h2 id="three-s-title" className="section-title">The 3S Framework</h2>
+              <p className="three-s-lead">Three principles. One standard of care.</p>
+              <p className="section-copy">Security, Secrecy and Safety guide how we approach information, account access and order handling across the Celestial Lobby experience.</p>
             </div>
-            <div className="flex items-center justify-between gap-3 my-3">
-              <h3 className="text-sm font-bold text-amber-100">Explore the standards</h3>
-              <button type="button" className="text-link whitespace-nowrap" onClick={() => setAllThreeS(!allThreeSOpen)}>{allThreeSOpen ? 'Hide All' : 'Expand All'}</button>
+
+            <figure className="three-s-feature">
+              <img
+                src={`${import.meta.env.BASE_URL}assets/hoeno-3s.webp`}
+                alt="Hoeno founder portrait with the words Secretive. Secured. Safe."
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                <span>HOENO · FOUNDER</span>
+                <strong>SECRETIVE. SECURED. SAFE.</strong>
+              </figcaption>
+            </figure>
+
+            <div className="three-s-pillar-grid" aria-label="The three operational pillars">
+              <div className="portal-panel three-s-pillar"><span aria-hidden="true">◈</span><b>SECURITY</b><small>Identity & access</small></div>
+              <div className="portal-panel three-s-pillar"><span aria-hidden="true">◉</span><b>SECRECY</b><small>Privacy & discretion</small></div>
+              <div className="portal-panel three-s-pillar"><span aria-hidden="true">⬡</span><b>SAFETY</b><small>Handling integrity</small></div>
             </div>
-            <div className="space-y-3">
-              <section className="portal-panel">
-                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.security} aria-controls="three-s-security" onClick={() => setThreeSOpen(v => ({ ...v, security: !v.security }))}><span><small>01 · SYSTEM & IDENTITY PROTECTION</small><b>SECURITY</b></span><span aria-hidden="true">{threeSOpen.security ? '−' : '+'}</span></button>
-                {threeSOpen.security && <div id="three-s-security" className="expand-body"><p className="mb-3">We use access and information-handling controls designed to protect client accounts and interactions.</p><ul className="list-disc pl-5 space-y-2"><li><b>Client Confidentiality:</b> Unique identification codes are used where practical to limit unnecessary exposure of personal details in routine operational records.</li><li><b>Communication Protection:</b> Communication channels are protected using the security measures supported by the platform and selected messaging services.</li><li><b>Access Control:</b> System permissions are separated by role and operational responsibility.</li></ul></div>}
+
+            <div className="three-s-section-heading">
+              <div><h3>Explore the standards</h3><p>Open each pillar to read its commitments.</p></div>
+              <button type="button" className="text-link whitespace-nowrap" onClick={() => setAllThreeS(!allThreeSOpen)}>{allThreeSOpen ? 'Hide all details' : 'Expand all'}</button>
+            </div>
+
+            <div className="three-s-accordions">
+              <section className="portal-panel three-s-accordion">
+                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.security} aria-controls="three-s-security" onClick={() => setThreeSOpen(v => ({ ...v, security: !v.security }))}>
+                  <span><small>01 · SYSTEM & IDENTITY PROTECTION</small><b>SECURITY</b><em>Protecting accounts, identifiers and access.</em></span>
+                  <span className="three-s-toggle" aria-hidden="true">{threeSOpen.security ? '−' : '+'}</span>
+                </button>
+                {threeSOpen.security && <div id="three-s-security" className="expand-body">
+                  <p className="mb-3">We design access and information-handling practices to reduce unnecessary exposure and help protect client interactions.</p>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li><b>Unique Identification:</b> Assigned client identifiers can reduce the need to display personal details in routine operational workflows.</li>
+                    <li><b>Role-Based Access:</b> Access is intended to be limited according to each team member's responsibilities and authorization.</li>
+                    <li><b>Communication Protection:</b> We will use the protections supported by the platform and designated communication services. End-to-end encryption will only be claimed for channels where it is actually enabled and verified.</li>
+                  </ul>
+                </div>}
               </section>
-              <section className="portal-panel">
-                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.secrecy} aria-controls="three-s-secrecy" onClick={() => setThreeSOpen(v => ({ ...v, secrecy: !v.secrecy }))}><span><small>02 · DISCRETION & INFORMATION PRIVACY</small><b>SECRECY</b></span><span aria-hidden="true">{threeSOpen.secrecy ? '−' : '+'}</span></button>
-                {threeSOpen.secrecy && <div id="three-s-secrecy" className="expand-body"><p className="mb-3">We aim to minimize the information collected, limit who can access it and retain it only for defined operational needs.</p><ul className="list-disc pl-5 space-y-2"><li><b>Need-to-Know:</b> Access to operational information is limited according to each person's responsibilities.</li><li><b>Data Minimization:</b> We aim to request only information genuinely needed for the requested service. Clients should avoid submitting unnecessary identifying details.</li><li><b>Metadata Protection:</b> File and metadata sanitization measures are part of our planned privacy controls and will be applied as those controls are implemented.</li><li><b>Data Retention:</b> Retention and deletion schedules will govern eligible records, including the handling and expiration of backups.</li></ul></div>}
+
+              <section className="portal-panel three-s-accordion">
+                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.secrecy} aria-controls="three-s-secrecy" onClick={() => setThreeSOpen(v => ({ ...v, secrecy: !v.secrecy }))}>
+                  <span><small>02 · DISCRETION & INFORMATION PRIVACY</small><b>SECRECY</b><em>Minimizing collection and limiting exposure.</em></span>
+                  <span className="three-s-toggle" aria-hidden="true">{threeSOpen.secrecy ? '−' : '+'}</span>
+                </button>
+                {threeSOpen.secrecy && <div id="three-s-secrecy" className="expand-body">
+                  <p className="mb-3">Our direction is to collect as little identifying information as the service can reasonably operate without. No system should ask for details merely because a field is available.</p>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li><b>Data Minimization:</b> We will avoid requesting unnecessary personal details. Before a client submits information, the interface should explain what is requested and why.</li>
+                    <li><b>Need-to-Know:</b> Operational information should only be visible to people who need it to perform an authorized task.</li>
+                    <li><b>Metadata Protection:</b> Metadata and attachment sanitization are planned controls for a later implementation phase; they are not represented as active protections yet.</li>
+                    <li><b>Retention & Deletion:</b> A written retention schedule and deletion process—including backup expiry—must be established and tested before we promise automatic deletion.</li>
+                    <li><b>Limited Backups:</b> Any retained backup information must be minimized, protected with strong encryption and access controls, and governed by a documented restoration and expiry process.</li>
+                  </ul>
+                  <p className="small-caveat mt-3">Absolute anonymity and a zero digital footprint cannot be guaranteed. Networks, devices, hosting providers and payment or delivery services may create records outside the portal's control.</p>
+                </div>}
               </section>
-              <section className="portal-panel">
-                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.safety} aria-controls="three-s-safety" onClick={() => setThreeSOpen(v => ({ ...v, safety: !v.safety }))}><span><small>03 · FULFILLMENT & HANDLING INTEGRITY</small><b>SAFETY</b></span><span aria-hidden="true">{threeSOpen.safety ? '−' : '+'}</span></button>
-                {threeSOpen.safety && <div id="three-s-safety" className="expand-body"><p className="mb-3">We follow verification and handling procedures intended to protect order accuracy and package integrity.</p><ul className="list-disc pl-5 space-y-2"><li><b>Verification Standards:</b> Items are checked for structural integrity and relevant weight or specification accuracy before packaging.</li><li><b>Discreet Packaging:</b> Where applicable, orders are prepared in unbranded, tamper-evident packaging.</li><li><b>Verified Handoff:</b> Delivery handoffs follow established verification procedures appropriate to the fulfillment method.</li></ul></div>}
+
+              <section className="portal-panel three-s-accordion">
+                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.safety} aria-controls="three-s-safety" onClick={() => setThreeSOpen(v => ({ ...v, safety: !v.safety }))}>
+                  <span><small>03 · FULFILLMENT & HANDLING INTEGRITY</small><b>SAFETY</b><em>Verification, packaging and careful handoff.</em></span>
+                  <span className="three-s-toggle" aria-hidden="true">{threeSOpen.safety ? '−' : '+'}</span>
+                </button>
+                {threeSOpen.safety && <div id="three-s-safety" className="expand-body">
+                  <p className="mb-3">We follow practical checks intended to reduce handling mistakes and protect order integrity throughout fulfillment.</p>
+                  <ul className="list-disc pl-5 space-y-2">
+                    <li><b>Verification Standards:</b> Items are checked for structural integrity and relevant weight or specification accuracy before packaging.</li>
+                    <li><b>Discreet Packaging:</b> Unbranded, tamper-evident packaging will be used where available and appropriate.</li>
+                    <li><b>Verified Handoff:</b> Delivery handoffs follow defined verification steps appropriate to the fulfillment method.</li>
+                  </ul>
+                  <p className="small-caveat mt-3">Verification procedures reduce risk; they cannot make handling errors or delivery issues impossible.</p>
+                </div>}
               </section>
             </div>
-            <div className="portal-panel p-4 mt-5"><h3 className="text-sm font-bold text-amber-200 mb-3">The 3S Commitment</h3><div className="space-y-3 text-xs"><p><b className="text-slate-100">Security</b><span className="block text-slate-400 mt-1">Account, identity and access protection through appropriate safeguards.</span></p><p><b className="text-slate-100">Secrecy</b><span className="block text-slate-400 mt-1">Information minimization, limited access and responsible retention.</span></p><p><b className="text-slate-100">Safety</b><span className="block text-slate-400 mt-1">Verification and careful handling throughout fulfillment.</span></p></div></div>
-            <p className="small-caveat">These standards describe our operating principles and intended safeguards. Specific technical protections apply as they are implemented and verified. No online system or delivery process can guarantee absolute anonymity or eliminate every possible risk or error.</p>
+
+            <div className="portal-panel three-s-guarantee">
+              <p className="eyebrow">THE STANDARD WE WORK TOWARD</p>
+              <h3>The 3S Commitment</h3>
+              <div className="three-s-guarantee-row"><b>Security</b><span>Thoughtful identity, account and access safeguards.</span></div>
+              <div className="three-s-guarantee-row"><b>Secrecy</b><span>Minimal collection, limited access and responsible data lifecycle controls.</span></div>
+              <div className="three-s-guarantee-row"><b>Safety</b><span>Consistent verification and careful fulfillment practices.</span></div>
+            </div>
+
+            <p className="small-caveat three-s-disclaimer">This page explains our operating principles and planned safeguards. A feature is not considered active until it has been implemented and tested. We do not promise absolute anonymity, guaranteed deletion, or zero handling errors.</p>
           </section>
         )}
 
