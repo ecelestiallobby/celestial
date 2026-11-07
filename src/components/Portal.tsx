@@ -11,12 +11,15 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact';
+type PortalView = 'landing' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact';
 
 type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
 const ONBOARDING_TIMEOUT_MS = 30 * 60 * 1000;
 const RESTRICTION_MS = 24 * 60 * 60 * 1000;
+const OWNER_SESSION_KEY = 'CL_OWNER_BROWSER_SESSION_V1';
+const OWNER_SESSION_MS = 24 * 60 * 60 * 1000;
+const readOwnerSession = (): number => { try { const expiresAt = Number(localStorage.getItem(OWNER_SESSION_KEY) || 0); return expiresAt > Date.now() ? expiresAt : 0; } catch { return 0; } };
 const readOnboardingRecord = (): OnboardingRecord | null => { try { const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY); if (!raw) return null; const parsed = JSON.parse(raw) as OnboardingRecord; const legacyCompleted = parsed.status === 'completed' ? Array.from({ length: 8 }, (_, index) => index) : Array.from({ length: Math.max(0, Math.min(8, parsed.step || 0)) }, (_, index) => index); return { ...parsed, completedSteps: Array.isArray(parsed.completedSteps) ? parsed.completedSteps : legacyCompleted, purchaseWindowStartedAt: parsed.purchaseWindowStartedAt ?? null, purchaseWindowOrderPlacedAt: parsed.purchaseWindowOrderPlacedAt ?? null }; } catch { return null; } };
 type GuestPage = 'home' | 'celestial-overview' | 'celestial-sectors' | 'lower-orbit' | 'central-orbit' | 'outer-orbit' | 'draconian-overview' | 'andromeda' | 'founders';
 
@@ -28,6 +31,7 @@ export const Portal: React.FC<PortalProps> = ({
   onUpdateStatus
 }) => {
   const [view, setView] = useState<PortalView>(initialView);
+  const [ownerSessionUntil, setOwnerSessionUntil] = useState<number>(() => readOwnerSession());
   const [guestPage, setGuestPage] = useState<GuestPage>('home');
   const [onboardStep, setOnboardStep] = useState(0);
   const [purchaseIntent, setPurchaseIntent] = useState<'now' | 'later'>('now');
@@ -134,6 +138,38 @@ export const Portal: React.FC<PortalProps> = ({
 
   const handleOnboardBack = () => { const previousStep = Math.max(0, onboardStep - 1); setOnboardStep(previousStep); const saved = readOnboardingRecord(); if (saved) persistOnboarding({ ...saved, step: previousStep }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
+  const enterOwnerOverride = () => {
+    const expiresAt = Date.now() + OWNER_SESSION_MS;
+    try { localStorage.setItem(OWNER_SESSION_KEY, String(expiresAt)); } catch { /* browser storage may be unavailable */ }
+    setOwnerSessionUntil(expiresAt);
+    setView('owner-preview');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const exitOwnerOverride = () => {
+    try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
+    setOwnerSessionUntil(0);
+    setView('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    if (!ownerSessionUntil) return;
+    const remaining = ownerSessionUntil - Date.now();
+    if (remaining <= 0) {
+      try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
+      setOwnerSessionUntil(0);
+      if (view === 'owner-preview') setView('landing');
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
+      setOwnerSessionUntil(0);
+      setView(current => current === 'owner-preview' ? 'landing' : current);
+    }, remaining);
+    return () => window.clearTimeout(timer);
+  }, [ownerSessionUntil, view]);
+
   const handleGuestStoreAccess = () => { const saved = readOnboardingRecord(); if (saved?.status === 'completed' && saved.termsAccepted) { onEnterStore(); return; } setView('store-locked'); };
   const handleTermsAcceptance = () => { const saved = readOnboardingRecord(); if (!saved) return; try { sessionStorage.removeItem('CL_ONBOARDING_ACTIVE_SESSION'); } catch { /* best effort */ } persistOnboarding({ ...saved, status: 'completed', termsAccepted: true, completedSteps: Array.from({ length: 8 }, (_, index) => index), restrictionUntil: null }); setTermsAccepted(true); onEnterStore(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
@@ -205,6 +241,35 @@ export const Portal: React.FC<PortalProps> = ({
 
       {/* Main Views Container */}
       <main className="portal-main flex-grow">
+        {/* OWNER OVERRIDE / BROWSER-LOCAL PREVIEW */}
+        {view === 'owner-preview' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline">
+              <button className="text-back" onClick={() => setView('landing')}>← Lobby</button>
+              <span>OWNER OVERRIDE · PRIVATE PREVIEW</span>
+            </div>
+            <p className="eyebrow">AUTHORIZED BROWSER SESSION</p>
+            <h2 className="section-title">Welcome, Commander.</h2>
+            <p className="section-copy">Owner Preview is active in this browser. This workspace is reserved for previewing and testing the portal experience.</p>
+            <div className="portal-panel p-4 mt-5">
+              <small className="text-amber-300 font-bold tracking-widest">SESSION STATUS</small>
+              <p className="expand-body mt-2">This browser remembers Owner access until:</p>
+              <p className="text-sm text-amber-200 font-semibold mt-2">{ownerSessionUntil ? new Date(ownerSessionUntil).toLocaleString() : 'No active session'}</p>
+              <p className="text-xs text-purple-200 mt-3">Access is stored locally in this browser for up to 24 hours. Another browser or device will not have this saved session.</p>
+            </div>
+            <div className="portal-panel p-4 mt-4">
+              <small className="text-amber-300 font-bold tracking-widest">PREVIEW WORKSPACE</small>
+              <h3 className="section-title mt-2">Simulation environment</h3>
+              <p className="section-copy">The Owner Preview entry point is active. Store, order, inventory, promotion, and dashboard simulation tools will be connected in their respective build phases. No live business records are changed here.</p>
+              <div className="flex flex-wrap gap-3 mt-4">
+                <button className="primary-action" onClick={() => setView('landing')}>Customer View</button>
+                <button className="text-back" onClick={exitOwnerOverride}>Exit Owner Override</button>
+              </div>
+            </div>
+            <p className="text-xs text-amber-200/80 mt-4">LOCAL BROWSER ACCESS ONLY · Not server-verified authentication. Anyone with access to this browser profile can open this preview.</p>
+          </section>
+        )}
+
         {/* LANDING VIEW */}
         {view === 'landing' && (
           <section className="animate-fadeIn">
@@ -221,6 +286,13 @@ export const Portal: React.FC<PortalProps> = ({
                 <span className="dest-title">Regular Client</span>
                 <span className="dest-desc">Enter with your Access ID and APG code.</span>
                 <span className="dest-action">Access portal <b>↗</b></span>
+              </button>
+
+              <button className="destination-card" onClick={() => ownerSessionUntil > Date.now() ? setView('owner-preview') : enterOwnerOverride()}>
+                <span className="dest-icon">♜</span>
+                <span className="dest-title">Owner Override</span>
+                <span className="dest-desc">{ownerSessionUntil > Date.now() ? 'Your Owner session is remembered on this browser.' : 'Open the Owner Preview on this browser.'}</span>
+                <span className="dest-action">{ownerSessionUntil > Date.now() ? 'Resume Owner access' : 'Enter Owner Preview'} <b>↗</b></span>
               </button>
             </div>
 
