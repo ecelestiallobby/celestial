@@ -1592,3 +1592,17 @@ button,
 .portal-shell:has(.owner-preview-dock) {
   padding-bottom: 105px;
 }
+
+
+/* Keep the floating Owner tools clear of the persistent Owner Preview dock. */
+.owner-floating-actions {
+  bottom: calc(max(10px, env(safe-area-inset-bottom)) + 82px);
+}
+@media (max-width: 620px) {
+  .owner-floating-actions {
+    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 222px);
+  }
+  .portal-shell:has(.owner-preview-dock) {
+    padding-bottom: 240px;
+  }
+}
