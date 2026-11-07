@@ -4,7 +4,7 @@ import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
 
 interface PortalProps {
-  initialView?: 'landing' | 'owner-preview' | 'guest' | 'terms' | 'privacy' | 'info-sec' | 'contact';
+  initialView?: 'landing' | 'owner-preview' | 'guest' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
   onOwnerSessionChange?: (active: boolean) => void;
   onEnterStore: () => void;
   activeOrder: ActiveOrder;
@@ -12,7 +12,7 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact';
+type PortalView = 'landing' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
 
 type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
@@ -42,6 +42,9 @@ export const Portal: React.FC<PortalProps> = ({
   const [showFloatingNotepad, setShowFloatingNotepad] = useState(false);
   const [showOwnerTools, setShowOwnerTools] = useState(false);
   const [guestPage, setGuestPage] = useState<GuestPage>('home');
+  const [threeSOpen, setThreeSOpen] = useState({ security: false, secrecy: false, safety: false });
+  const allThreeSOpen = threeSOpen.security && threeSOpen.secrecy && threeSOpen.safety;
+  const setAllThreeS = (open: boolean) => setThreeSOpen({ security: open, secrecy: open, safety: open });
   const [onboardStep, setOnboardStep] = useState(0);
   const [purchaseIntent, setPurchaseIntent] = useState<'now' | 'later'>('now');
   const [onboardingRecord, setOnboardingRecord] = useState<OnboardingRecord | null>(() => readOnboardingRecord());
@@ -1081,6 +1084,45 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
+
+        {view === 'three-s' && (
+          <section className="guest-content-page animate-fadeIn" aria-labelledby="three-s-title">
+            <div className="portal-topline">
+              <button className="text-back" onClick={() => setView('landing')}>← Homepage</button>
+              <span>OUR STANDARDS</span>
+            </div>
+            <p className="eyebrow">CELESTIAL LOBBY · CLIENT COMMITMENT</p>
+            <h2 id="three-s-title" className="section-title">The 3S Framework</h2>
+            <h3 className="text-lg font-semibold text-amber-200 mt-2">Our Commitment to You</h3>
+            <p className="section-copy mt-3">Security, Secrecy and Safety are the three principles that guide how we protect client information, manage access and handle orders.</p>
+            <div className="grid grid-cols-3 gap-2 my-5">
+              <div className="portal-panel p-3 text-center"><span className="block text-xl" aria-hidden="true">◈</span><b className="text-[10px] tracking-wider">SECURITY</b><small className="block text-[9px] text-slate-400 mt-1">Identity protection</small></div>
+              <div className="portal-panel p-3 text-center"><span className="block text-xl" aria-hidden="true">◉</span><b className="text-[10px] tracking-wider">SECRECY</b><small className="block text-[9px] text-slate-400 mt-1">Privacy & discretion</small></div>
+              <div className="portal-panel p-3 text-center"><span className="block text-xl" aria-hidden="true">⬡</span><b className="text-[10px] tracking-wider">SAFETY</b><small className="block text-[9px] text-slate-400 mt-1">Handling integrity</small></div>
+            </div>
+            <div className="flex items-center justify-between gap-3 my-3">
+              <h3 className="text-sm font-bold text-amber-100">Explore the standards</h3>
+              <button type="button" className="text-link whitespace-nowrap" onClick={() => setAllThreeS(!allThreeSOpen)}>{allThreeSOpen ? 'Hide All' : 'Expand All'}</button>
+            </div>
+            <div className="space-y-3">
+              <section className="portal-panel">
+                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.security} aria-controls="three-s-security" onClick={() => setThreeSOpen(v => ({ ...v, security: !v.security }))}><span><small>01 · SYSTEM & IDENTITY PROTECTION</small><b>SECURITY</b></span><span aria-hidden="true">{threeSOpen.security ? '−' : '+'}</span></button>
+                {threeSOpen.security && <div id="three-s-security" className="expand-body"><p className="mb-3">We use access and information-handling controls designed to protect client accounts and interactions.</p><ul className="list-disc pl-5 space-y-2"><li><b>Client Confidentiality:</b> Unique identification codes are used where practical to limit unnecessary exposure of personal details in routine operational records.</li><li><b>Communication Protection:</b> Communication channels are protected using the security measures supported by the platform and selected messaging services.</li><li><b>Access Control:</b> System permissions are separated by role and operational responsibility.</li></ul></div>}
+              </section>
+              <section className="portal-panel">
+                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.secrecy} aria-controls="three-s-secrecy" onClick={() => setThreeSOpen(v => ({ ...v, secrecy: !v.secrecy }))}><span><small>02 · DISCRETION & INFORMATION PRIVACY</small><b>SECRECY</b></span><span aria-hidden="true">{threeSOpen.secrecy ? '−' : '+'}</span></button>
+                {threeSOpen.secrecy && <div id="three-s-secrecy" className="expand-body"><p className="mb-3">We aim to minimize the information collected, limit who can access it and retain it only for defined operational needs.</p><ul className="list-disc pl-5 space-y-2"><li><b>Need-to-Know:</b> Access to operational information is limited according to each person's responsibilities.</li><li><b>Data Minimization:</b> We aim to request only information genuinely needed for the requested service. Clients should avoid submitting unnecessary identifying details.</li><li><b>Metadata Protection:</b> File and metadata sanitization measures are part of our planned privacy controls and will be applied as those controls are implemented.</li><li><b>Data Retention:</b> Retention and deletion schedules will govern eligible records, including the handling and expiration of backups.</li></ul></div>}
+              </section>
+              <section className="portal-panel">
+                <button type="button" className="expand-head w-full" aria-expanded={threeSOpen.safety} aria-controls="three-s-safety" onClick={() => setThreeSOpen(v => ({ ...v, safety: !v.safety }))}><span><small>03 · FULFILLMENT & HANDLING INTEGRITY</small><b>SAFETY</b></span><span aria-hidden="true">{threeSOpen.safety ? '−' : '+'}</span></button>
+                {threeSOpen.safety && <div id="three-s-safety" className="expand-body"><p className="mb-3">We follow verification and handling procedures intended to protect order accuracy and package integrity.</p><ul className="list-disc pl-5 space-y-2"><li><b>Verification Standards:</b> Items are checked for structural integrity and relevant weight or specification accuracy before packaging.</li><li><b>Discreet Packaging:</b> Where applicable, orders are prepared in unbranded, tamper-evident packaging.</li><li><b>Verified Handoff:</b> Delivery handoffs follow established verification procedures appropriate to the fulfillment method.</li></ul></div>}
+              </section>
+            </div>
+            <div className="portal-panel p-4 mt-5"><h3 className="text-sm font-bold text-amber-200 mb-3">The 3S Commitment</h3><div className="space-y-3 text-xs"><p><b className="text-slate-100">Security</b><span className="block text-slate-400 mt-1">Account, identity and access protection through appropriate safeguards.</span></p><p><b className="text-slate-100">Secrecy</b><span className="block text-slate-400 mt-1">Information minimization, limited access and responsible retention.</span></p><p><b className="text-slate-100">Safety</b><span className="block text-slate-400 mt-1">Verification and careful handling throughout fulfillment.</span></p></div></div>
+            <p className="small-caveat">These standards describe our operating principles and intended safeguards. Specific technical protections apply as they are implemented and verified. No online system or delivery process can guarantee absolute anonymity or eliminate every possible risk or error.</p>
+          </section>
+        )}
+
         {view === 'info-sec' && (
           <section className="guest-content-page animate-fadeIn">
             <div className="portal-topline">
@@ -1112,6 +1154,8 @@ export const Portal: React.FC<PortalProps> = ({
         <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>Terms and Conditions</button>
         <i aria-hidden="true">|</i>
         <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>Data and Privacy</button>
+        <i aria-hidden="true">|</i>
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('three-s')}>3S Framework</button>
         <i aria-hidden="true">|</i>
         <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>Info Sec</button>
         <i aria-hidden="true">|</i>
