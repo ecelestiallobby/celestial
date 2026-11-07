@@ -35,7 +35,7 @@ const DEFAULT_STATE: CelestialState = {
 
 export const App: React.FC = () => {
   const [mode, setMode] = useState<'portal' | 'store'>('portal');
-  const [portalStartView, setPortalStartView] = useState<'landing' | 'terms' | 'privacy' | 'info-sec' | 'contact'>('landing');
+  const [portalStartView, setPortalStartView] = useState<'landing' | 'guest' | 'terms' | 'privacy' | 'info-sec' | 'contact'>('landing');
 
   const [state, setState] = useState<CelestialState>(() => {
     try {
@@ -89,6 +89,11 @@ export const App: React.FC = () => {
         <Store
           state={state}
           setState={setState}
+          onPurchaseWindowExpired={() => {
+            setPortalStartView('guest');
+            setMode('portal');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
           onReturnToLobby={() => {
             setPortalStartView('landing');
             setMode('portal');
