@@ -38,7 +38,7 @@ const DEFAULT_STATE: CelestialState = {
 
 export const App: React.FC = () => {
   const [mode, setMode] = useState<'portal' | 'store'>('portal');
-  const [portalStartView, setPortalStartView] = useState<'landing' | 'owner-preview' | 'guest' | 'terms' | 'privacy' | 'info-sec' | 'contact'>('landing');
+  const [portalStartView, setPortalStartView] = useState<'landing' | 'owner-preview' | 'guest' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact'>('landing');
   const [portalInstanceKey, setPortalInstanceKey] = useState(0);
   const [ownerActive, setOwnerActive] = useState(() => { try { return Number(localStorage.getItem(OWNER_SESSION_KEY) || 0) > Date.now(); } catch { return false; } });
   const [ownerPanel, setOwnerPanel] = useState<'none' | 'notepad' | 'tools'>('none');
