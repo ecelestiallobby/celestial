@@ -176,7 +176,7 @@ export const Portal: React.FC<PortalProps> = ({
       const transcript = String(event.results?.[0]?.[0]?.transcript || '')
         .toUpperCase()
         .replace(/[^A-Z0-9 ]/g, ' ')
-        .replace(/\\s+/g, ' ')
+        .replace(/\s+/g, ' ')
         .trim();
       const expected = 'THE POWER CELESTIAL BEINGS NUMBER ONE';
       if (transcript === expected) {
