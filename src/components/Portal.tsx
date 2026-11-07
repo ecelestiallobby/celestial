@@ -158,6 +158,52 @@ export const Portal: React.FC<PortalProps> = ({
     setShowOwnerAccessField(true);
   };
 
+  const [voiceAccessListening, setVoiceAccessListening] = useState(false);
+
+  const startVoiceOwnerAccess = () => {
+    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) {
+      setOwnerAccessMessage('Voice recognition is not supported in this browser. Please use the password field instead.');
+      return;
+    }
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = 'en-PH';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    setVoiceAccessListening(true);
+    setOwnerAccessMessage('Listening… Please say your Owner Access phrase clearly.');
+    recognition.onresult = (event: any) => {
+      const transcript = String(event.results?.[0]?.[0]?.transcript || '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9 ]/g, ' ')
+        .replace(/\\s+/g, ' ')
+        .trim();
+      const expected = 'THE POWER CELESTIAL BEINGS NUMBER ONE';
+      if (transcript === expected) {
+        setOwnerAccessMessage('Voice phrase recognized. Opening Owner Preview…');
+        setVoiceAccessListening(false);
+        recognition.stop();
+        enterOwnerOverride();
+      } else {
+        setVoiceAccessListening(false);
+        setOwnerAccessMessage('Voice phrase was not recognized exactly. Please try again or enter the password manually.');
+      }
+    };
+    recognition.onerror = (event: any) => {
+      setVoiceAccessListening(false);
+      setOwnerAccessMessage(event.error === 'not-allowed'
+        ? 'Microphone permission was denied. Allow microphone access or enter the password manually.'
+        : 'Voice recognition could not complete. Please try again or enter the password manually.');
+    };
+    recognition.onend = () => setVoiceAccessListening(false);
+    try {
+      recognition.start();
+    } catch {
+      setVoiceAccessListening(false);
+      setOwnerAccessMessage('Voice recognition could not start. Please try again or enter the password manually.');
+    }
+  };
+
   const handleOwnerAccessSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (ownerAccessPhrase.trim().toUpperCase().replace(/\s+/g, ' ') !== 'THE POWER CELESTIAL BEINGS NUMBER ONE') {
@@ -378,6 +424,10 @@ export const Portal: React.FC<PortalProps> = ({
                     </label>
                     {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
                     <button className="primary-action" type="submit">Continue to Owner Preview</button>
+                    <button className="secondary-action mt-2 w-full" type="button" onClick={startVoiceOwnerAccess} disabled={voiceAccessListening}>
+                      {voiceAccessListening ? 'Listening for Owner phrase…' : 'Use Voice Command'}
+                    </button>
+                    <p className="small-caveat mt-2">Voice access requires microphone permission and a browser that supports speech recognition. You can always enter the phrase manually.</p>
                     <button className="text-back ml-4" type="button" onClick={() => { setShowOwnerAccessField(false); setOwnerAccessPhrase(''); setOwnerAccessMessage(''); }}>Cancel</button>
                   </form>
                 )}
