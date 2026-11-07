@@ -13,7 +13,7 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
+type PortalView = 'landing' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'free-ask' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
 
 type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
@@ -353,6 +353,13 @@ export const Portal: React.FC<PortalProps> = ({
           </div>
         </div>
         <div className="demo-chip">DEMO ENVIRONMENT</div>
+        <nav className="portal-primary-nav" aria-label="Main site navigation">
+          <button type="button" onClick={navigateEnvironmentHome}>Home</button>
+          <button type="button" onClick={() => handleChromeNavigation('about')}>About Us</button>
+          <button type="button" onClick={() => handleChromeNavigation('free-ask')}>Free Ask</button>
+          <button type="button" onClick={() => handleChromeNavigation('no-nos')}>No-Nos</button>
+          <button type="button" onClick={() => handleChromeNavigation('faqs')}>FAQs</button>
+        </nav>
       </header>
 
       {/* Main Views Container */}
@@ -1062,6 +1069,44 @@ export const Portal: React.FC<PortalProps> = ({
             </div>
           </section>
         )}
+        {/* SHARED HEADER NAVIGATION PAGES */}
+        {view === 'about' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline"><button className="text-back" onClick={navigateEnvironmentHome}>← Home</button><span>CELESTIAL LOBBY</span></div>
+            <p className="eyebrow">OUR STORY</p><h2 className="section-title">About Us</h2>
+            <p className="section-copy">CELESTIAL LOBBY is a private client environment designed to guide visitors through its archives, onboarding journey, and storefront experience.</p>
+            <div className="portal-panel p-4 mt-4"><p className="expand-body">Explore the Celestials, meet the Founders, and learn about the standards that shape the experience. This portal is currently a demonstration; operational features are introduced only when implemented and tested.</p></div>
+          </section>
+        )}
+        {view === 'free-ask' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline"><button className="text-back" onClick={navigateEnvironmentHome}>← Home</button><span>CLIENT ASSISTANCE</span></div>
+            <p className="eyebrow">QUESTIONS ARE WELCOME</p><h2 className="section-title">Free Ask</h2>
+            <p className="section-copy">Have a question before you begin? Review the FAQs or use the official support channel when it is published.</p>
+            <div className="portal-panel p-4 mt-4"><b className="text-amber-200">Support channel</b><p className="expand-body mt-2">Direct messaging is not connected in this demo. Please do not submit passwords, payment details, or sensitive personal information here.</p><button className="secondary-action mt-3" onClick={() => handleChromeNavigation('faqs')}>Browse FAQs</button></div>
+          </section>
+        )}
+        {view === 'no-nos' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline"><button className="text-back" onClick={navigateEnvironmentHome}>← Home</button><span>IMPORTANT REMINDERS</span></div>
+            <p className="eyebrow">FIVE NON-NEGOTIABLES</p><h2 className="section-title">The No-Nos</h2>
+            <div className="destination-grid mt-4">
+              {['NO COD','NO MEET UPS','NO REFUNDS','NO RUSH ORDERS','NO SPAMMING'].map(item => <div className="portal-panel p-4" key={item}><b className="text-amber-200 tracking-wider">{item}</b></div>)}
+            </div>
+            <p className="small-caveat mt-4">Please review the full Store Policies and Service Guidelines before proceeding with an order.</p>
+          </section>
+        )}
+        {view === 'faqs' && (
+          <section className="guest-content-page animate-fadeIn">
+            <div className="portal-topline"><button className="text-back" onClick={navigateEnvironmentHome}>← Home</button><span>HELP ARCHIVE</span></div>
+            <p className="eyebrow">FIND YOUR ANSWER</p><h2 className="section-title">Frequently Asked Questions</h2>
+            <p className="section-copy">Choose a topic to review the guidance currently available in this demo.</p>
+            <div className="destination-grid mt-4">
+              {['About Us','Orders & Processing','Products & Availability','Pricing & Payments','Packaging','Delivery & Fulfillment','Customer Support'].map(item => <div className="portal-panel p-4" key={item}><b className="text-amber-200">{item}</b><p className="expand-body mt-2">Detailed answers for this category are being prepared for publication.</p></div>)}
+            </div>
+          </section>
+        )}
+
         {/* HOMEPAGE FOOTNOTE PAGES */}
         {view === 'terms' && (
           <section className="guest-content-page animate-fadeIn">
