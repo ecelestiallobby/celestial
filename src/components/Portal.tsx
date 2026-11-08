@@ -342,7 +342,7 @@ export const Portal: React.FC<PortalProps> = ({
   };
 
   return (
-    <div className="portal-shell min-h-screen flex flex-col justify-between">
+    <div className={`portal-shell min-h-screen flex flex-col justify-between ${view === 'regular-gate' ? 'client-access-gate' : ''}`} data-page={view}>
       {view !== 'regular-gate' && (
       <>
       {/* Top Header */}
@@ -1248,7 +1248,7 @@ export const Portal: React.FC<PortalProps> = ({
 
       </main>
 
-      {ownerSessionUntil > Date.now() && view !== 'onboarding' && view !== 'onboarding-terms' && (
+      {ownerSessionUntil > Date.now() && view !== 'regular-gate' && view !== 'onboarding' && view !== 'onboarding-terms' && (
         <nav className="owner-preview-dock" aria-label="Persistent Owner Preview controls">
           <span className="owner-preview-dock-label">OWNER PREVIEW</span>
           <button type="button" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner Workspace</button>
