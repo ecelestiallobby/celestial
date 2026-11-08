@@ -13,7 +13,7 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'free-ask' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
+type PortalView = 'landing' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
 
 type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
@@ -358,7 +358,6 @@ export const Portal: React.FC<PortalProps> = ({
         <nav className="portal-primary-nav" aria-label="Main site navigation">
           <button type="button" onClick={navigateEnvironmentHome}>Home</button>
           <button type="button" onClick={() => handleChromeNavigation('about')}>About Us</button>
-          <button type="button" onClick={() => handleChromeNavigation('free-ask')}>Free Ask</button>
           <button type="button" onClick={() => handleChromeNavigation('no-nos')}>No-Nos</button>
           <button type="button" onClick={() => handleChromeNavigation('faqs')}>FAQs</button>
         </nav>
@@ -1073,14 +1072,6 @@ export const Portal: React.FC<PortalProps> = ({
             <p className="eyebrow">OUR STORY</p><h2 className="section-title">About Us</h2>
             <p className="section-copy">CELESTIAL LOBBY is a private client environment designed to guide visitors through its archives, onboarding journey, and storefront experience.</p>
             <div className="portal-panel p-4 mt-4"><p className="expand-body">Explore the Celestials, meet the Founders, and learn about the standards that shape the experience. This portal is currently a demonstration; operational features are introduced only when implemented and tested.</p></div>
-          </section>
-        )}
-        {view === 'free-ask' && (
-          <section className="guest-content-page animate-fadeIn">
-            <div className="portal-topline"><button className="text-back" onClick={navigateEnvironmentHome}>← Home</button><span>CLIENT ASSISTANCE</span></div>
-            <p className="eyebrow">QUESTIONS ARE WELCOME</p><h2 className="section-title">Free Ask</h2>
-            <p className="section-copy">Have a question before you begin? Review the FAQs or use the official support channel when it is published.</p>
-            <div className="portal-panel p-4 mt-4"><b className="text-amber-200">Support channel</b><p className="expand-body mt-2">Direct messaging is not connected in this demo. Please do not submit passwords, payment details, or sensitive personal information here.</p><button className="secondary-action mt-3" onClick={() => handleChromeNavigation('faqs')}>Browse FAQs</button></div>
           </section>
         )}
         {view === 'no-nos' && (
