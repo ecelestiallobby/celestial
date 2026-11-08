@@ -406,24 +406,29 @@ export const Portal: React.FC<PortalProps> = ({
 
         {/* LANDING VIEW */}
         {view === 'landing' && (
-          <section className="animate-fadeIn">
-            <div className="destination-grid">
-              <button className="destination-card" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); }}>
-                <span className="dest-icon">◈</span>
-                <span className="dest-title">Guest Environment</span>
-                <span className="dest-desc">Explore Celestial Lobby, standards, policies and FAQs.</span>
-                <span className="dest-action">Explore <b>↗</b></span>
-              </button>
-
-              <button className="destination-card" onClick={() => { setActiveEnvironment('regular'); setView('regular-gate'); setGateMessage(null); }}>
-                <span className="dest-icon">⌑</span>
-                <span className="dest-title">Regular Client</span>
-                <span className="dest-desc">Enter with your Access ID and APG code.</span>
-                <span className="dest-action">Access portal <b>↗</b></span>
-              </button>
-
-
+          <section className="landing-welcome animate-fadeIn">
+            <div className="landing-hero">
+              <div className="landing-emblem" aria-hidden="true"><span>✦</span></div>
+              <p className="landing-kicker">A PRIVATE CLIENT ENVIRONMENT</p>
+              <h1 className="landing-title">WELCOME TO<br /><span>CELESTIAL LOBBY</span></h1>
+              <p className="landing-copy">A place to discover, connect, and begin your journey. Choose how you would like to enter.</p>
+              <div className="landing-divider"><span>✧</span></div>
             </div>
+
+            <div className="landing-destinations" aria-label="Choose your destination">
+              <button className="landing-destination landing-destination-primary" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                <span className="landing-destination-symbol" aria-hidden="true">◈</span>
+                <span className="landing-destination-copy"><strong>ENTER AS A GUEST</strong><small>Explore Celestials, Founders, and the Onboarding Session.</small></span>
+                <span className="landing-destination-arrow" aria-hidden="true">↗</span>
+              </button>
+              <button className="landing-destination" onClick={() => { setActiveEnvironment('regular'); setView('regular-gate'); setGateMessage(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                <span className="landing-destination-symbol" aria-hidden="true">⌑</span>
+                <span className="landing-destination-copy"><strong>REGULAR CLIENT ACCESS</strong><small>Continue with your issued Access ID and APG Code.</small></span>
+                <span className="landing-destination-arrow" aria-hidden="true">↗</span>
+              </button>
+            </div>
+
+            <p className="landing-footnote">Your journey begins with a choice.</p>
 
             {showOwnerAccessField && (
               <div className="portal-panel p-4 mt-5" role="region" aria-label="Owner access">
@@ -447,7 +452,7 @@ export const Portal: React.FC<PortalProps> = ({
                     <button className="text-back ml-4" type="button" onClick={() => { setShowOwnerAccessField(false); setOwnerAccessPhrase(''); setOwnerAccessMessage(''); }}>Cancel</button>
                   </form>
                 )}
-                <p className="small-caveat">Browser-local convenience gate only. The phrase is present in the public website code and is not secure authentication.</p>
+                <p className="small-caveat">Browser-local convenience gate only. It is not secure authentication.</p>
               </div>
             )}
           </section>
