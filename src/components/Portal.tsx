@@ -343,6 +343,7 @@ export const Portal: React.FC<PortalProps> = ({
 
   return (
     <div className="portal-shell min-h-screen flex flex-col justify-between">
+      {view !== 'regular-gate' && (
       {/* Top Header */}
       <header className="portal-header">
         <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home; tap the emblem five times for Owner Access" onClick={() => { if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { navigateEnvironmentHome(); } }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { navigateEnvironmentHome(); } } }}>
@@ -361,6 +362,7 @@ export const Portal: React.FC<PortalProps> = ({
           <button type="button" onClick={() => handleChromeNavigation('faqs')}>FAQs</button>
         </nav>
       </header>
+      )}
 
       {/* Main Views Container */}
       <main className="portal-main flex-grow">
@@ -799,13 +801,6 @@ export const Portal: React.FC<PortalProps> = ({
         {/* REGULAR GATE VIEW */}
         {view === 'regular-gate' && (
           <section className="animate-fadeIn">
-            <div className="portal-topline">
-              <button className="text-back flex items-center gap-1" onClick={navigateEnvironmentHome}>
-                ← Client Home
-              </button>
-              <span>CLIENT ACCESS GATE</span>
-            </div>
-
             <h2 className="section-title">Regular Client</h2>
             <p className="section-copy">Client account access is not enabled yet. Access IDs and APG codes will only be issued after the account restrictions and eligibility rules are finalized.</p>
 
@@ -1270,6 +1265,7 @@ export const Portal: React.FC<PortalProps> = ({
         </nav>
       )}
 
+      {view !== 'regular-gate' && (
       {/* Footer */}
       <footer className="portal-footer" aria-label="Shared environment navigation and legal links">
         <button type="button" className="portal-footer-link" onClick={navigateEnvironmentHome}>Home</button>
@@ -1284,7 +1280,8 @@ export const Portal: React.FC<PortalProps> = ({
         <i aria-hidden="true">|</i>
         <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('contact')}>Contact Us</button>
       </footer>
-      <div className={`demo-disclaimer ${view === 'onboarding' || view === 'onboarding-terms' ? 'hidden' : ''}`}>
+      )}
+      <div className={`demo-disclaimer ${view === 'onboarding' || view === 'onboarding-terms' || view === 'regular-gate' ? 'hidden' : ''}`}>
         DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.
       </div>
 
