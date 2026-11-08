@@ -1619,6 +1619,56 @@ button,
 @media(max-width:620px) { .owner-menu-anchor { top:max(132px,calc(env(safe-area-inset-top) + 120px)); right:max(9px,env(safe-area-inset-right)); } .owner-menu-drawer { top:max(188px,calc(env(safe-area-inset-top) + 176px)); } }
 
 
+
+/* Standalone Client Access gate: fail-safe chrome removal and mobile-first layout. */
+body:has(.portal-shell[data-page="regular-gate"]) .portal-header,
+body:has(.portal-shell[data-page="regular-gate"]) .portal-primary-nav,
+body:has(.portal-shell[data-page="regular-gate"]) .portal-footer,
+body:has(.portal-shell[data-page="regular-gate"]) .demo-disclaimer,
+body:has(.portal-shell[data-page="regular-gate"]) .owner-preview-dock,
+body:has(.portal-shell[data-page="regular-gate"]) .store-lobby-return {
+  display: none !important;
+}
+.portal-shell[data-page="regular-gate"],
+.portal-shell.client-access-gate {
+  min-height: 100vh;
+  min-height: 100svh;
+  justify-content: center;
+  padding-top: max(24px, env(safe-area-inset-top));
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+.portal-shell[data-page="regular-gate"] > .portal-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: calc(100svh - 48px);
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.portal-shell[data-page="regular-gate"] > .portal-main > section {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+}
+.portal-shell[data-page="regular-gate"] .section-title {
+  text-align: center;
+}
+.portal-shell[data-page="regular-gate"] .section-copy {
+  margin-inline: auto;
+  text-align: center;
+}
+.portal-shell[data-page="regular-gate"] .gate-panel {
+  width: 100%;
+  padding: clamp(16px, 5vw, 24px);
+}
+@media (max-width: 420px) {
+  .portal-shell[data-page="regular-gate"] {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
 /* Persistent shared navigation for Guest and Regular Client portal pages. */
 .portal-header { display:flex; flex-wrap:wrap; align-items:center; }
 .portal-primary-nav { display:flex; align-items:center; gap:6px; width:100%; margin-top:14px; padding:8px 0 2px; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; border-top:1px solid rgba(192,164,105,.16); }
