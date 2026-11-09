@@ -806,36 +806,40 @@ export const Portal: React.FC<PortalProps> = ({
 
         {/* REGULAR GATE VIEW */}
         {view === 'regular-gate' && (
-          <section className="animate-fadeIn">
-            <h2 className="section-title">Client Access</h2>
-            <p className="section-copy">Enter your issued Regular Client credentials to continue, or join through the Guest Environment.</p>
+          <section className="animate-fadeIn client-access-screen">
+            <div className="portal-panel gate-panel client-access-card">
+              <div className="client-access-heading">
+                <span className="eyebrow">CELESTIAL LOBBY</span>
+                <h2 className="section-title">REGULAR CLIENTS</h2>
+                <p className="section-copy">Enter your access credentials to continue.</p>
+              </div>
 
-            <div className="portal-panel gate-panel mt-4">
-              <p className="eyebrow">REGULAR CLIENT</p>
-              <label>
-                ACCESS ID
-                <input
-                  value={accessIdInput}
-                  onChange={(e) => setAccessIdInput(e.target.value)}
-                  placeholder="e.g. CL-XXXX-XXXX"
-                  autoComplete="off"
-                  spellCheck="false"
-                />
-              </label>
+              <div className="client-access-fields">
+                <label>
+                  ACCESS ID
+                  <input
+                    value={accessIdInput}
+                    onChange={(e) => setAccessIdInput(e.target.value)}
+                    placeholder="Enter your Access ID"
+                    autoComplete="off"
+                    spellCheck="false"
+                  />
+                </label>
 
-              <label>
-                AGP CODE
-                <input
-                  value={apgInput}
-                  onChange={(e) => setApgInput(e.target.value)}
-                  placeholder="e.g. AGP-XXXXXXXX"
-                  autoComplete="off"
-                  spellCheck="false"
-                />
-              </label>
+                <label>
+                  AGP CODE
+                  <input
+                    value={apgInput}
+                    onChange={(e) => setApgInput(e.target.value)}
+                    placeholder="Enter your AGP Code"
+                    autoComplete="off"
+                    spellCheck="false"
+                  />
+                </label>
+              </div>
 
-              <button className="primary-action full" onClick={handleVerifyAccess}>
-                Verify &amp; Enter
+              <button className="primary-action full client-access-verify" onClick={handleVerifyAccess}>
+                VERIFY &amp; ENTER
               </button>
 
               {gateMessage && (
@@ -847,8 +851,12 @@ export const Portal: React.FC<PortalProps> = ({
                 </p>
               )}
 
-              <div className="border-t border-purple-500/20 pt-4 mt-2">
-                <p className="small-caveat mb-3">New to CELESTIAL LOBBY? You can explore the Guest Environment without a client account.</p>
+              <div className="client-access-divider">
+                <span>OR</span>
+              </div>
+
+              <div className="client-access-guest">
+                <p>New to CELESTIAL LOBBY?</p>
                 <button
                   type="button"
                   className="secondary-action full"
@@ -861,10 +869,11 @@ export const Portal: React.FC<PortalProps> = ({
                 >
                   JOIN AS GUEST
                 </button>
+                <span>Explore the Guest Environment without a client account.</span>
               </div>
 
-              <p className="small-caveat mt-3">
-                Demo note: this gate compares values saved in this browser. It is not secure authentication.
+              <p className="small-caveat client-access-note">
+                Demo only. Credentials are checked against data saved in this browser and are not secure authentication.
               </p>
             </div>
           </section>
