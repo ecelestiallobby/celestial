@@ -13,7 +13,7 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
+type PortalView = 'landing' | 'invitation-gate' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
 
 type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
@@ -21,6 +21,9 @@ const ONBOARDING_TIMEOUT_MS = 30 * 60 * 1000;
 const RESTRICTION_MS = 24 * 60 * 60 * 1000;
 const OWNER_SESSION_KEY = 'CL_OWNER_BROWSER_SESSION_V1';
 const OWNER_SESSION_MS = 24 * 60 * 60 * 1000;
+const INVITATION_STORAGE_KEY = 'CL_BETA_INVITATIONS_V1';
+const INVITATION_ATTEMPTS_KEY = 'CL_INVITATION_ATTEMPTS_V1';
+type InvitationSlot = { slot: number; invitationCode: string; accessId: string };
 const readOwnerSession = (): number => { try { const expiresAt = Number(localStorage.getItem(OWNER_SESSION_KEY) || 0); return expiresAt > Date.now() ? expiresAt : 0; } catch { return 0; } };
 const readOnboardingRecord = (): OnboardingRecord | null => { try { const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY); if (!raw) return null; const parsed = JSON.parse(raw) as OnboardingRecord; const legacyCompleted = parsed.status === 'completed' ? Array.from({ length: 8 }, (_, index) => index) : Array.from({ length: Math.max(0, Math.min(8, parsed.step || 0)) }, (_, index) => index); return { ...parsed, completedSteps: Array.isArray(parsed.completedSteps) ? parsed.completedSteps : legacyCompleted, purchaseWindowStartedAt: parsed.purchaseWindowStartedAt ?? null, purchaseWindowOrderPlacedAt: parsed.purchaseWindowOrderPlacedAt ?? null }; } catch { return null; } };
 type GuestPage = 'home' | 'celestial-overview' | 'celestial-sectors' | 'lower-orbit' | 'central-orbit' | 'outer-orbit' | 'draconian-overview' | 'andromeda' | 'founders';
@@ -64,6 +67,10 @@ export const Portal: React.FC<PortalProps> = ({
   const [accessIdInput, setAccessIdInput] = useState('');
   const [apgInput, setApgInput] = useState('');
   const [gateMessage, setGateMessage] = useState<{ text: string; success: boolean } | null>(null);
+  const [invitationInput, setInvitationInput] = useState('');
+  const [invitationAttempts, setInvitationAttempts] = useState(() => { try { return Number(localStorage.getItem(INVITATION_ATTEMPTS_KEY) || 0); } catch { return 0; } });
+  const [invitationSlots, setInvitationSlots] = useState<InvitationSlot[]>(() => { try { const saved = JSON.parse(localStorage.getItem(INVITATION_STORAGE_KEY) || '[]'); return Array.isArray(saved) ? saved : []; } catch { return []; } });
+  const [invitationMessage, setInvitationMessage] = useState('');
 
   // Remove credentials created by the previous onboarding demo. Account issuance is not enabled yet.
   useEffect(() => {
@@ -289,6 +296,30 @@ export const Portal: React.FC<PortalProps> = ({
   const handleGuestStoreAccess = () => { const saved = readOnboardingRecord(); if (saved?.status === 'completed' && saved.termsAccepted) { onEnterStore(); return; } setView('store-locked'); };
   const handleTermsAcceptance = () => { const saved = readOnboardingRecord(); if (!saved) return; try { sessionStorage.removeItem('CL_ONBOARDING_ACTIVE_SESSION'); } catch { /* best effort */ } persistOnboarding({ ...saved, status: 'completed', termsAccepted: true, completedSteps: Array.from({ length: 8 }, (_, index) => index), restrictionUntil: null }); setTermsAccepted(true); onEnterStore(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
+  const saveInvitationSlots = (slots: InvitationSlot[]) => { setInvitationSlots(slots); try { localStorage.setItem(INVITATION_STORAGE_KEY, JSON.stringify(slots)); } catch { setInvitationMessage('Browser storage is unavailable. Codes could not be saved.'); } };
+
+  const generateInvitationBatch = () => {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const makeCode = () => { let code = 'CL-'; for (let i = 0; i < 8; i++) code += alphabet[Math.floor(Math.random() * alphabet.length)]; return code; };
+    const existing = new Set(invitationSlots.map(slot => slot.invitationCode));
+    const batch: InvitationSlot[] = Array.from({ length: 20 }, (_, index) => { let code = makeCode(); while (existing.has(code)) code = makeCode(); existing.add(code); return { slot: index + 1, invitationCode: code, accessId: '' }; });
+    saveInvitationSlots(batch);
+    setInvitationMessage('A new set of 20 unique invitation codes has been generated for this browser. Assign each code to its beta user Access ID.');
+  };
+  const updateInvitationAccessId = (slotNumber: number, accessId: string) => saveInvitationSlots(invitationSlots.map(slot => slot.slot === slotNumber ? { ...slot, accessId: accessId.trim().toUpperCase() } : slot));
+  const handleVerifyInvitation = () => {
+    if (invitationAttempts >= 3) { setInvitationMessage('This browser demo is locked after three unsuccessful attempts.'); return; }
+    const match = invitationSlots.find(slot => slot.invitationCode === invitationInput.trim().toUpperCase());
+    if (match) {
+      if (!match.accessId) { setInvitationMessage('This invitation has not yet been assigned to a beta user. Please contact the Owner.'); return; }
+      try { sessionStorage.setItem('CL_ACTIVE_INVITATION_V1', match.invitationCode); } catch { /* best effort */ }
+      setInvitationMessage('Invitation verified. Continue to your beta sign-in.'); setGateMessage(null); setView('regular-gate'); return;
+    }
+    const next = invitationAttempts + 1; setInvitationAttempts(next);
+    try { localStorage.setItem(INVITATION_ATTEMPTS_KEY, String(next)); } catch { /* best effort */ }
+    setInvitationMessage(next >= 3 ? 'Access permanently locked in this browser demo after three unsuccessful attempts.' : `Invitation code not recognized. ${3-next} attempt${3-next===1?'':'s'} remaining.`);
+  };
+
   const handleVerifyAccess = () => {
     const a = accessIdInput.trim().toUpperCase();
     const p = apgInput.trim().toUpperCase();
@@ -301,7 +332,10 @@ export const Portal: React.FC<PortalProps> = ({
       // ignore
     }
 
-    if (creds && a === creds.accessId && p === creds.apg) {
+    let activeInvitation = '';
+    try { activeInvitation = sessionStorage.getItem('CL_ACTIVE_INVITATION_V1') || ''; } catch { /* best effort */ }
+    const assignedInvitation = invitationSlots.find(slot => slot.invitationCode === activeInvitation);
+    if (assignedInvitation && assignedInvitation.accessId === a && creds && a === creds.accessId && p === creds.apg) {
       setGateMessage({
         text: 'Access verified for this browser demo. Warping to Client Dashboard...',
         success: true
@@ -342,8 +376,8 @@ export const Portal: React.FC<PortalProps> = ({
   };
 
   return (
-    <div className={`portal-shell min-h-screen flex flex-col justify-between ${view === 'regular-gate' ? 'client-access-gate' : ''}`} data-page={view}>
-      {view !== 'regular-gate' && (
+    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(view === 'regular-gate' || view === 'invitation-gate') ? 'client-access-gate' : ''}`} data-page={view}>
+      {view !== 'regular-gate' && view !== 'invitation-gate' && (
       <>
       {/* Top Header */}
       <header className="portal-header">
@@ -394,6 +428,15 @@ export const Portal: React.FC<PortalProps> = ({
               </div>
             </div>
             <div className="portal-panel p-4 mt-4">
+              <small className="text-amber-300 font-bold tracking-widest">BETA INVITATION CODE MANAGER</small>
+              <h3 className="section-title mt-2">Screen 1 · 20 individual invitations</h3>
+              <p className="section-copy">Generate a separate batch of 20 invitation codes. Assign each slot to the matching beta user's Access ID. These invitation codes are not the user's Access Code or AGP Code.</p>
+              <button type="button" className="primary-action mt-3" onClick={generateInvitationBatch}>Generate 20 Invitation Codes</button>
+              {invitationMessage && <p className="form-message mt-3" role="status">{invitationMessage}</p>}
+              {invitationSlots.length > 0 && <div className="mt-4 space-y-2">{invitationSlots.map(slot => <div key={slot.slot} className="rounded-lg border border-purple-400/20 bg-slate-950/60 p-3"><div className="flex items-center justify-between gap-2"><b className="text-amber-200 text-xs">BETA USER {String(slot.slot).padStart(2,'0')}</b><code className="text-xs text-emerald-200">{slot.invitationCode}</code></div><label className="block mt-2 text-[10px] text-purple-200">ASSIGNED ACCESS ID<input className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-2 text-sm text-white" value={slot.accessId} onChange={event => updateInvitationAccessId(slot.slot,event.target.value)} placeholder="Assign this beta user's Access ID" /></label></div>)}</div>}
+              <p className="small-caveat mt-3">DEMO ONLY. Codes and assignments are stored in this browser's local storage. They are not centrally issued, secure, or available on another device. Generating a new batch replaces the previous local batch.</p>
+            </div>
+            <div className="portal-panel p-4 mt-4">
               <small className="text-amber-300 font-bold tracking-widest">OWNER NOTEPAD</small>
               <h3 className="section-title mt-2">Private working notes</h3>
               <p className="section-copy">Notes are saved in this browser only. Do not enter passwords, payment details, customer data, or other sensitive information.</p>
@@ -421,7 +464,7 @@ export const Portal: React.FC<PortalProps> = ({
                 <span className="landing-destination-copy"><strong>ENTER AS A GUEST</strong><small>Explore Celestials, Founders, and the Onboarding Session.</small></span>
                 <span className="landing-destination-arrow" aria-hidden="true">↗</span>
               </button>
-              <button className="landing-destination" onClick={() => { setActiveEnvironment('regular'); setView('regular-gate'); setGateMessage(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              <button className="landing-destination" onClick={() => { setActiveEnvironment('regular'); setInvitationInput(''); setInvitationMessage(''); setView('invitation-gate'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                 <span className="landing-destination-symbol" aria-hidden="true">⌑</span>
                 <span className="landing-destination-copy"><strong>REGULAR CLIENT ACCESS</strong><small>Continue with your issued Access ID and AGP Code.</small></span>
                 <span className="landing-destination-arrow" aria-hidden="true">↗</span>
@@ -804,7 +847,20 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
-        {/* REGULAR GATE VIEW */}
+        {/* SCREEN 1 · INVITATION VERIFICATION */}
+        {view === 'invitation-gate' && (
+          <section className="animate-fadeIn client-access-screen"><div className="portal-panel gate-panel client-access-card">
+            <div className="client-access-heading"><span className="eyebrow">CELESTIAL LOBBY · BETA ACCESS</span><h2 className="section-title">INVITATION VERIFICATION</h2><p className="section-copy">Enter the invitation code assigned to your beta account.</p></div>
+            <div className="client-access-fields"><label>INVITATION CODE<input value={invitationInput} onChange={event => setInvitationInput(event.target.value.toUpperCase())} placeholder="Enter your invitation code" autoComplete="off" spellCheck={false} disabled={invitationAttempts >= 3} /></label></div>
+            <button type="button" className="primary-action full client-access-verify" onClick={handleVerifyInvitation} disabled={invitationAttempts >= 3}>SUBMIT</button>
+            {invitationMessage && <p className="form-message" role="alert">{invitationMessage}</p>}
+            <p className="small-caveat client-access-note">{invitationAttempts >= 3 ? 'This browser has been locked after three unsuccessful attempts.' : `${3-invitationAttempts} attempts available.`} Invitation verification is separate from your Access ID and Access Code or AGP Code.</p>
+            <div className="client-access-guest"><button type="button" className="text-link" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); }}>Join In / Access</button><span>Continue directly to the Guest Environment.</span></div>
+            <p className="small-caveat">DEMO ONLY · Browser-local validation · Not secure for real customer data.</p>
+          </div></section>
+        )}
+
+        {/* SCREEN 2 · SIGN-IN */}
         {view === 'regular-gate' && (
           <section className="animate-fadeIn client-access-screen">
             <div className="portal-panel gate-panel client-access-card">
@@ -1272,7 +1328,7 @@ export const Portal: React.FC<PortalProps> = ({
 
       </main>
 
-      {ownerSessionUntil > Date.now() && view !== 'regular-gate' && view !== 'onboarding' && view !== 'onboarding-terms' && (
+      {ownerSessionUntil > Date.now() && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'onboarding' && view !== 'onboarding-terms' && (
         <nav className="owner-preview-dock" aria-label="Persistent Owner Preview controls">
           <span className="owner-preview-dock-label">OWNER PREVIEW</span>
           <button type="button" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner Workspace</button>
@@ -1282,7 +1338,7 @@ export const Portal: React.FC<PortalProps> = ({
         </nav>
       )}
 
-      {view !== 'regular-gate' && (
+      {view !== 'regular-gate' && view !== 'invitation-gate' && (
       <>
       {/* Footer */}
       <footer className="portal-footer" aria-label="Shared environment navigation and legal links">
@@ -1300,7 +1356,7 @@ export const Portal: React.FC<PortalProps> = ({
       </footer>
       </>
       )}
-      <div className={`demo-disclaimer ${view === 'onboarding' || view === 'onboarding-terms' || view === 'regular-gate' ? 'hidden' : ''}`}>
+      <div className={`demo-disclaimer ${view === 'onboarding' || view === 'onboarding-terms' || (view === 'regular-gate' || view === 'invitation-gate') ? 'hidden' : ''}`}>
         DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.
       </div>
 
