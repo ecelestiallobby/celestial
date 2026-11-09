@@ -71,6 +71,15 @@ export const Portal: React.FC<PortalProps> = ({
   const [invitationAttempts, setInvitationAttempts] = useState(() => { try { return Number(localStorage.getItem(INVITATION_ATTEMPTS_KEY) || 0); } catch { return 0; } });
   const [invitationSlots, setInvitationSlots] = useState<InvitationSlot[]>(() => { try { const saved = JSON.parse(localStorage.getItem(INVITATION_STORAGE_KEY) || '[]'); return Array.isArray(saved) ? saved : []; } catch { return []; } });
   const [invitationMessage, setInvitationMessage] = useState('');
+  const OWNER_PREFIX_STORAGE_KEY = 'CL_ENVIRONMENT_PREFIX_REGISTRY_V1';
+  const [ownerEnvironmentPrefix, setOwnerEnvironmentPrefix] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(OWNER_PREFIX_STORAGE_KEY) || '[]') as Array<{ environment: string; prefix: string }>;
+      return saved.find(entry => entry.environment === 'owner')?.prefix || '';
+    } catch { return ''; }
+  });
+  const [ownerPrefixMessage, setOwnerPrefixMessage] = useState('');
+
 
   // Remove credentials created by the previous onboarding demo. Account issuance is not enabled yet.
   useEffect(() => {
@@ -307,6 +316,26 @@ export const Portal: React.FC<PortalProps> = ({
     setInvitationMessage('A new set of 20 unique invitation codes has been generated for this browser. Assign each code to its beta user Access ID.');
   };
   const updateInvitationAccessId = (slotNumber: number, accessId: string) => saveInvitationSlots(invitationSlots.map(slot => slot.slot === slotNumber ? { ...slot, accessId: accessId.trim().toUpperCase() } : slot));
+  const saveOwnerEnvironmentPrefix = () => {
+    const prefix = ownerEnvironmentPrefix.trim().toUpperCase();
+    if (!/^[A-Z0-9]{2,3}$/.test(prefix)) {
+      setOwnerPrefixMessage('Use exactly 2 or 3 letters and/or digits for the Owner prefix.');
+      return;
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem(OWNER_PREFIX_STORAGE_KEY) || '[]') as Array<{ environment: string; prefix: string }>;
+      const others = saved.filter(entry => entry.environment !== 'owner');
+      if (others.some(entry => entry.prefix.toUpperCase() === prefix)) {
+        setOwnerPrefixMessage('That prefix is already assigned to another environment.');
+        return;
+      }
+      localStorage.setItem(OWNER_PREFIX_STORAGE_KEY, JSON.stringify([...others, { environment: 'owner', prefix }]));
+      setOwnerEnvironmentPrefix(prefix);
+      setOwnerPrefixMessage('Owner prefix saved in this browser. Screen 1 code issuance and full-code verification are still pending.');
+    } catch {
+      setOwnerPrefixMessage('Browser storage is unavailable. The Owner prefix could not be saved.');
+    }
+  };
   const handleVerifyInvitation = () => {
     if (invitationAttempts >= 3) { setInvitationMessage('This browser demo is locked after three unsuccessful attempts.'); return; }
     const match = invitationSlots.find(slot => slot.invitationCode === invitationInput.trim().toUpperCase());
@@ -435,6 +464,20 @@ export const Portal: React.FC<PortalProps> = ({
               {invitationMessage && <p className="form-message mt-3" role="status">{invitationMessage}</p>}
               {invitationSlots.length > 0 && <div className="mt-4 space-y-2">{invitationSlots.map(slot => <div key={slot.slot} className="rounded-lg border border-purple-400/20 bg-slate-950/60 p-3"><div className="flex items-center justify-between gap-2"><b className="text-amber-200 text-xs">BETA USER {String(slot.slot).padStart(2,'0')}</b><code className="text-xs text-emerald-200">{slot.invitationCode}</code></div><label className="block mt-2 text-[10px] text-purple-200">ASSIGNED ACCESS ID<input className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-2 text-sm text-white" value={slot.accessId} onChange={event => updateInvitationAccessId(slot.slot,event.target.value)} placeholder="Assign this beta user's Access ID" /></label></div>)}</div>}
               <p className="small-caveat mt-3">DEMO ONLY. Codes and assignments are stored in this browser's local storage. They are not centrally issued, secure, or available on another device. Generating a new batch replaces the previous local batch.</p>
+            </div>
+            <div className="portal-panel p-4 mt-4">
+              <small className="text-amber-300 font-bold tracking-widest">ENVIRONMENT PREFIX REGISTRY</small>
+              <h3 className="section-title mt-2">Owner environment · First entry</h3>
+              <p className="section-copy">Set the 2- or 3-character prefix that identifies Owner environment access codes at Screen 1. This prefix identifies the destination only. It does not authenticate an Owner or create a working access code.</p>
+              <label className="block mt-3 text-xs text-purple-200" htmlFor="owner-environment-prefix">OWNER PREFIX
+                <input id="owner-environment-prefix" className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-3 text-sm text-white uppercase" maxLength={3} value={ownerEnvironmentPrefix} onChange={event => { setOwnerEnvironmentPrefix(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0,3)); setOwnerPrefixMessage(''); }} placeholder="Enter 2 or 3 characters" autoComplete="off" />
+              </label>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button type="button" className="primary-action" onClick={saveOwnerEnvironmentPrefix}>Save Owner Prefix</button>
+                <span className="text-xs text-amber-200">{ownerEnvironmentPrefix ? `Current prefix: ${ownerEnvironmentPrefix}` : 'No Owner prefix assigned yet'}</span>
+              </div>
+              {ownerPrefixMessage && <p className="form-message mt-3" role="status">{ownerPrefixMessage}</p>}
+              <p className="small-caveat mt-3">DEMO ONLY · Saved in this browser. Prefixes for Celestial Army, Sales, Admin, and other environments will be added later. The production version must validate the complete code on a trusted backend, not by prefix alone.</p>
             </div>
             <div className="portal-panel p-4 mt-4">
               <small className="text-amber-300 font-bold tracking-widest">OWNER NOTEPAD</small>
