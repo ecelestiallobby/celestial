@@ -423,7 +423,7 @@ export const Portal: React.FC<PortalProps> = ({
               </button>
               <button className="landing-destination" onClick={() => { setActiveEnvironment('regular'); setView('regular-gate'); setGateMessage(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                 <span className="landing-destination-symbol" aria-hidden="true">⌑</span>
-                <span className="landing-destination-copy"><strong>REGULAR CLIENT ACCESS</strong><small>Continue with your issued Access ID and APG Code.</small></span>
+                <span className="landing-destination-copy"><strong>REGULAR CLIENT ACCESS</strong><small>Continue with your issued Access ID and AGP Code.</small></span>
                 <span className="landing-destination-arrow" aria-hidden="true">↗</span>
               </button>
             </div>
@@ -791,7 +791,7 @@ export const Portal: React.FC<PortalProps> = ({
               <div className="mt-5 rounded-xl border border-purple-500/20 bg-slate-950/50 p-4 space-y-2 text-xs leading-relaxed text-purple-100">
                 <p><strong className="text-amber-300">What happens now?</strong></p>
                 <p>1. Your onboarding flow is complete.</p>
-                <p>2. No Access ID or APG code has been generated or saved.</p>
+                <p>2. No Access ID or AGP code has been generated or saved.</p>
                 <p>3. No Regular Client Dashboard account has been created or approved.</p>
                 <p>4. Account eligibility, restrictions, and access permissions will be configured later by the owner.</p>
                 <p>5. You can return to the Guest Environment to explore its public information.</p>
