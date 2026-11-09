@@ -807,10 +807,11 @@ export const Portal: React.FC<PortalProps> = ({
         {/* REGULAR GATE VIEW */}
         {view === 'regular-gate' && (
           <section className="animate-fadeIn">
-            <h2 className="section-title">Regular Client</h2>
-            <p className="section-copy">Client account access is not enabled yet. Access IDs and APG codes will only be issued after the account restrictions and eligibility rules are finalized.</p>
+            <h2 className="section-title">Client Access</h2>
+            <p className="section-copy">Enter your issued Regular Client credentials to continue, or join through the Guest Environment.</p>
 
             <div className="portal-panel gate-panel mt-4">
+              <p className="eyebrow">REGULAR CLIENT</p>
               <label>
                 ACCESS ID
                 <input
@@ -823,11 +824,11 @@ export const Portal: React.FC<PortalProps> = ({
               </label>
 
               <label>
-                APG CODE
+                AGP CODE
                 <input
                   value={apgInput}
                   onChange={(e) => setApgInput(e.target.value)}
-                  placeholder="e.g. APG-XXXXXX"
+                  placeholder="e.g. AGP-XXXXXXXX"
                   autoComplete="off"
                   spellCheck="false"
                 />
@@ -846,16 +847,25 @@ export const Portal: React.FC<PortalProps> = ({
                 </p>
               )}
 
+              <div className="border-t border-purple-500/20 pt-4 mt-2">
+                <p className="small-caveat mb-3">New to CELESTIAL LOBBY? You can explore the Guest Environment without a client account.</p>
+                <button
+                  type="button"
+                  className="secondary-action full"
+                  onClick={() => {
+                    setActiveEnvironment('guest');
+                    setGuestPage('home');
+                    setView('guest');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  JOIN AS GUEST
+                </button>
+              </div>
+
               <p className="small-caveat mt-3">
                 Demo note: this gate compares values saved in this browser. It is not secure authentication.
               </p>
-            </div>
-
-            <div className="mt-4 flex flex-col gap-2">
-              <button className="text-link text-left" onClick={startOnboarding}>
-                New here? Begin New Client onboarding
-              </button>
-              <p className="small-caveat">New client onboarding currently creates no account credentials. Account access will be introduced after the owner defines the eligibility and restriction rules.</p>
             </div>
           </section>
         )}
