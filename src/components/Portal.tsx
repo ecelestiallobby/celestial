@@ -13,7 +13,7 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'invitation-gate' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
+type PortalView = 'landing' | 'environment-gate' | 'environment-route' | 'invitation-gate' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
 
 type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
@@ -24,6 +24,9 @@ const OWNER_SESSION_MS = 24 * 60 * 60 * 1000;
 const INVITATION_STORAGE_KEY = 'CL_BETA_INVITATIONS_V1';
 const INVITATION_ATTEMPTS_KEY = 'CL_INVITATION_ATTEMPTS_V1';
 type InvitationSlot = { slot: number; invitationCode: string; accessId: string };
+type EnvironmentKey = 'owner' | 'army-owner' | 'army-member' | 'regular-client';
+type EnvironmentRegistryEntry = { environment: EnvironmentKey; prefix: string };
+const ENVIRONMENT_LABELS: Record<EnvironmentKey, string> = { owner: 'CELESTIAL LOBBY OWNER', 'army-owner': 'CELESTIAL ARMY OWNER', 'army-member': 'CELESTIAL ARMY MEMBER', 'regular-client': 'REGULAR CLIENT' };
 const readOwnerSession = (): number => { try { const expiresAt = Number(localStorage.getItem(OWNER_SESSION_KEY) || 0); return expiresAt > Date.now() ? expiresAt : 0; } catch { return 0; } };
 const readOnboardingRecord = (): OnboardingRecord | null => { try { const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY); if (!raw) return null; const parsed = JSON.parse(raw) as OnboardingRecord; const legacyCompleted = parsed.status === 'completed' ? Array.from({ length: 8 }, (_, index) => index) : Array.from({ length: Math.max(0, Math.min(8, parsed.step || 0)) }, (_, index) => index); return { ...parsed, completedSteps: Array.isArray(parsed.completedSteps) ? parsed.completedSteps : legacyCompleted, purchaseWindowStartedAt: parsed.purchaseWindowStartedAt ?? null, purchaseWindowOrderPlacedAt: parsed.purchaseWindowOrderPlacedAt ?? null }; } catch { return null; } };
 type GuestPage = 'home' | 'celestial-overview' | 'celestial-sectors' | 'lower-orbit' | 'central-orbit' | 'outer-orbit' | 'draconian-overview' | 'andromeda' | 'founders';
@@ -67,6 +70,9 @@ export const Portal: React.FC<PortalProps> = ({
   const [accessIdInput, setAccessIdInput] = useState('');
   const [apgInput, setApgInput] = useState('');
   const [gateMessage, setGateMessage] = useState<{ text: string; success: boolean } | null>(null);
+  const [environmentAccessCode, setEnvironmentAccessCode] = useState('');
+  const [routedEnvironment, setRoutedEnvironment] = useState<EnvironmentKey | null>(null);
+  const [environmentRouteMessage, setEnvironmentRouteMessage] = useState('');
   const [invitationInput, setInvitationInput] = useState('');
   const [invitationAttempts, setInvitationAttempts] = useState(() => { try { return Number(localStorage.getItem(INVITATION_ATTEMPTS_KEY) || 0); } catch { return 0; } });
   const [invitationSlots, setInvitationSlots] = useState<InvitationSlot[]>(() => { try { const saved = JSON.parse(localStorage.getItem(INVITATION_STORAGE_KEY) || '[]'); return Array.isArray(saved) ? saved : []; } catch { return []; } });
@@ -305,6 +311,24 @@ export const Portal: React.FC<PortalProps> = ({
   const handleGuestStoreAccess = () => { const saved = readOnboardingRecord(); if (saved?.status === 'completed' && saved.termsAccepted) { onEnterStore(); return; } setView('store-locked'); };
   const handleTermsAcceptance = () => { const saved = readOnboardingRecord(); if (!saved) return; try { sessionStorage.removeItem('CL_ONBOARDING_ACTIVE_SESSION'); } catch { /* best effort */ } persistOnboarding({ ...saved, status: 'completed', termsAccepted: true, completedSteps: Array.from({ length: 8 }, (_, index) => index), restrictionUntil: null }); setTermsAccepted(true); onEnterStore(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
+  const handleEnvironmentRouting = () => {
+    const code = environmentAccessCode.trim().toUpperCase().replace(/\\s+/g, '');
+    if (code.length < 3) { setEnvironmentRouteMessage('Enter your complete Access Code.'); return; }
+    let registry: EnvironmentRegistryEntry[] = [];
+    try {
+      const saved = JSON.parse(localStorage.getItem(OWNER_PREFIX_STORAGE_KEY) || '[]');
+      if (Array.isArray(saved)) registry = saved.filter((entry): entry is EnvironmentRegistryEntry => entry && typeof entry.environment === 'string' && typeof entry.prefix === 'string' && /^[A-Z0-9]{2,3}$/.test(entry.prefix.toUpperCase()));
+    } catch { setEnvironmentRouteMessage('The environment registry could not be read in this browser.'); return; }
+    const matches = registry.filter(entry => code.startsWith(entry.prefix.toUpperCase())).sort((a,b) => b.prefix.length-a.prefix.length);
+    if (!matches.length) { setRoutedEnvironment(null); setEnvironmentRouteMessage('This Access Code does not match a registered environment prefix. Check the code or contact the Owner.'); return; }
+    if (matches.length > 1 && matches[0].prefix.length === matches[1].prefix.length) { setRoutedEnvironment(null); setEnvironmentRouteMessage('The environment registry contains an ambiguous prefix. Contact the Owner.'); return; }
+    const destination = matches[0].environment;
+    setRoutedEnvironment(destination);
+    setEnvironmentRouteMessage('Environment identified. The prefix selects a destination only; it does not authenticate your identity or grant access.');
+    setView('environment-route');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const saveInvitationSlots = (slots: InvitationSlot[]) => { setInvitationSlots(slots); try { localStorage.setItem(INVITATION_STORAGE_KEY, JSON.stringify(slots)); } catch { setInvitationMessage('Browser storage is unavailable. Codes could not be saved.'); } };
 
   const generateInvitationBatch = () => {
@@ -331,7 +355,7 @@ export const Portal: React.FC<PortalProps> = ({
       }
       localStorage.setItem(OWNER_PREFIX_STORAGE_KEY, JSON.stringify([...others, { environment: 'owner', prefix }]));
       setOwnerEnvironmentPrefix(prefix);
-      setOwnerPrefixMessage('Owner prefix saved in this browser. Screen 1 code issuance and full-code verification are still pending.');
+      setOwnerPrefixMessage('Owner prefix saved in this browser registry. Screen 1 can now identify this destination; full credential verification remains a separate sign-in step.');
     } catch {
       setOwnerPrefixMessage('Browser storage is unavailable. The Owner prefix could not be saved.');
     }
@@ -507,9 +531,9 @@ export const Portal: React.FC<PortalProps> = ({
                 <span className="landing-destination-copy"><strong>ENTER AS A GUEST</strong><small>Explore Celestials, Founders, and the Onboarding Session.</small></span>
                 <span className="landing-destination-arrow" aria-hidden="true">↗</span>
               </button>
-              <button className="landing-destination" onClick={() => { setActiveEnvironment('regular'); setInvitationInput(''); setInvitationMessage(''); setView('invitation-gate'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              <button className="landing-destination" onClick={() => { setEnvironmentAccessCode(''); setEnvironmentRouteMessage(''); setRoutedEnvironment(null); setView('environment-gate'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                 <span className="landing-destination-symbol" aria-hidden="true">⌑</span>
-                <span className="landing-destination-copy"><strong>REGULAR CLIENT ACCESS</strong><small>Continue with your issued Access ID and AGP Code.</small></span>
+                <span className="landing-destination-copy"><strong>CLIENT / TEAM ACCESS</strong><small>Enter your Access Code to identify your environment.</small></span>
                 <span className="landing-destination-arrow" aria-hidden="true">↗</span>
               </button>
             </div>
@@ -890,7 +914,32 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
-        {/* SCREEN 1 · INVITATION VERIFICATION */}
+        {/* SCREEN 1 · ENVIRONMENT PREFIX ROUTING */}
+        {view === 'environment-gate' && (
+          <section className="animate-fadeIn client-access-screen"><div className="portal-panel gate-panel client-access-card">
+            <div className="client-access-heading"><span className="eyebrow">CELESTIAL LOBBY · ACCESS GATE</span><h2 className="section-title">ENVIRONMENT VERIFICATION</h2><p className="section-copy">Enter your complete Access Code. Its registered prefix identifies the environment you are trying to reach.</p></div>
+            <div className="client-access-fields"><label>ACCESS CODE<input value={environmentAccessCode} onChange={event => { setEnvironmentAccessCode(event.target.value.toUpperCase()); setEnvironmentRouteMessage(''); }} placeholder="Enter your Access Code" autoComplete="off" spellCheck={false} /></label></div>
+            <button type="button" className="primary-action full client-access-verify" onClick={handleEnvironmentRouting}>IDENTIFY ENVIRONMENT</button>
+            {environmentRouteMessage && <p className="form-message" role="alert">{environmentRouteMessage}</p>}
+            <p className="small-caveat client-access-note">No Access ID is requested on this screen. A matching prefix only selects the destination. Your individual credentials must still be verified at the next sign-in stage.</p>
+            <div className="client-access-guest"><button type="button" className="text-link" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); }}>JOIN IN / ACCESS</button><span>Continue directly to the Guest Environment.</span></div>
+            <p className="small-caveat">DEMO ONLY · Prefix registry is stored in this browser and is not secure authentication.</p>
+          </div></section>
+        )}
+
+        {/* ROUTED DESTINATION · PREFIX IS NOT AUTHENTICATION */}
+        {view === 'environment-route' && routedEnvironment && (
+          <section className="animate-fadeIn client-access-screen"><div className="portal-panel gate-panel client-access-card">
+            <div className="client-access-heading"><span className="eyebrow">DESTINATION IDENTIFIED</span><h2 className="section-title">{ENVIRONMENT_LABELS[routedEnvironment]}</h2><p className="section-copy">Your Access Code prefix points to this environment.</p></div>
+            <div className="portal-panel p-4 mt-4"><b className="text-amber-200">NEXT: INDIVIDUAL SIGN-IN</b><p className="expand-body mt-2">The next stage must verify your Access ID and the credential assigned to this environment. Prefix recognition alone does not grant access.</p></div>
+            <p className="form-message mt-3" role="status">{environmentRouteMessage}</p>
+            <p className="small-caveat">{routedEnvironment === 'owner' ? 'Owner sign-in is not connected yet. The browser-only Owner Preview is not a secure substitute.' : 'This environment has been identified, but its individual sign-in flow has not been connected yet.'}</p>
+            <button type="button" className="secondary-action full mt-4" onClick={() => { setEnvironmentAccessCode(''); setEnvironmentRouteMessage(''); setRoutedEnvironment(null); setView('environment-gate'); }}>BACK TO ACCESS GATE</button>
+            <button type="button" className="text-link mt-3" onClick={() => setView('landing')}>RETURN TO LOBBY</button>
+          </div></section>
+        )}
+
+        {/* SCREEN 1 · BETA INVITATION VERIFICATION (SEPARATE FROM ROUTING) */}
         {view === 'invitation-gate' && (
           <section className="animate-fadeIn client-access-screen"><div className="portal-panel gate-panel client-access-card">
             <div className="client-access-heading"><span className="eyebrow">CELESTIAL LOBBY · BETA ACCESS</span><h2 className="section-title">INVITATION VERIFICATION</h2><p className="section-copy">Enter the invitation code assigned to your beta account.</p></div>
