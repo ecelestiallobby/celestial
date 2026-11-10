@@ -4,11 +4,12 @@ A modern React SPA rewritten with TypeScript, Vite, and Tailwind CSS, preserving
 
 ## Main entrance flow
 
-- **Screen 1 · Main Entrance**:
-  - **Sentinel** — entry guardian and security-gate introduction.
-  - **Client / Team Access** — opens the environment-prefix access gate directly.
+- **SCREEN 1 · MAIN ENTRANCE**
+  - **Sentinel / Security Guardian** — the entry guardian displayed on the main entrance.
+  - **Client / Team Access** — opens the Environment Access Gate.
+    - **Access Code**
+    - **Join In / Access (Guest)**
   - **Hidden Owner Access** — revealed by tapping the Sentinel emblem five times.
-  - Guest access remains available from the Client / Team Access gate through **Join In / Access**.
 
 ## Features
 
