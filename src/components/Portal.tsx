@@ -561,6 +561,7 @@ export const Portal: React.FC<PortalProps> = ({
         {/* SCREEN 2 · CHOOSE YOUR DESTINATION */}
         {view === 'destination' && (
           <section className="landing-welcome destination-welcome animate-fadeIn">
+            <button type="button" className="text-back mb-5" onClick={() => setView('landing')}>← BACK TO SECURITY GATE</button>
             <div className="landing-hero">
               <div className="landing-emblem" aria-hidden="true"><span>✦</span></div>
               <p className="landing-kicker">SELECT YOUR DESTINATION</p>
