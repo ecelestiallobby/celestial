@@ -525,8 +525,7 @@ export const Portal: React.FC<PortalProps> = ({
             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.38em] text-amber-200">CELESTIAL LOBBY · ACCESS CONTROL</p>
             <h1 className="mb-3 text-3xl font-semibold tracking-[0.16em] text-white sm:text-4xl">MAIN ENTRANCE</h1>
             <div className="mb-6 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/80 to-transparent" />
-            <p className="text-xs font-bold uppercase tracking-[0.35em] text-sky-200">SENTINEL</p>
-            <p className="mt-2 text-sm text-slate-300">Security Guardian</p>
+            <p className="text-xs font-bold uppercase tracking-[0.35em] text-sky-200">SENTINEL · SECURITY GUARDIAN</p>
             <p className="mt-8 max-w-sm text-sm leading-7 text-slate-300">Sentinel is the entry guardian. Choose Client / Team Access to identify your authorized environment, or continue through the guest option on the access gate.</p>
             <button type="button" className="primary-action mt-8 min-h-14 w-full max-w-sm tracking-[0.18em]" onClick={() => { setEnvironmentAccessCode(''); setEnvironmentRouteMessage(''); setRoutedEnvironment(null); setView('environment-gate'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               CLIENT / TEAM ACCESS <span aria-hidden="true">↗</span>
