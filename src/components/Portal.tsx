@@ -312,7 +312,7 @@ export const Portal: React.FC<PortalProps> = ({
   const handleTermsAcceptance = () => { const saved = readOnboardingRecord(); if (!saved) return; try { sessionStorage.removeItem('CL_ONBOARDING_ACTIVE_SESSION'); } catch { /* best effort */ } persistOnboarding({ ...saved, status: 'completed', termsAccepted: true, completedSteps: Array.from({ length: 8 }, (_, index) => index), restrictionUntil: null }); setTermsAccepted(true); onEnterStore(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   const handleEnvironmentRouting = () => {
-    const code = environmentAccessCode.trim().toUpperCase().replace(/\\s+/g, '');
+    const code = environmentAccessCode.trim().toUpperCase().replace(/\s+/g, '');
     if (code.length < 3) { setEnvironmentRouteMessage('Enter your complete Access Code.'); return; }
     let registry: EnvironmentRegistryEntry[] = [];
     try {
@@ -323,6 +323,7 @@ export const Portal: React.FC<PortalProps> = ({
     if (!matches.length) { setRoutedEnvironment(null); setEnvironmentRouteMessage('This Access Code does not match a registered environment prefix. Check the code or contact the Owner.'); return; }
     if (matches.length > 1 && matches[0].prefix.length === matches[1].prefix.length) { setRoutedEnvironment(null); setEnvironmentRouteMessage('The environment registry contains an ambiguous prefix. Contact the Owner.'); return; }
     const destination = matches[0].environment;
+    if (!['owner', 'army-owner', 'army-member', 'regular-client'].includes(destination)) { setEnvironmentRouteMessage('This prefix is registered to an unsupported environment. Contact the Owner.'); return; }
     setRoutedEnvironment(destination);
     setEnvironmentRouteMessage('Environment identified. The prefix selects a destination only; it does not authenticate your identity or grant access.');
     setView('environment-route');
@@ -429,8 +430,8 @@ export const Portal: React.FC<PortalProps> = ({
   };
 
   return (
-    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(view === 'regular-gate' || view === 'invitation-gate') ? 'client-access-gate' : ''}`} data-page={view}>
-      {view !== 'regular-gate' && view !== 'invitation-gate' && (
+    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>
+      {view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
       <>
       {/* Top Header */}
       <header className="portal-header">
