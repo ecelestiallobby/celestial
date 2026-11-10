@@ -436,7 +436,7 @@ export const Portal: React.FC<PortalProps> = ({
       <>
       {/* Top Header */}
       <header className="portal-header">
-        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home; tap the emblem five times for Owner Access" onClick={() => { if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { navigateEnvironmentHome(); } }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (view === 'landing' && !showOwnerAccessField) { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } } else { navigateEnvironmentHome(); } } }}>
+        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigateEnvironmentHome(); } }}>
           <div className="brand-orbit">✦</div>
           <div>
             <div className="brand-name">CELESTIAL LOBBY</div>
