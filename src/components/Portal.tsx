@@ -432,7 +432,7 @@ export const Portal: React.FC<PortalProps> = ({
 
   return (
     <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>
-      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
+      {view !== 'landing' && view !== 'destination' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
       <>
       {/* Top Header */}
       <header className="portal-header">
@@ -519,9 +519,9 @@ export const Portal: React.FC<PortalProps> = ({
         {/* SCREEN 1 · SENTINEL SECURITY GATE */}
         {view === 'landing' && (
           <section className="min-h-[calc(100svh-2rem)] flex flex-col items-center justify-center px-5 py-10 text-center animate-fadeIn">
-            <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-amber-300/70 bg-slate-900/80 shadow-[0_0_45px_rgba(59,130,246,0.22)]">
+            <button type="button" aria-label="Sentinel emblem" onClick={() => { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } }} className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-amber-300/70 bg-slate-900/80 shadow-[0_0_45px_rgba(59,130,246,0.22)]">
               <span className="text-5xl text-amber-200" aria-hidden="true">✦</span>
-            </div>
+            </button>
             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.38em] text-amber-200">CELESTIAL LOBBY · ACCESS CONTROL</p>
             <h1 className="mb-3 text-3xl font-semibold tracking-[0.16em] text-white sm:text-4xl">THE SECURITY GATE</h1>
             <div className="mb-6 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/80 to-transparent" />
