@@ -1423,18 +1423,12 @@ export const Portal: React.FC<PortalProps> = ({
       {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && (
       <>
       {/* Footer */}
-      <footer className="portal-footer" aria-label="Shared environment navigation and legal links">
-        <button type="button" className="portal-footer-link" onClick={navigateEnvironmentHome}>Home</button>
-        <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>Terms</button>
-        <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>Privacy</button>
-        <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('three-s')}>3S Framework</button>
-        <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>Info Sec</button>
-        <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('contact')}>Contact Us</button>
+      <footer className="portal-footer" aria-label="Legal links">
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>TERMS</button>
+        <i aria-hidden="true">·</i>
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>PRIVACY</button>
+        <i aria-hidden="true">·</i>
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>INFO SEC</button>
       </footer>
       </>
       )}
