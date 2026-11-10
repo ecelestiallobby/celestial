@@ -1876,3 +1876,109 @@ body:has(.portal-shell[data-page="regular-gate"]) .store-lobby-return {
     border-radius: 16px;
   }
 }
+
+
+/* CELESTIAL LOBBY · Minimal Galactic Horizon homepage refresh */
+.portal-shell {
+  background:
+    radial-gradient(ellipse 85% 42% at 50% 100%, rgba(103, 139, 177, .30), transparent 72%),
+    radial-gradient(ellipse 65% 36% at 50% 92%, rgba(185, 157, 119, .13), transparent 76%),
+    linear-gradient(180deg, #090f20 0%, #111a2d 48%, #1b2a40 78%, #26374b 100%);
+  color: #f4f0e8;
+}
+.portal-header {
+  position: relative;
+  border-bottom: 1px solid rgba(220, 190, 132, .24);
+}
+.portal-brand .brand-name {
+  font-family: 'Cinzel', Georgia, serif;
+  color: #ead7ad;
+  letter-spacing: .16em;
+}
+.lobby-menu-trigger {
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(218, 190, 137, .72);
+  border-radius: 14px;
+  background: rgba(20, 29, 47, .72);
+  color: #f0d9a8;
+  font-size: 25px;
+  cursor: pointer;
+}
+.lobby-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(3, 7, 15, .48);
+  border: 0;
+}
+.lobby-menu-drawer {
+  position: fixed;
+  z-index: 81;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  width: min(300px, calc(100vw - 24px));
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(220, 190, 132, .62);
+  border-radius: 20px;
+  background: rgba(13, 21, 37, .97);
+  box-shadow: 0 22px 65px rgba(0,0,0,.42);
+}
+.lobby-menu-drawer button {
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid rgba(220, 190, 132, .18);
+  border-radius: 11px;
+  background: rgba(255,255,255,.045);
+  color: #f2e7d1;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.guest-content-page .eyebrow { color: #e2c993; }
+.destination-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.destination-card {
+  min-height: 225px;
+  padding: 20px;
+  border: 1px solid #c9a968;
+  border-radius: 19px;
+  background: linear-gradient(150deg, rgba(19, 30, 49, .82), rgba(27, 39, 57, .72));
+  box-shadow: 0 12px 30px rgba(0,0,0,.14), inset 0 0 0 1px rgba(255,255,255,.035);
+  backdrop-filter: blur(9px);
+}
+.dest-icon { color: #e6cb91; font-size: 27px; }
+.dest-desc { color: #d4d8df; line-height: 1.65; }
+.lobby-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  margin-top: auto;
+  padding: 12px;
+  border: 1px solid rgba(255, 229, 178, .5);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e4c98e, #b58b4d);
+  color: #182033;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+.portal-panel {
+  border-color: rgba(210, 179, 123, .48);
+  background: rgba(17, 28, 46, .72);
+}
+.portal-footer {
+  border-top-color: rgba(220, 190, 132, .25);
+  color: #d7c8a8;
+}
+@media(max-width:620px) {
+  .destination-grid { grid-template-columns: 1fr; }
+  .destination-card { min-height: 180px; }
+}
