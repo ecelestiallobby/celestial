@@ -2,6 +2,14 @@
 
 A modern React SPA rewritten with TypeScript, Vite, and Tailwind CSS, preserving the client portal experience and the celestial orbit store ecosystem.
 
+## Main entrance flow
+
+- **Screen 1 · Main Entrance**:
+  - **Sentinel** — entry guardian and security-gate introduction.
+  - **Client / Team Access** — opens the environment-prefix access gate directly.
+  - **Hidden Owner Access** — revealed by tapping the Sentinel emblem five times.
+  - Guest access remains available from the Client / Team Access gate through **Join In / Access**.
+
 ## Features
 
 - **Celestial Lobby Portal**:
