@@ -516,14 +516,14 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
-        {/* SCREEN 1 · MAIN ENTRANCE · SENTINEL */}
+        {/* SCREEN 1 · MAIN ENTRANCE / SENTINEL / SECURITY GUARDIAN */}
         {view === 'landing' && (
           <section className="min-h-[calc(100svh-2rem)] flex flex-col items-center justify-center px-5 py-10 text-center animate-fadeIn">
             <button type="button" aria-label="Sentinel emblem. Tap five times for hidden Owner access." onClick={() => { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } }} className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-amber-300/70 bg-slate-900/80 shadow-[0_0_45px_rgba(59,130,246,0.22)]">
               <span className="text-5xl text-amber-200" aria-hidden="true">✦</span>
             </button>
             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.38em] text-amber-200">CELESTIAL LOBBY · ACCESS CONTROL</p>
-            <h1 className="mb-3 text-3xl font-semibold tracking-[0.16em] text-white sm:text-4xl">THE SECURITY GATE</h1>
+            <h1 className="mb-3 text-3xl font-semibold tracking-[0.16em] text-white sm:text-4xl">MAIN ENTRANCE</h1>
             <div className="mb-6 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/80 to-transparent" />
             <p className="text-xs font-bold uppercase tracking-[0.35em] text-sky-200">SENTINEL</p>
             <p className="mt-2 text-sm text-slate-300">Security Guardian</p>
