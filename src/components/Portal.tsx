@@ -13,7 +13,7 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'destination' | 'environment-gate' | 'environment-route' | 'invitation-gate' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
+type PortalView = 'landing' | 'environment-gate' | 'environment-route' | 'invitation-gate' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
 
 type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
@@ -432,7 +432,7 @@ export const Portal: React.FC<PortalProps> = ({
 
   return (
     <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>
-      {view !== 'landing' && view !== 'destination' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
+      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
       <>
       {/* Top Header */}
       <header className="portal-header">
@@ -516,10 +516,10 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
-        {/* SCREEN 1 · SENTINEL SECURITY GATE */}
+        {/* SCREEN 1 · MAIN ENTRANCE · SENTINEL */}
         {view === 'landing' && (
           <section className="min-h-[calc(100svh-2rem)] flex flex-col items-center justify-center px-5 py-10 text-center animate-fadeIn">
-            <button type="button" aria-label="Sentinel emblem" onClick={() => { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } }} className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-amber-300/70 bg-slate-900/80 shadow-[0_0_45px_rgba(59,130,246,0.22)]">
+            <button type="button" aria-label="Sentinel emblem. Tap five times for hidden Owner access." onClick={() => { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } }} className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-amber-300/70 bg-slate-900/80 shadow-[0_0_45px_rgba(59,130,246,0.22)]">
               <span className="text-5xl text-amber-200" aria-hidden="true">✦</span>
             </button>
             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.38em] text-amber-200">CELESTIAL LOBBY · ACCESS CONTROL</p>
@@ -527,9 +527,9 @@ export const Portal: React.FC<PortalProps> = ({
             <div className="mb-6 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/80 to-transparent" />
             <p className="text-xs font-bold uppercase tracking-[0.35em] text-sky-200">SENTINEL</p>
             <p className="mt-2 text-sm text-slate-300">Security Guardian</p>
-            <p className="mt-8 max-w-sm text-sm leading-7 text-slate-300">Welcome. Please proceed to open the security gate.</p>
-            <button type="button" className="primary-action mt-8 min-h-14 w-full max-w-sm tracking-[0.18em]" onClick={() => { setView('destination'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              OPEN SECURITY GATE <span aria-hidden="true">↗</span>
+            <p className="mt-8 max-w-sm text-sm leading-7 text-slate-300">Sentinel is the entry guardian. Choose Client / Team Access to identify your authorized environment, or continue through the guest option on the access gate.</p>
+            <button type="button" className="primary-action mt-8 min-h-14 w-full max-w-sm tracking-[0.18em]" onClick={() => { setEnvironmentAccessCode(''); setEnvironmentRouteMessage(''); setRoutedEnvironment(null); setView('environment-gate'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              CLIENT / TEAM ACCESS <span aria-hidden="true">↗</span>
             </button>
             <p className="mt-8 text-[10px] uppercase tracking-[0.25em] text-slate-500">CELESTIAL LOBBY · PRIVATE ACCESS</p>
             {showOwnerAccessField && (
@@ -558,60 +558,7 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
-        {/* SCREEN 2 · CHOOSE YOUR DESTINATION */}
-        {view === 'destination' && (
-          <section className="landing-welcome destination-welcome animate-fadeIn">
-            <button type="button" className="text-back mb-5" onClick={() => setView('landing')}>← BACK TO SECURITY GATE</button>
-            <div className="landing-hero">
-              <div className="landing-emblem" aria-hidden="true"><span>✦</span></div>
-              <p className="landing-kicker">SELECT YOUR DESTINATION</p>
-              <h1 className="landing-title">CHOOSE YOUR<br /><span>DESTINATION</span></h1>
-              <p className="landing-copy">Select the environment you are authorized to enter.</p>
-              <div className="landing-divider"><span>✧</span></div>
-            </div>
 
-            <div className="landing-destinations" aria-label="Choose your destination">
-              <button className="landing-destination landing-destination-primary" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                <span className="landing-destination-symbol" aria-hidden="true">◈</span>
-                <span className="landing-destination-copy"><strong>ENTER AS A GUEST</strong><small>Explore Celestials, Founders, and the Onboarding Session.</small></span>
-                <span className="landing-destination-arrow" aria-hidden="true">↗</span>
-              </button>
-              <button className="landing-destination" onClick={() => { setEnvironmentAccessCode(''); setEnvironmentRouteMessage(''); setRoutedEnvironment(null); setView('environment-gate'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                <span className="landing-destination-symbol" aria-hidden="true">⌑</span>
-                <span className="landing-destination-copy"><strong>CLIENT / TEAM ACCESS</strong><small>Enter your Access Code to identify your environment.</small></span>
-                <span className="landing-destination-arrow" aria-hidden="true">↗</span>
-              </button>
-            </div>
-
-            <p className="landing-footnote">Choose your path to continue.</p>
-
-            {showOwnerAccessField && (
-              <div className="portal-panel p-4 mt-5" role="region" aria-label="Owner access">
-                <small className="text-amber-300 font-bold tracking-widest">RESTRICTED OWNER ACCESS</small>
-                {ownerSessionUntil > Date.now() ? (
-                  <>
-                    <p className="section-copy mt-2">Your Owner session is remembered on this browser.</p>
-                    <button className="primary-action mt-3" onClick={activateOwnerTrigger}>Resume Owner Preview</button>
-                  </>
-                ) : (
-                  <form className="gate-panel p-0 mt-3" onSubmit={handleOwnerAccessSubmit}>
-                    <label htmlFor="owner-access-phrase">ENTER OWNER ACCESS PHRASE
-                      <input id="owner-access-phrase" type="password" autoComplete="off" required value={ownerAccessPhrase} onChange={(event) => setOwnerAccessPhrase(event.target.value)} placeholder="Enter access phrase" />
-                    </label>
-                    {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
-                    <button className="primary-action" type="submit">Continue to Owner Preview</button>
-                    <button className="secondary-action mt-2 w-full" type="button" onClick={startVoiceOwnerAccess} disabled={voiceAccessListening}>
-                      {voiceAccessListening ? 'Listening for Owner phrase…' : 'Use Voice Command'}
-                    </button>
-                    <p className="small-caveat mt-2">Voice access requires microphone permission and a browser that supports speech recognition. You can always enter the phrase manually.</p>
-                    <button className="text-back ml-4" type="button" onClick={() => { setShowOwnerAccessField(false); setOwnerAccessPhrase(''); setOwnerAccessMessage(''); }}>Cancel</button>
-                  </form>
-                )}
-                <p className="small-caveat">Browser-local convenience gate only. It is not secure authentication.</p>
-              </div>
-            )}
-          </section>
-        )}
 
         {/* GUEST ENVIRONMENT */}
         {view === 'guest' && (
@@ -1476,7 +1423,7 @@ export const Portal: React.FC<PortalProps> = ({
         </nav>
       )}
 
-      {view !== 'landing' && view !== 'destination' && view !== 'regular-gate' && view !== 'invitation-gate' && (
+      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && (
       <>
       {/* Footer */}
       <footer className="portal-footer" aria-label="Shared environment navigation and legal links">
