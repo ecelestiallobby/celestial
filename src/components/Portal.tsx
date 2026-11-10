@@ -49,6 +49,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [showFloatingNotepad, setShowFloatingNotepad] = useState(false);
   const [showOwnerTools, setShowOwnerTools] = useState(false);
   const [guestPage, setGuestPage] = useState<GuestPage>('home');
+  const [menuOpen, setMenuOpen] = useState(false);
   const [activeEnvironment, setActiveEnvironment] = useState<'guest' | 'regular'>(() => initialView === 'regular-home' || initialView === 'regular-gate' ? 'regular' : 'guest');
   const navigateEnvironmentHome = () => { if (activeEnvironment === 'regular') { setView('regular-home'); } else { setGuestPage('home'); setView('guest'); } window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const [threeSOpen, setThreeSOpen] = useState({ security: false, secrecy: false, safety: false });
@@ -437,19 +438,18 @@ export const Portal: React.FC<PortalProps> = ({
       {/* Top Header */}
       <header className="portal-header">
         <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigateEnvironmentHome(); } }}>
-          <div className="brand-orbit">✦</div>
-          <div>
-            <div className="brand-name">CELESTIAL LOBBY</div>
-            <div className="brand-sub">A private client environment</div>
-          </div>
+          <div className="brand-name">CELESTIAL LOBBY</div>
         </div>
-        <div className="demo-chip">DEMO ENVIRONMENT</div>
-        <nav className="portal-primary-nav" aria-label="Main site navigation">
-          <button type="button" onClick={navigateEnvironmentHome}>Home</button>
-          <button type="button" onClick={() => handleChromeNavigation('about')}>About Us</button>
-          <button type="button" onClick={() => handleChromeNavigation('no-nos')}>No-Nos</button>
-          <button type="button" onClick={() => handleChromeNavigation('faqs')}>FAQs</button>
-        </nav>
+        <button type="button" className="lobby-menu-trigger" aria-label="Open navigation menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>
+        {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close navigation menu" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Main navigation">
+          <button onClick={() => { navigateEnvironmentHome(); setMenuOpen(false); }}>HOME</button>
+          <button onClick={() => { handleChromeNavigation('about'); setMenuOpen(false); }}>ABOUT US</button>
+          <button onClick={() => { handleChromeNavigation('three-s'); setMenuOpen(false); }}>3-S</button>
+          <button onClick={() => { handleChromeNavigation('no-nos'); setMenuOpen(false); }}>NO-NOS</button>
+          <button onClick={() => { handleChromeNavigation('faqs'); setMenuOpen(false); }}>FAQS</button>
+          <button onClick={() => { onEnterStore(); setMenuOpen(false); }}>STORE</button>
+          <button onClick={() => { setActiveHomePanel('tracker'); setView('regular-home'); setMenuOpen(false); }}>TRACK</button>
+        </nav></>}
       </header>
       </>
       )}
@@ -593,26 +593,24 @@ export const Portal: React.FC<PortalProps> = ({
                 )}
 
                 <div className="destination-grid mt-6">
-                  <button className="destination-card" onClick={() => setGuestPage('celestial-overview')}>
+                  <article className="destination-card">
                     <span className="dest-icon">✧</span>
-                    <span className="dest-title">Celestials</span>
                     <span className="dest-desc">Across the orbital realms, every source of Stardust carries a different promise. Discover what awakens when you draw closer.</span>
-                    <span className="dest-action">Enter the archive <b>↗</b></span>
-                  </button>
-                  <button className="destination-card" onClick={() => setGuestPage('founders')}>
+                    <button type="button" className="dest-action lobby-card-action" onClick={() => setGuestPage('celestial-overview')}>CELESTIAL</button>
+                  </article>
+                  <article className="destination-card">
                     <span className="dest-icon">♛</span>
-                    <span className="dest-title">Founders</span>
                     <span className="dest-desc">Behind every realm is an origin. Step into the archive of those who began the story.</span>
-                    <span className="dest-action">Discover the founders <b>↗</b></span>
-                  </button>
+                    <button type="button" className="dest-action lobby-card-action" onClick={() => setGuestPage('founders')}>FOUNDER</button>
+                  </article>
                 </div>
 
                 <div className="portal-panel mt-5">
-                  <div className="expand-head"><span><small>THE FIRST THRESHOLD</small><b>Onboarding Session</b></span><span>✦</span></div>
+                  <div className="expand-head"><span><small>THE FIRST THRESHOLD</small></span></div>
                   <div className="expand-body pt-0">
                     Before the next passage opens, learn the ways of this environment and decide when you are ready to proceed.
                     <br /><br />
-                    <button className="primary-action" onClick={startOnboarding}>{onboardingRecord && onboardingRecord.status !== 'completed' ? 'Continue Your Journey' : 'Begin Your Journey'}</button>
+                    <button className="primary-action" onClick={startOnboarding}>{onboardingRecord && onboardingRecord.status !== 'completed' ? 'Continue Your Journey' : 'ONBOARD NOW'}</button>
                   </div>
                 </div>
               </div>
@@ -1428,9 +1426,9 @@ export const Portal: React.FC<PortalProps> = ({
       <footer className="portal-footer" aria-label="Shared environment navigation and legal links">
         <button type="button" className="portal-footer-link" onClick={navigateEnvironmentHome}>Home</button>
         <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>Terms and Conditions</button>
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>Terms</button>
         <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>Data and Privacy</button>
+        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>Privacy</button>
         <i aria-hidden="true">|</i>
         <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('three-s')}>3S Framework</button>
         <i aria-hidden="true">|</i>
@@ -1441,7 +1439,7 @@ export const Portal: React.FC<PortalProps> = ({
       </>
       )}
       <div className={`demo-disclaimer ${view === 'onboarding' || view === 'onboarding-terms' || (view === 'regular-gate' || view === 'invitation-gate') ? 'hidden' : ''}`}>
-        DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.
+        
       </div>
 
     </div>
