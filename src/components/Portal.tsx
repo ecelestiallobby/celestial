@@ -322,6 +322,7 @@ export const Portal: React.FC<PortalProps> = ({
     const matches = registry.filter(entry => code.startsWith(entry.prefix.toUpperCase())).sort((a,b) => b.prefix.length-a.prefix.length);
     if (!matches.length) { setRoutedEnvironment(null); setEnvironmentRouteMessage('This Access Code does not match a registered environment prefix. Check the code or contact the Owner.'); return; }
     if (matches.length > 1 && matches[0].prefix.length === matches[1].prefix.length) { setRoutedEnvironment(null); setEnvironmentRouteMessage('The environment registry contains an ambiguous prefix. Contact the Owner.'); return; }
+    if (code.length <= matches[0].prefix.length) { setEnvironmentRouteMessage('Enter the complete Access Code, including the characters after its environment prefix.'); return; }
     const destination = matches[0].environment;
     if (!['owner', 'army-owner', 'army-member', 'regular-client'].includes(destination)) { setEnvironmentRouteMessage('This prefix is registered to an unsupported environment. Contact the Owner.'); return; }
     setRoutedEnvironment(destination);
