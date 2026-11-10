@@ -925,6 +925,7 @@ export const Portal: React.FC<PortalProps> = ({
             {environmentRouteMessage && <p className="form-message" role="alert">{environmentRouteMessage}</p>}
             <p className="small-caveat client-access-note">No Access ID is requested on this screen. A matching prefix only selects the destination. Your individual credentials must still be verified at the next sign-in stage.</p>
             <div className="client-access-guest"><button type="button" className="text-link" onClick={() => { setActiveEnvironment('guest'); setGuestPage('home'); setView('guest'); }}>JOIN IN / ACCESS</button><span>Continue directly to the Guest Environment.</span></div>
+            <button type="button" className="text-link mt-3" onClick={() => { setInvitationInput(''); setInvitationMessage(''); setView('invitation-gate'); }}>BETA INVITATION VERIFICATION</button>
             <p className="small-caveat">DEMO ONLY · Prefix registry is stored in this browser and is not secure authentication.</p>
           </div></section>
         )}
