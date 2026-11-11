@@ -6,7 +6,7 @@ import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
 
 interface PortalProps {
-  initialView?: 'landing' | 'owner-preview' | 'guest' | 'regular-home' | 'regular-gate' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
+  initialView?: PortalView;
   onOwnerSessionChange?: (active: boolean) => void;
   onEnterStore: () => void;
   activeOrder: ActiveOrder;
