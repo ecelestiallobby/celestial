@@ -75,7 +75,9 @@ export const Portal: React.FC<PortalProps> = ({
       setView('landing');
       return;
     }
-    if (view === 'regular-home' && ownerSessionUntil <= Date.now()) {
+    let hasClientSession = false;
+    try { hasClientSession = sessionStorage.getItem('CL_ACTIVE_CLIENT_SESSION_V1') === '1'; } catch { /* storage unavailable */ }
+    if (view === 'regular-home' && ownerSessionUntil <= Date.now() && !hasClientSession) {
       // A direct client-dashboard URL is not a substitute for a verified client session.
       setView('regular-gate');
     }
@@ -431,6 +433,7 @@ export const Portal: React.FC<PortalProps> = ({
     try { activeInvitation = sessionStorage.getItem('CL_ACTIVE_INVITATION_V1') || ''; } catch { /* best effort */ }
     const assignedInvitation = invitationSlots.find(slot => slot.invitationCode === activeInvitation);
     if (assignedInvitation && assignedInvitation.accessId === a && creds && a === creds.accessId && p === creds.apg) {
+      try { sessionStorage.setItem('CL_ACTIVE_CLIENT_SESSION_V1', '1'); } catch { /* browser storage unavailable */ }
       setGateMessage({
         text: 'Access verified for this browser demo. Warping to Client Dashboard...',
         success: true
@@ -1296,7 +1299,7 @@ export const Portal: React.FC<PortalProps> = ({
             )}
 
             <div className="pt-4">
-              <button className="text-back" onClick={() => setView('landing')}>
+              <button className="text-back" onClick={() => { try { sessionStorage.removeItem('CL_ACTIVE_CLIENT_SESSION_V1'); } catch { /* best effort */ } setView('landing'); }}>
                 Sign out to Lobby
               </button>
             </div>
