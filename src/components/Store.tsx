@@ -273,7 +273,7 @@ export const Store: React.FC<StoreProps> = ({
                   onClick={() => navigateTo(2)}
                   className="btn-gold px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 cursor-pointer"
                 >
-                  <i className="fa-solid fa-meteor"></i> Explore Server Lineup
+                  <i className="fa-solid fa-meteor"></i> Explore STARDUST ITEMS
                 </button>
               </div>
             </div>
@@ -291,14 +291,14 @@ export const Store: React.FC<StoreProps> = ({
                       Primary Realms
                     </span>
                     <h3 className="text-2xl font-bold text-amber-300">STARDUST</h3>
-                    <p className="text-xs text-gray-300 mt-1">(Server Lineup)</p>
+                    <p className="text-xs text-gray-300 mt-1">(Available ITEMS)</p>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
                     <i className="fa-solid fa-globe text-xl"></i>
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-xs text-purple-200 font-medium">
-                  <span>9 Servers Available</span>
+                  <span>Browse the current demo catalog</span>
                   <span className="text-amber-400 group-hover:translate-x-1 transition flex items-center gap-1 font-semibold">
                     Browse <i className="fa-solid fa-arrow-right"></i>
                   </span>
@@ -315,15 +315,15 @@ export const Store: React.FC<StoreProps> = ({
                     <span className="text-[10px] tracking-widest uppercase text-purple-400 font-bold block mb-1">
                       Enhancements
                     </span>
-                    <h3 className="text-2xl font-bold text-amber-300">DRACO BULK</h3>
-                    <p className="text-xs text-gray-300 mt-1">(Add-ons &amp; Extras)</p>
+                    <h3 className="text-2xl font-bold text-amber-300">EXTRAS &amp; ADD-ONS</h3>
+                    <p className="text-xs text-gray-300 mt-1">Optional enhancements</p>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
                     <i className="fa-solid fa-gem text-xl"></i>
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-xs text-purple-200 font-medium">
-                  <span>Lubricants &amp; Accessories</span>
+                  <span>Optional extras and add-ons</span>
                   <span className="text-amber-400 group-hover:translate-x-1 transition flex items-center gap-1 font-semibold">
                     View Add-ons <i className="fa-solid fa-arrow-right"></i>
                   </span>
@@ -458,7 +458,7 @@ export const Store: React.FC<StoreProps> = ({
                   <i className="fa-solid fa-arrow-left"></i> Add More Items
                 </button>
                 <h2 className="text-2xl font-bold text-amber-300 tracking-wide uppercase">Your Selection</h2>
-                <p className="text-xs text-purple-200">Adjust quantities for your selected servers.</p>
+                <p className="text-xs text-purple-200">Adjust quantities for your selected ITEMS.</p>
               </div>
             </div>
 
@@ -525,7 +525,7 @@ export const Store: React.FC<StoreProps> = ({
 
             {/* Subtotal Box */}
             <div className="glass-card p-4 rounded-xl flex items-center justify-between border border-amber-400/20">
-              <span className="text-sm text-purple-200 font-semibold">Subtotal (Servers)</span>
+              <span className="text-sm text-purple-200 font-semibold">Subtotal (ITEMS)</span>
               <span className="text-xl font-extrabold text-amber-300">₱{stardustSubtotal.toLocaleString()}</span>
             </div>
 
@@ -552,7 +552,7 @@ export const Store: React.FC<StoreProps> = ({
                   <i className="fa-solid fa-arrow-left"></i> Back to Selection
                 </button>
                 <h2 className="text-2xl font-bold text-amber-300 tracking-wide uppercase">Add-Ons</h2>
-                <p className="text-xs text-purple-200">Enhance your experience with Draco Bulk essentials.</p>
+                <p className="text-xs text-purple-200">Choose optional extras and add-ons for your order.</p>
               </div>
             </div>
 
