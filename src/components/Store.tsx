@@ -19,9 +19,7 @@ export const Store: React.FC<StoreProps> = ({
   onOpenPortalPage,
   onReset
 }) => {
-  const [promoInput, setPromoInput] = useState(state.promoCode || '');
-  const [promoMsg, setPromoMsg] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const [liveTrackAlert, setLiveTrackAlert] = useState(false);
+  const [flowNotice, setFlowNotice] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(3600);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,8 +65,8 @@ export const Store: React.FC<StoreProps> = ({
     if (state.currentStep === 7 && state.activeOrder.startTime) {
       const updateTimer = () => {
         const elapsed = Math.floor((Date.now() - (state.activeOrder.startTime || Date.now())) / 1000);
-        const left = Math.max(0, 3600 - elapsed);
-        setRemainingSeconds(left);
+        const left = Math.max(0, 3600 - elapsed); setRemainingSeconds(left);
+        if (left === 0 && state.activeOrder.status === 'submitted') setState(prev => ({ ...prev, activeOrder: { ...prev.activeOrder, status: 'payment_expired' }, currentStep: 8 }));
       };
       updateTimer();
       const interval = setInterval(updateTimer, 1000);
@@ -77,16 +75,14 @@ export const Store: React.FC<StoreProps> = ({
   }, [state.currentStep, state.activeOrder.startTime]);
 
   const navigateTo = (step: number) => {
-    setState(prev => ({ ...prev, currentStep: step }));
-    setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (step > state.currentStep + 1) { setFlowNotice('Please complete the current step before moving ahead.'); return; }
+    if (step >= 4 && totalItemsCount === 0) { setFlowNotice('Add at least one ITEM before continuing.'); if (state.currentStep > 2) setState(prev => ({ ...prev, currentStep: 2 })); return; }
+    setFlowNotice(''); setState(prev => ({ ...prev, currentStep: step })); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleStoreReset = () => {
     onReset();
-    setPromoInput('');
-    setPromoMsg(null);
-    setLiveTrackAlert(false);
+    setFlowNotice('');
     setRemainingSeconds(3600);
     setMenuOpen(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -118,25 +114,10 @@ export const Store: React.FC<StoreProps> = ({
     });
   };
 
-  const applyPromo = () => {
-    const code = promoInput.trim().toUpperCase();
-    if (code === 'ORBIT10' || code === 'CELESTIAL') {
-      setState(prev => ({ ...prev, promoCode: code, discount: 200 }));
-      setPromoMsg({
-        text: 'Code applied! ₱200 discount added to your total.',
-        type: 'success'
-      });
-    } else if (code === '') {
-      setState(prev => ({ ...prev, promoCode: '', discount: 0 }));
-      setPromoMsg({ text: 'Promo code removed.', type: 'info' });
-    } else {
-      setPromoMsg({ text: 'Invalid promo code. Try ORBIT10 or CELESTIAL.', type: 'error' });
-    }
-  };
-
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && file.size > 5 * 1024 * 1024) { setFlowNotice('The payment image must be 5 MB or smaller.'); e.target.value = ''; return; }
+    if (file && file.type.startsWith('image/')) { setFlowNotice('');
       const reader = new FileReader();
       reader.onload = (uploadEvent) => {
         const result = uploadEvent.target?.result as string;
@@ -153,7 +134,10 @@ export const Store: React.FC<StoreProps> = ({
   };
 
   const placeOrder = () => {
-    try {
+    if (totalItemsCount < 1) { setFlowNotice('Your cart is empty. Add at least one ITEM first.'); setState(prev => ({ ...prev, currentStep: 2 })); return; }
+    if (!state.deliveryDetails.name.trim() || !state.deliveryDetails.phone.trim() || !state.deliveryDetails.address.trim()) { setFlowNotice('Complete the required delivery details before submitting your order.'); return; }
+    if (state.deliveryDetails.method !== 'Standard Rider Delivery') { setFlowNotice('Please select the permitted standard delivery method.'); return; }
+    setFlowNotice(''); try {
       const raw = localStorage.getItem('CL_GUEST_ONBOARDING_V1');
       if (raw) {
         const record = JSON.parse(raw);
@@ -176,6 +160,7 @@ export const Store: React.FC<StoreProps> = ({
       ...prev,
       activeOrder: {
         ...prev.activeOrder,
+        orderId: prev.activeOrder.orderId || `CL-${Date.now()}`,
         startTime: prev.activeOrder.startTime || Date.now(),
         submittedTime: prev.activeOrder.submittedTime || timeStr,
         status: 'submitted',
@@ -187,7 +172,9 @@ export const Store: React.FC<StoreProps> = ({
   };
 
   const submitPayment = () => {
-    const now = new Date();
+    if (remainingSeconds <= 0) { setFlowNotice('The payment submission window has expired.'); return; }
+    if (state.activeOrder.paymentSender.trim().length !== 3 || !state.activeOrder.paymentScreenshot) { setFlowNotice('Enter the first three sender letters and upload payment proof before submitting.'); return; }
+    setFlowNotice(''); const now = new Date();
     const timeStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
       ' • ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
@@ -249,9 +236,7 @@ export const Store: React.FC<StoreProps> = ({
           </div>
           <div className="store-progress-dots" aria-label={`Step ${state.currentStep} of 8`}>
             {['Home','Lineup','Cart','Extras','Service','Checkout','Payment','Status'].map((label, index) => (
-              <button key={label} type="button" aria-label={`Go to ${label}`} aria-current={state.currentStep === index + 1 ? 'step' : undefined}
-                className={state.currentStep === index + 1 ? 'is-current' : state.currentStep > index + 1 ? 'is-complete' : ''}
-                onClick={() => navigateTo(index + 1)} />
+              <span key={label} aria-label={`${label}${state.currentStep === index + 1 ? ', current step' : ''}`} className={state.currentStep === index + 1 ? 'is-current' : state.currentStep > index + 1 ? 'is-complete' : ''} />
             ))}
           </div>
           <div className="store-quick-actions">
@@ -263,6 +248,7 @@ export const Store: React.FC<StoreProps> = ({
             </button>
           </div>
         </section>
+        {flowNotice && <div role="alert" className="mb-4 rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-xs text-amber-100">{flowNotice}</div>}
         {/* VIEW 1: STORE HOMEPAGE */}
         {state.currentStep === 1 && (
           <section className="space-y-6 animate-fadeIn">
@@ -356,7 +342,7 @@ export const Store: React.FC<StoreProps> = ({
                 </div>
                 <div>
                   <h4 className="text-lg font-bold text-white uppercase tracking-wider">Celestial Services</h4>
-                  <p className="text-xs text-purple-300">Priority Express Delivery &amp; Special Handling</p>
+                  <p className="text-xs text-purple-300">Standard processing under the No Rush Orders policy</p>
                 </div>
               </div>
               <div className="text-amber-300 text-sm font-semibold flex items-center gap-2">
@@ -665,40 +651,7 @@ export const Store: React.FC<StoreProps> = ({
               </div>
             </div>
 
-            {/* Promo Code Input */}
-            <div className="glass-card p-4 rounded-xl space-y-2">
-              <label className="text-xs font-semibold text-purple-200 block">Promo Code</label>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={promoInput}
-                  onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                  placeholder="Enter code (e.g., ORBIT10)"
-                  className="flex-grow bg-slate-950/80 border border-purple-500/30 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400 uppercase font-mono"
-                />
-                <button
-                  onClick={applyPromo}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition cursor-pointer"
-                >
-                  Apply
-                </button>
-              </div>
-              {promoMsg && (
-                <div
-                  className={`text-[11px] font-semibold flex items-center gap-1 ${
-                    promoMsg.type === 'success'
-                      ? 'text-emerald-400'
-                      : promoMsg.type === 'error'
-                      ? 'text-red-400'
-                      : 'text-purple-300'
-                  }`}
-                >
-                  {promoMsg.type === 'success' && <i className="fa-solid fa-check mr-1"></i>}
-                  {promoMsg.type === 'error' && <i className="fa-solid fa-xmark mr-1"></i>}
-                  {promoMsg.text}
-                </div>
-              )}
-            </div>
+            <div className="glass-card p-4 rounded-xl border border-amber-400/20 space-y-2"><h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Account Benefits</h3><p className="text-xs text-purple-200">Special checkout benefits must be attached to an eligible client account and approved under the applicable rules. Public discount codes are not accepted in this demo.</p></div>
 
             {/* Active Service Note Alert */}
             <div className="glass-card p-3 rounded-xl border border-indigo-500/30 flex items-start space-x-3 bg-indigo-950/30">
@@ -828,44 +781,7 @@ export const Store: React.FC<StoreProps> = ({
               </div>
             </div>
 
-            {/* Delivery Method Selection */}
-            <div className="glass-card p-4 rounded-xl space-y-3">
-              <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Delivery Method</h3>
-              <div className="space-y-2 text-xs">
-                {['Standard Rider Delivery', 'Pickup', 'Drop-off'].map(method => (
-                  <label
-                    key={method}
-                    onClick={() =>
-                      setState(prev => ({
-                        ...prev,
-                        deliveryDetails: { ...prev.deliveryDetails, method }
-                      }))
-                    }
-                    className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer transition ${
-                      state.deliveryDetails.method === method
-                        ? 'border-amber-400 bg-purple-950/40'
-                        : 'border-purple-500/30 bg-slate-950/40 hover:border-amber-400/60'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="delivery_method"
-                        checked={state.deliveryDetails.method === method}
-                        onChange={() => {}}
-                        className="accent-amber-400"
-                      />
-                      <span className={state.deliveryDetails.method === method ? 'text-white font-medium' : 'text-purple-200'}>
-                        {method}
-                      </span>
-                    </div>
-                    <span className={state.deliveryDetails.method === method ? 'text-amber-300 font-bold' : 'text-gray-400'}>
-                      {method === 'Standard Rider Delivery' ? '₱0' : 'Free'}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            <div className="glass-card p-4 rounded-xl space-y-3"><h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Fulfillment Method</h3><div className="rounded-lg border border-amber-400/50 bg-amber-500/10 p-3 text-xs text-white"><b>Standard Rider Delivery</b><p className="mt-1 text-[10px] text-purple-200">Designated delivery arrangement. No meetups or rush fulfillment.</p></div></div>
 
             <div className="pt-2">
               <button
@@ -888,19 +804,17 @@ export const Store: React.FC<StoreProps> = ({
                   {formatTimer(remainingSeconds)}
                 </span>
                 <span className="text-[10px] text-amber-300 font-semibold uppercase mt-0.5">
-                  Pay within 1 hour
+                  {remainingSeconds > 0 ? 'Submit within 1 hour' : 'Window expired'}
                 </span>
               </div>
               <div className="mt-4 space-y-1">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
-                  <i className="fa-solid fa-circle-check"></i> Order Confirmed!
+                  <i className="fa-solid fa-clock"></i> Order Submitted · Payment Pending
                 </div>
                 <p className="text-xs text-purple-200 font-mono tracking-wider pt-1">
                   Order {state.activeOrder.orderId}
                 </p>
-                <p className="text-[11px] text-purple-300">
-                  Please submit your payment details before the timer expires.
-                </p>
+                <p className="text-[11px] text-purple-300">Payment proof is reviewed separately. Submission does not mean payment has been verified.</p>
               </div>
             </div>
 
@@ -968,143 +882,18 @@ export const Store: React.FC<StoreProps> = ({
               </div>
             </div>
 
-            <div>
-              <button
-                onClick={submitPayment}
-                className="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer font-bold"
-              >
-                Submit Payment <i className="fa-solid fa-arrow-right"></i>
-              </button>
-            </div>
+            <div><button onClick={submitPayment} disabled={remainingSeconds <= 0} className="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer font-bold disabled:opacity-40 disabled:cursor-not-allowed">Submit Payment Proof for Review <i className="fa-solid fa-arrow-right"></i></button></div>
           </section>
         )}
 
-        {/* VIEW 8: ORDER RECEIPT & TRACKING */}
+        {/* VIEW 8: ORDER STATUS & TRACKING */}
         {state.currentStep === 8 && (
           <section className="space-y-6 animate-fadeIn">
-            {/* Thank You Banner */}
-            <div className="glass-card p-6 rounded-2xl text-center border border-emerald-500/30 relative">
-              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/40 flex items-center justify-center text-2xl shadow-lg">
-                <i className="fa-solid fa-check"></i>
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-1">Thank you for your order!</h2>
-              <p className="text-xs text-purple-300 font-mono tracking-wider">
-                Order {state.activeOrder.orderId}
-              </p>
-              <div className="mt-4 pt-4 border-t border-purple-900/40 flex items-center justify-between">
-                <div className="text-left">
-                  <span className="text-[10px] text-purple-400 uppercase tracking-wider block">Total Paid</span>
-                  <span className="text-xl font-extrabold text-amber-300">
-                    ₱{(state.activeOrder.totalPaid || grandTotal).toLocaleString()}
-                  </span>
-                </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
-                  Payment Verified
-                </span>
-              </div>
-            </div>
-
-            {/* Timeline */}
-            <div className="glass-card p-6 rounded-2xl space-y-6 relative overflow-hidden">
-              <div className="flex items-center justify-between border-b border-purple-900/40 pb-3">
-                <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Order Status</h3>
-                <div className="w-8 h-8 rounded-full bg-purple-900/40 border border-amber-400/40 flex items-center justify-center text-amber-300 text-xs">
-                  <i className="fa-solid fa-feather"></i>
-                </div>
-              </div>
-
-              <div className="space-y-6 relative pl-6 border-l-2 border-purple-900/60 ml-2">
-                <div className="relative">
-                  <div className="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-xs font-bold shadow-md">
-                    <i className="fa-solid fa-check text-[10px]"></i>
-                  </div>
-                  <h4 className="text-xs font-bold text-white">Order Submitted</h4>
-                  <p className="text-[10px] text-purple-300">
-                    {state.activeOrder.submittedTime || 'Nov 4, 2026 • 04:32 AM'}
-                  </p>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-xs font-bold shadow-md">
-                    <i className="fa-solid fa-check text-[10px]"></i>
-                  </div>
-                  <h4 className="text-xs font-bold text-white">Payment Submitted</h4>
-                  <p className="text-[10px] text-purple-300">
-                    {state.activeOrder.paymentTime || 'Nov 4, 2026 • 04:33 AM'}
-                  </p>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-slate-900 border-2 border-purple-500 text-purple-400 flex items-center justify-center text-xs">
-                    <div className="w-2 h-2 rounded-full bg-purple-400 animate-ping"></div>
-                  </div>
-                  <h4 className="text-xs font-bold text-amber-300">Processing</h4>
-                  <p className="text-[10px] text-purple-300">Allocating realm resources...</p>
-                </div>
-
-                <div className="relative opacity-50">
-                  <div className="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-slate-900 border border-gray-600 text-gray-500 flex items-center justify-center text-xs">
-                    <i className="fa-solid fa-circle text-[6px]"></i>
-                  </div>
-                  <h4 className="text-xs font-semibold text-gray-300">Out for Delivery</h4>
-                </div>
-
-                <div className="relative opacity-50">
-                  <div className="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-slate-900 border border-gray-600 text-gray-500 flex items-center justify-center text-xs">
-                    <i className="fa-solid fa-circle text-[6px]"></i>
-                  </div>
-                  <h4 className="text-xs font-semibold text-gray-300">Delivered</h4>
-                </div>
-              </div>
-
-              {/* Estimated Arrival Banner */}
-              <div className="glass-card p-4 rounded-xl flex items-center justify-between border border-amber-400/30 bg-gradient-to-r from-purple-950/40 to-slate-950">
-                <div className="flex items-center space-x-3">
-                  <i className="fa-solid fa-truck-fast text-2xl text-amber-300"></i>
-                  <div>
-                    <span className="text-[10px] text-purple-300 uppercase tracking-wider block">Estimated Arrival</span>
-                    <span className="text-sm font-bold text-white">~ 45 &ndash; 60 mins</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Delivery Info Footer */}
-              <div className="flex items-center justify-between pt-2 text-xs border-t border-purple-900/40">
-                <div className="flex items-center space-x-2 text-purple-200">
-                  <i className="fa-solid fa-compass text-amber-300"></i>
-                  <span className="truncate max-w-[200px]">
-                    {state.deliveryDetails.name || 'Juan Dela Cruz'} • {state.deliveryDetails.phone || '0917 123 4567'}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setLiveTrackAlert(true)}
-                  className="btn-gold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 cursor-pointer"
-                >
-                  Track Live <i className="fa-solid fa-arrow-right"></i>
-                </button>
-              </div>
-            </div>
-
-            {liveTrackAlert && (
-              <div className="glass-card p-3 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-xs text-emerald-200 flex justify-between items-center animate-fadeIn">
-                <span>Live tracking active: Dispatcher is en route!</span>
-                <button
-                  onClick={() => setLiveTrackAlert(false)}
-                  className="text-emerald-400 hover:text-white ml-2 text-sm font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-
-            <div className="pt-2 text-center">
-              <button
-                onClick={() => navigateTo(1)}
-                className="text-xs text-purple-300 hover:text-amber-300 underline cursor-pointer"
-              >
-                Return to Store Homepage
-              </button>
-            </div>
+            <div className="glass-card p-6 rounded-2xl text-center border border-amber-400/30"><div className="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/40 flex items-center justify-center text-2xl"><i className={state.activeOrder.status === 'payment_expired' ? 'fa-solid fa-hourglass-end' : 'fa-solid fa-clipboard-check'}></i></div><h2 className="text-xl font-bold text-white mb-1">{state.activeOrder.status === 'payment_expired' ? 'Payment Window Expired' : 'Order Received'}</h2><p className="text-xs text-purple-300 font-mono">Order {state.activeOrder.orderId || 'Demo order'}</p><p className="mt-3 text-xs text-amber-200">{state.activeOrder.status === 'payment_expired' ? 'The payment submission window has ended. This demo does not accept late payment submissions.' : state.activeOrder.status === 'payment_submitted' ? 'Your payment proof has been submitted and is awaiting review. Payment is not yet verified.' : 'Your order has been recorded in this browser demo. Payment is still pending.'}</p></div>
+            <div className="glass-card p-5 rounded-2xl space-y-4"><div className="flex items-center justify-between border-b border-purple-900/40 pb-3"><h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Order Status</h3><span className="rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 text-[10px] font-bold text-amber-200">{state.activeOrder.status === 'payment_submitted' ? 'UNDER REVIEW' : state.activeOrder.status === 'payment_expired' ? 'EXPIRED' : 'PAYMENT PENDING'}</span></div>
+              <div className="space-y-4"><div><b className="text-xs text-white">Order Submitted</b><p className="text-[10px] text-purple-300">{state.activeOrder.submittedTime || 'Recorded in this browser session'}</p></div><div><b className="text-xs text-white">Payment Proof</b><p className="text-[10px] text-purple-300">{state.activeOrder.status === 'payment_submitted' ? 'Submitted ' + (state.activeOrder.paymentTime || '') + ' · Awaiting authorized review' : state.activeOrder.status === 'payment_expired' ? 'Not submitted before the deadline' : 'Awaiting client submission'}</p></div><div><b className="text-xs text-white">Verification</b><p className="text-[10px] text-purple-300">No live payment-verification service is connected to this GitHub Pages demo.</p></div><div><b className="text-xs text-white">Fulfillment</b><p className="text-[10px] text-purple-300">Processing and delivery updates appear only when an authorized operator records them.</p></div></div>
+              <div className="border-t border-purple-900/40 pt-3 flex justify-between text-xs"><span className="text-purple-200">Order Total</span><b className="text-amber-300">₱{(state.activeOrder.totalPaid ?? grandTotal).toLocaleString()}</b></div></div>
+            <div className="pt-2 text-center"><button onClick={() => navigateTo(1)} className="text-xs text-purple-300 hover:text-amber-300 underline cursor-pointer">Return to Store Homepage</button></div>
           </section>
         )}
       </main>
