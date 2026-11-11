@@ -69,6 +69,17 @@ export const Portal: React.FC<PortalProps> = ({
     return () => window.removeEventListener('popstate', handleRoutePop);
   }, []);
   const [ownerSessionUntil, setOwnerSessionUntil] = useState<number>(() => readOwnerSession());
+
+  useEffect(() => {
+    if (view === 'owner-preview' && ownerSessionUntil <= Date.now()) {
+      setView('landing');
+      return;
+    }
+    if (view === 'regular-home' && ownerSessionUntil <= Date.now()) {
+      // A direct client-dashboard URL is not a substitute for a verified client session.
+      setView('regular-gate');
+    }
+  }, [view, ownerSessionUntil]);
   const [ownerTriggerTaps, setOwnerTriggerTaps] = useState(0);
   const [showOwnerAccessField, setShowOwnerAccessField] = useState(false);
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
