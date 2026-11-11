@@ -1982,3 +1982,81 @@ body:has(.portal-shell[data-page="regular-gate"]) .store-lobby-return {
   .destination-grid { grid-template-columns: 1fr; }
   .destination-card { min-height: 180px; }
 }
+
+
+/* Store alignment: use the same Minimal Galactic Horizon palette and portal chrome. */
+.store-shell {
+  background:
+    radial-gradient(ellipse 85% 42% at 50% 100%, rgba(103, 139, 177, .30), transparent 72%),
+    radial-gradient(ellipse 65% 36% at 50% 92%, rgba(185, 157, 119, .13), transparent 76%),
+    linear-gradient(180deg, #090f20 0%, #111a2d 48%, #1b2a40 78%, #26374b 100%);
+  color: #f4f0e8;
+}
+.store-shell .store-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  margin: 0;
+  padding-top: max(12px, env(safe-area-inset-top));
+  border: 0;
+  border-bottom: 1px solid rgba(220, 190, 132, .24);
+  border-radius: 0;
+  background: rgba(9, 15, 32, .92);
+  box-shadow: 0 8px 28px rgba(0,0,0,.18);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+.store-brand { min-width: 0; padding: 0; border: 0; background: transparent; text-align: left; }
+.store-brand .brand-name { color: #ead7ad; font-family: 'Cinzel', Georgia, serif; font-size: 13px; letter-spacing: .16em; }
+.store-reset-button {
+  min-height: 38px; padding: 7px 10px; border: 1px solid rgba(220,190,132,.38);
+  border-radius: 10px; background: rgba(20,29,47,.72); color: #e8d9b2;
+  font-size: 10px; font-weight: 750;
+}
+.store-cart-button {
+  position: relative; display: grid; width: 40px; height: 40px; place-items: center;
+  border: 1px solid rgba(220,190,132,.35); border-radius: 12px;
+  background: rgba(20,29,47,.72); color: #f0d9a8;
+}
+.store-cart-button span {
+  position: absolute; top: -6px; right: -6px; display: grid; width: 18px; height: 18px;
+  place-items: center; border: 1px solid #101a2b; border-radius: 50%;
+  background: #e4c98e; color: #182033; font-size: 9px; font-weight: 900;
+}
+.store-shell .lobby-menu-trigger {
+  width: 40px; height: 40px; border-radius: 12px; font-size: 22px;
+}
+.store-shell .store-menu-drawer { top: max(62px, calc(env(safe-area-inset-top) + 54px)); }
+.store-shell .store-footer { margin: 24px auto 72px; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+.store-shell .portal-footer-link { color: #e2c993; }
+.store-shell .portal-footer-link:hover { color: #f0d48c; }
+.store-shell .glass-card,
+.store-shell .portal-panel,
+.store-shell .destination-card {
+  border-color: rgba(210,179,123,.38);
+  background-color: rgba(17,28,46,.76);
+}
+.store-shell [class*="text-purple-"] { color: #b8c5df !important; }
+.store-shell [class*="border-purple-"] { border-color: rgba(123,166,255,.25) !important; }
+.store-shell [class*="bg-purple-"] { background-color: rgba(19,36,77,.72) !important; }
+.store-shell [class*="text-gray-"] { color: #c5d0e6 !important; }
+.store-shell [class*="border-gray-"] { border-color: rgba(123,166,255,.22) !important; }
+.store-shell .btn-gold,
+.store-shell .primary-action {
+  border-color: rgba(255,229,178,.5);
+  background: linear-gradient(135deg,#e4c98e,#b58b4d);
+  color: #182033;
+}
+.store-shell input,
+.store-shell textarea,
+.store-shell select {
+  border-color: rgba(123,166,255,.3);
+  background-color: rgba(5,9,21,.86);
+  color: #f4f0e8;
+}
+.store-shell .store-disclaimer { color: #a9b6ce; }
+@media (max-width: 420px) {
+  .store-shell .store-header { padding-left: 12px; padding-right: 12px; }
+  .store-brand .brand-name { font-size: 11px; letter-spacing: .12em; }
+  .store-reset-button { padding-inline: 8px; }
+}
