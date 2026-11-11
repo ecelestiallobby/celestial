@@ -25,7 +25,7 @@ export interface ActiveOrder {
   startTime: number | null;
   paymentSender: string;
   paymentScreenshot: string | null;
-  status: 'submitted' | 'payment_submitted' | 'confirmed' | 'processing' | 'in_transit' | 'out_for_delivery' | 'delivered';
+  status: 'submitted' | 'payment_submitted' | 'payment_expired' | 'confirmed' | 'processing' | 'in_transit' | 'out_for_delivery' | 'delivered';
   submittedTime?: string;
   paymentTime?: string;
   totalPaid?: number;
