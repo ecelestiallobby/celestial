@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b17">
+  <title>Opening CELESTIAL LOBBY Store</title>
+  <script>
+    (function () {
+      var destination = '/celestial/';
+      try {
+        // Preserve the requested SPA route while loading the GitHub Pages app shell.
+        sessionStorage.setItem('cl-gh-pages-redirect', window.location.href);
+      } catch (error) {
+        // Continue to the lobby entrance if session storage is unavailable.
+      }
+      window.location.replace(destination);
+    })();
+  </script>
+</head>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#080b17;color:#f2e9d3;font-family:Arial,sans-serif">
+  <main style="padding:24px;text-align:center">
+    <p>Opening the CELESTIAL LOBBY Store…</p>
+    <p><a href="/celestial/" style="color:#e8cc91">Continue to the lobby</a></p>
+  </main>
+</body>
+</html>
