@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { pathForPortalView, portalViewForPath } from '../routes';
 import hoenoPosterBase64 from '../assets/hoeno-3s.webp.b64?raw';
 import { ONBOARDING_STEPS } from '../catalog';
 import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
@@ -39,7 +40,34 @@ export const Portal: React.FC<PortalProps> = ({
   deliveryDetails,
   onUpdateStatus
 }) => {
-  const [view, setView] = useState<PortalView>(initialView);
+  const initialRouteView = typeof window !== 'undefined' ? portalViewForPath(window.location.pathname) : null;
+  const [view, setViewState] = useState<PortalView>(initialRouteView ?? initialView);
+  const viewRef = useRef<PortalView>(initialRouteView ?? initialView);
+  const setView = (next: React.SetStateAction<PortalView>) => {
+    const resolved = typeof next === 'function' ? (next as (current: PortalView) => PortalView)(viewRef.current) : next;
+    viewRef.current = resolved;
+    setViewState(resolved);
+    const nextPath = pathForPortalView(resolved);
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState({ celestialRoute: true }, '', nextPath);
+    }
+  };
+
+  useEffect(() => {
+    const handleRoutePop = () => {
+      // The dedicated onboarding guard owns Back navigation while a session is active.
+      if (viewRef.current === 'onboarding' || viewRef.current === 'onboarding-terms') return;
+      const routeView = portalViewForPath(window.location.pathname);
+      const nextView = routeView ?? 'landing';
+      viewRef.current = nextView;
+      setViewState(nextView);
+      if (!routeView) window.history.replaceState({ celestialRoute: true }, '', pathForPortalView('landing'));
+      setMenuOpen(false);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    };
+    window.addEventListener('popstate', handleRoutePop);
+    return () => window.removeEventListener('popstate', handleRoutePop);
+  }, []);
   const [ownerSessionUntil, setOwnerSessionUntil] = useState<number>(() => readOwnerSession());
   const [ownerTriggerTaps, setOwnerTriggerTaps] = useState(0);
   const [showOwnerAccessField, setShowOwnerAccessField] = useState(false);
