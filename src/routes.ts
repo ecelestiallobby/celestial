@@ -40,11 +40,11 @@ export function pathForPortalView(view: PortalRouteView): string {
 }
 
 export function portalViewForPath(pathname: string): PortalRouteView | null {
-  const normalized = pathname.replace(/\\/+$/, '') || '/';
+  const normalized = pathname.replace(/\/+$/, '') || '/';
   if (normalized === '/celestial' || normalized === '/celestial/') return 'landing';
   return NORMALIZED_ROUTES.get(normalized) ?? null;
 }
 
 export function isStorePath(pathname: string): boolean {
-  return pathname.replace(/\\/+$/, '') === '/celestial/store';
+  return pathname.replace(/\/+$/, '') === '/celestial/store';
 }
