@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Portal } from './components/Portal';
 import { Store } from './components/Store';
 import { CelestialState } from './types';
-import { isStorePath, pathForPortalView, portalViewForPath, PortalRouteView } from './routes';
+import { isStorePath, pathForPortalView, portalViewForPath } from './routes';
+import type { PortalRouteView } from './routes';
 
 const STORAGE_KEY = 'CELESTIAL_LOBBY_STATE_v1';
 const OWNER_SESSION_KEY = 'CL_OWNER_BROWSER_SESSION_V1';
@@ -41,6 +42,21 @@ export const App: React.FC = () => {
   const [mode, setMode] = useState<'portal' | 'store'>(() => isStorePath(window.location.pathname) ? 'store' : 'portal');
   const [portalStartView, setPortalStartView] = useState<PortalRouteView>(() => portalViewForPath(window.location.pathname) ?? 'landing');
   const [portalInstanceKey, setPortalInstanceKey] = useState(0);
+
+  useEffect(() => {
+    const syncAppRoute = () => {
+      if (isStorePath(window.location.pathname)) {
+        setMode('store');
+        return;
+      }
+      setMode('portal');
+      setPortalStartView(portalViewForPath(window.location.pathname) ?? 'landing');
+      setPortalInstanceKey(key => key + 1);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    };
+    window.addEventListener('popstate', syncAppRoute);
+    return () => window.removeEventListener('popstate', syncAppRoute);
+  }, []);
   const [ownerActive, setOwnerActive] = useState(() => { try { return Number(localStorage.getItem(OWNER_SESSION_KEY) || 0) > Date.now(); } catch { return false; } });
   const [ownerPanel, setOwnerPanel] = useState<'none' | 'notepad' | 'tools'>('none');
   const [ownerMenuOpen, setOwnerMenuOpen] = useState(false);
