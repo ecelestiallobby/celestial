@@ -42,6 +42,21 @@
     </main>
   </div>
   <noscript><p style="padding:20px;color:#fff;background:#080b17">JavaScript is disabled. The lobby preview above is readable, but interactive features need JavaScript enabled.</p></noscript>
+  <script>
+    (function () {
+      try {
+        var savedPath = sessionStorage.getItem('cl-gh-pages-redirect');
+        if (!savedPath) return;
+        sessionStorage.removeItem('cl-gh-pages-redirect');
+        var savedUrl = new URL(savedPath, window.location.origin);
+        if (savedUrl.origin === window.location.origin && savedUrl.pathname.startsWith('/celestial/')) {
+          window.history.replaceState(null, '', savedUrl.pathname + savedUrl.search + savedUrl.hash);
+        }
+      } catch (error) {
+        console.warn('Could not restore the requested CELESTIAL LOBBY route.', error);
+      }
+    })();
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
