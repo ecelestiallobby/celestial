@@ -213,105 +213,56 @@ export const Store: React.FC<StoreProps> = ({
   const totalCartCount = Object.values(state.cart).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="store-shell portal-shell min-h-screen flex flex-col justify-between pb-16 md:pb-0 animate-fadeIn" data-page="store">
-      {/* Demo notice banner */}
-      <div className="mx-auto max-w-4xl px-4 pt-3 w-full">
-        <div className="rounded-lg border border-amber-400/30 bg-amber-950/30 p-3 text-[10px] leading-relaxed text-amber-100 flex items-start gap-2">
-          <i className="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 text-xs"></i>
-          <span>
-            <strong>DEMO ONLY</strong> — This store uses browser LocalStorage. Access codes, order records, uploaded payment images and payment status are not protected by server-side authentication. Do not enter real customer or payment information. No live payment verification or fulfillment is connected.
-          </span>
-        </div>
-      </div>
-
-      {/* Shared CELESTIAL LOBBY header and navigation */}
-      <header className="store-header portal-header sticky top-0 z-40 w-full px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+    <div className="store-shell portal-shell min-h-screen flex flex-col justify-between animate-fadeIn" data-page="store">
+      {/* Shared CELESTIAL LOBBY header, matching portal Screens 1–5 */}
+      <header className="portal-header store-header">
+        <div className="portal-header-inner">
           <button type="button" className="portal-brand store-brand" aria-label="CELESTIAL LOBBY home" onClick={onReturnToLobby}>
             <span className="brand-name">CELESTIAL LOBBY</span>
           </button>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleStoreReset}
-              title="Reset Store selections"
-              aria-label="Reset Store selections"
-              className="store-reset-button"
-            >
-              <i className="fa-solid fa-rotate-left mr-1"></i> Reset
-            </button>
-            <button type="button" className="store-cart-button" aria-label={`Open cart, ${totalCartCount} items`} onClick={() => navigateTo(3)}>
-              <i className="fa-solid fa-shopping-bag"></i>
-              <span>{totalCartCount}</span>
-            </button>
-            <button type="button" className="lobby-menu-trigger" aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
-              <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
-            </button>
-          </div>
+          <button type="button" className="lobby-menu-trigger" aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
+            <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
+          </button>
         </div>
         {menuOpen && <>
           <button type="button" className="lobby-menu-backdrop" aria-label="Close navigation menu" onClick={() => setMenuOpen(false)} />
-          <nav className="lobby-menu-drawer store-menu-drawer" aria-label="Main navigation">
-            <button onClick={() => { setMenuOpen(false); onReturnToLobby(); }}>HOME</button>
-            <button onClick={() => { setMenuOpen(false); onOpenPortalPage('about'); }}>ABOUT US</button>
-            <button onClick={() => { setMenuOpen(false); onOpenPortalPage('three-s'); }}>3-S</button>
-            <button onClick={() => { setMenuOpen(false); onOpenPortalPage('no-nos'); }}>NO-NOS</button>
-            <button onClick={() => { setMenuOpen(false); onOpenPortalPage('faqs'); }}>FAQS</button>
+          <nav className="lobby-menu-drawer" aria-label="Main navigation">
+            <button onClick={() => { onReturnToLobby(); setMenuOpen(false); }}>HOME</button>
+            <button onClick={() => { onOpenPortalPage('about'); setMenuOpen(false); }}>ABOUT US</button>
+            <button onClick={() => { onOpenPortalPage('three-s'); setMenuOpen(false); }}>3-S</button>
+            <button onClick={() => { onOpenPortalPage('no-nos'); setMenuOpen(false); }}>NO-NOS</button>
+            <button onClick={() => { onOpenPortalPage('faqs'); setMenuOpen(false); }}>FAQS</button>
             <button onClick={() => navigateTo(1)}>STORE</button>
             <button onClick={() => navigateTo(8)}>TRACK</button>
           </nav>
         </>}
-
-
-        {/* 8-Step Navigation Tracker */}
-        <div className="max-w-4xl mx-auto mt-3 pt-2 border-t border-purple-900/40 overflow-x-auto no-scrollbar">
-          <div className="flex items-center justify-between min-w-[650px] px-2 text-xs">
-            {[
-              { num: 1, label: 'Home' },
-              { num: 2, label: 'Lineup' },
-              { num: 3, label: 'Cart' },
-              { num: 4, label: 'Extras' },
-              { num: 5, label: 'Service' },
-              { num: 6, label: 'Checkout' },
-              { num: 7, label: 'Payment' },
-              { num: 8, label: 'Status' }
-            ].map((step, idx) => {
-              const isCurrent = state.currentStep === step.num;
-              const isPast = state.currentStep > step.num;
-              return (
-                <React.Fragment key={step.num}>
-                  {idx > 0 && <i className="fa-solid fa-chevron-right text-[8px] text-gray-600"></i>}
-                  <button
-                    onClick={() => navigateTo(step.num)}
-                    className={`step-btn flex items-center gap-1 transition cursor-pointer ${
-                      isCurrent
-                        ? 'text-amber-300 font-bold'
-                        : isPast
-                        ? 'text-emerald-400 font-semibold'
-                        : 'text-gray-400 hover:text-amber-200'
-                    }`}
-                  >
-                    <span
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${
-                        isCurrent
-                          ? 'border-amber-400 bg-amber-400/20'
-                          : isPast
-                          ? 'border-emerald-400 bg-emerald-400/20'
-                          : 'border-gray-600'
-                      }`}
-                    >
-                      {step.num}
-                    </span>
-                    <span>{step.label}</span>
-                  </button>
-                </React.Fragment>
-              );
-            })}
-          </div>
-        </div>
       </header>
 
-      {/* MAIN CONTAINER */}
-      <main className="max-w-4xl w-full mx-auto p-4 flex-grow relative">
+      {/* Store workflow, contained within the shared portal page layout */}
+      <main className="store-main max-w-4xl w-full mx-auto p-4 flex-grow relative">
+        <section className="store-workflow-tools" aria-label="Store controls">
+          <div className="store-workflow-heading">
+            <span className="store-kicker">STORE JOURNEY</span>
+            <strong>Step {state.currentStep} of 8 · {([
+              'Home','Lineup','Cart','Extras','Service','Checkout','Payment','Status'
+            ][state.currentStep - 1] || 'Home')}</strong>
+          </div>
+          <div className="store-progress-dots" aria-label={`Step ${state.currentStep} of 8`}>
+            {['Home','Lineup','Cart','Extras','Service','Checkout','Payment','Status'].map((label, index) => (
+              <button key={label} type="button" aria-label={`Go to ${label}`} aria-current={state.currentStep === index + 1 ? 'step' : undefined}
+                className={state.currentStep === index + 1 ? 'is-current' : state.currentStep > index + 1 ? 'is-complete' : ''}
+                onClick={() => navigateTo(index + 1)} />
+            ))}
+          </div>
+          <div className="store-quick-actions">
+            <button type="button" className="store-quick-button" onClick={handleStoreReset}>
+              <i className="fa-solid fa-rotate-left"></i><span>Reset selections</span>
+            </button>
+            <button type="button" className="store-quick-button" onClick={() => navigateTo(3)}>
+              <i className="fa-solid fa-bag-shopping"></i><span>Cart · {totalCartCount}</span>
+            </button>
+          </div>
+        </section>
         {/* VIEW 1: STORE HOMEPAGE */}
         {state.currentStep === 1 && (
           <section className="space-y-6 animate-fadeIn">
@@ -1158,7 +1109,10 @@ export const Store: React.FC<StoreProps> = ({
         )}
       </main>
 
-      {/* Shared legal footer, matching the portal pages */}
+      <div className="demo-disclaimer store-disclaimer">
+        DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.
+      </div>
+      {/* Shared legal footer, matching portal Screens 1–5 */}
       <footer className="portal-footer store-footer" aria-label="Legal links">
         <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('terms')}>TERMS</button>
         <i aria-hidden="true">·</i>
@@ -1166,51 +1120,7 @@ export const Store: React.FC<StoreProps> = ({
         <i aria-hidden="true">·</i>
         <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('info-sec')}>INFO SEC</button>
       </footer>
-      <div className="demo-disclaimer store-disclaimer">DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.</div>
 
-      {/* MOBILE PERSISTENT BOTTOM TAB BAR */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-card border-t border-purple-500/30 py-2 px-4 flex justify-around items-center text-[10px]">
-        <button
-          onClick={() => navigateTo(1)}
-          className={`flex flex-col items-center cursor-pointer ${state.currentStep === 1 ? 'text-amber-300 font-bold' : 'text-purple-300 hover:text-amber-300'}`}
-        >
-          <i className="fa-solid fa-house text-base mb-0.5"></i>
-          <span>Home</span>
-        </button>
-        <button
-          onClick={() => navigateTo(2)}
-          className={`flex flex-col items-center cursor-pointer ${state.currentStep === 2 ? 'text-amber-300 font-bold' : 'text-purple-300 hover:text-amber-300'}`}
-        >
-          <i className="fa-solid fa-layer-group text-base mb-0.5"></i>
-          <span>Lineup</span>
-        </button>
-        <button
-          onClick={() => navigateTo(3)}
-          className={`flex flex-col items-center cursor-pointer relative ${state.currentStep === 3 ? 'text-amber-300 font-bold' : 'text-purple-300 hover:text-amber-300'}`}
-        >
-          <i className="fa-solid fa-shopping-bag text-base mb-0.5"></i>
-          <span>Cart</span>
-          {totalCartCount > 0 && (
-            <span className="absolute -top-1 -right-2 bg-amber-400 text-slate-950 text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center">
-              {totalCartCount}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => navigateTo(8)}
-          className={`flex flex-col items-center cursor-pointer ${state.currentStep === 8 ? 'text-amber-300 font-bold' : 'text-purple-300 hover:text-amber-300'}`}
-        >
-          <i className="fa-solid fa-receipt text-base mb-0.5"></i>
-          <span>Status</span>
-        </button>
-      </nav>
-
-      {/* Floating Return to Lobby Button */}
-      <div className="store-lobby-return">
-        <button onClick={onReturnToLobby}>
-          ← Return to Lobby
-        </button>
-      </div>
     </div>
   );
 };
