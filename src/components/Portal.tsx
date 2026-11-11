@@ -987,36 +987,36 @@ export const Portal: React.FC<PortalProps> = ({
             <div className="portal-panel gate-panel client-access-card">
               <div className="client-access-heading">
                 <span className="eyebrow">CELESTIAL LOBBY</span>
-                <h2 className="section-title">REGULAR CLIENTS</h2>
+                <h2 className="section-title">ENTRANCE TO THE LOBBY</h2>
                 <p className="section-copy">Enter your access credentials to continue.</p>
               </div>
 
               <div className="client-access-fields">
-                <label>
-                  ACCESS ID
-                  <input
-                    value={accessIdInput}
-                    onChange={(e) => setAccessIdInput(e.target.value)}
-                    placeholder="Enter your Access ID"
-                    autoComplete="off"
-                    spellCheck="false"
-                  />
-                </label>
+                <label className="sr-only" htmlFor="regular-client-access-id">Access ID</label>
+                <input
+                  id="regular-client-access-id"
+                  value={accessIdInput}
+                  onChange={(e) => setAccessIdInput(e.target.value)}
+                  placeholder="Enter your Access ID"
+                  aria-label="Access ID"
+                  autoComplete="off"
+                  spellCheck="false"
+                />
 
-                <label>
-                  AGP CODE
-                  <input
-                    value={apgInput}
-                    onChange={(e) => setApgInput(e.target.value)}
-                    placeholder="Enter your AGP Code"
-                    autoComplete="off"
-                    spellCheck="false"
-                  />
-                </label>
+                <label className="sr-only" htmlFor="regular-client-agp-code">AGP Code</label>
+                <input
+                  id="regular-client-agp-code"
+                  value={apgInput}
+                  onChange={(e) => setApgInput(e.target.value)}
+                  placeholder="Enter your AGP Code"
+                  aria-label="AGP Code"
+                  autoComplete="off"
+                  spellCheck="false"
+                />
               </div>
 
               <button className="primary-action full client-access-verify" onClick={handleVerifyAccess}>
-                VERIFY &amp; ENTER
+                ENTER
               </button>
 
               {gateMessage && (
@@ -1044,14 +1044,11 @@ export const Portal: React.FC<PortalProps> = ({
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 >
-                  JOIN AS GUEST
+                  GUEST ENTRANCE
                 </button>
                 <span>Explore the Guest Environment without a client account.</span>
               </div>
 
-              <p className="small-caveat client-access-note">
-                Demo only. Credentials are checked against data saved in this browser and are not secure authentication.
-              </p>
             </div>
           </section>
         )}
