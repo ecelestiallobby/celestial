@@ -12,10 +12,7 @@ const OWNER_FEEDBACK_KEY = 'CL_OWNER_FEEDBACK_V1';
 
 const DEFAULT_STATE: CelestialState = {
   currentStep: 1,
-  cart: {
-    cloud9: 1,
-    mars: 1
-  },
+  cart: {},
   addons: {
     lubricant: 0,
     accessory: 0
@@ -23,16 +20,11 @@ const DEFAULT_STATE: CelestialState = {
   specialHandling: 'standard',
   promoCode: '',
   discount: 0,
-  deliveryDetails: {
-    name: 'Juan Dela Cruz',
-    phone: '0917 123 4567',
-    address: 'Neo District Orbit Tower',
-    method: 'Standard Rider Delivery'
-  },
+  deliveryDetails: { name: '', phone: '', address: '', method: 'Standard Rider Delivery' },
   activeOrder: {
-    orderId: '#CL20261104-001',
+    orderId: '',
     startTime: null,
-    paymentSender: 'FTA',
+    paymentSender: '',
     paymentScreenshot: null,
     status: 'submitted'
   }
