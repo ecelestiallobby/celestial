@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Portal } from './components/Portal';
 import { Store } from './components/Store';
 import { CelestialState } from './types';
+import { isStorePath, pathForPortalView, portalViewForPath, PortalRouteView } from './routes';
 
 const STORAGE_KEY = 'CELESTIAL_LOBBY_STATE_v1';
 const OWNER_SESSION_KEY = 'CL_OWNER_BROWSER_SESSION_V1';
@@ -37,8 +38,8 @@ const DEFAULT_STATE: CelestialState = {
 };
 
 export const App: React.FC = () => {
-  const [mode, setMode] = useState<'portal' | 'store'>('portal');
-  const [portalStartView, setPortalStartView] = useState<'landing' | 'owner-preview' | 'guest' | 'regular-gate' | 'regular-home' | 'terms' | 'privacy' | 'info-sec' | 'contact'>('regular-gate');
+  const [mode, setMode] = useState<'portal' | 'store'>(() => isStorePath(window.location.pathname) ? 'store' : 'portal');
+  const [portalStartView, setPortalStartView] = useState<PortalRouteView>(() => portalViewForPath(window.location.pathname) ?? 'landing');
   const [portalInstanceKey, setPortalInstanceKey] = useState(0);
   const [ownerActive, setOwnerActive] = useState(() => { try { return Number(localStorage.getItem(OWNER_SESSION_KEY) || 0) > Date.now(); } catch { return false; } });
   const [ownerPanel, setOwnerPanel] = useState<'none' | 'notepad' | 'tools'>('none');
@@ -99,6 +100,7 @@ export const App: React.FC = () => {
           }}
           onOwnerSessionChange={setOwnerActive}
           onEnterStore={() => {
+            window.history.pushState({ celestialRoute: true }, '', '/celestial/store');
             setMode('store');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
@@ -108,16 +110,19 @@ export const App: React.FC = () => {
           state={state}
           setState={setState}
           onPurchaseWindowExpired={() => {
+            window.history.pushState({ celestialRoute: true }, '', pathForPortalView('guest'));
             setPortalStartView('guest');
             setMode('portal');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           onReturnToLobby={() => {
+            window.history.pushState({ celestialRoute: true }, '', pathForPortalView('landing'));
             setPortalStartView('landing');
             setMode('portal');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           onOpenPortalPage={(page) => {
+            window.history.pushState({ celestialRoute: true }, '', pathForPortalView(page));
             setPortalStartView(page);
             setMode('portal');
             window.scrollTo({ top: 0, behavior: 'smooth' });
