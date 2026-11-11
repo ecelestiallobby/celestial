@@ -45,12 +45,24 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const syncAppRoute = () => {
+      let onboardingSessionActive = false;
+      try { onboardingSessionActive = sessionStorage.getItem('CL_ONBOARDING_ACTIVE_SESSION') === '1'; } catch { /* storage unavailable */ }
+      // Let the onboarding-specific Back guard show its confirmation before the app router can unmount it.
+      if (onboardingSessionActive) return;
+
       if (isStorePath(window.location.pathname)) {
         setMode('store');
         return;
       }
-      setMode('portal');
-      setPortalStartView(portalViewForPath(window.location.pathname) ?? 'landing');
+      const requestedView = portalViewForPath(window.location.pathname);
+      if (requestedView === 'onboarding' || requestedView === 'onboarding-terms') {
+        window.history.replaceState({ celestialRoute: true }, '', pathForPortalView('guest'));
+        setMode('portal');
+        setPortalStartView('guest');
+      } else {
+        setMode('portal');
+        setPortalStartView(requestedView ?? 'landing');
+      }
       setPortalInstanceKey(key => key + 1);
       window.scrollTo({ top: 0, behavior: 'auto' });
     };
