@@ -116,13 +116,29 @@ export const App: React.FC = () => {
   useEffect(() => () => { if (referenceImageUrl) URL.revokeObjectURL(referenceImageUrl); }, [referenceImageUrl]);
 
   const handleReset = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem('CL_DEMO_ACCESS');
-    setState(DEFAULT_STATE);
-    window.history.pushState({ celestialRoute: true }, '', pathForPortalView('landing'));
-    setPortalStartView('landing');
-    setPortalInstanceKey(key => key + 1);
-    setMode('portal');
+    // Reset only the in-progress Store journey. Keep the customer's current route,
+    // access/session state, onboarding record, and Owner preview session untouched.
+    setState({
+      ...DEFAULT_STATE,
+      currentStep: 1,
+      cart: {},
+      addons: { lubricant: 0, accessory: 0 },
+      promoCode: '',
+      discount: 0,
+      deliveryDetails: {
+        name: '',
+        phone: '',
+        address: '',
+        method: 'Standard Rider Delivery'
+      },
+      activeOrder: {
+        orderId: '',
+        startTime: null,
+        paymentSender: '',
+        paymentScreenshot: null,
+        status: 'submitted'
+      }
+    });
   };
 
   return (
