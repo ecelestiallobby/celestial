@@ -7,7 +7,7 @@ interface StoreProps {
   setState: React.Dispatch<React.SetStateAction<CelestialState>>;
   onReturnToLobby: () => void;
   onPurchaseWindowExpired: () => void;
-  onOpenPortalPage: (page: 'terms' | 'privacy' | 'info-sec' | 'contact') => void;
+  onOpenPortalPage: (page: 'about' | 'three-s' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'contact') => void;
   onReset: () => void;
 }
 
@@ -22,6 +22,7 @@ export const Store: React.FC<StoreProps> = ({
   const [promoInput, setPromoInput] = useState(state.promoCode || '');
   const [promoMsg, setPromoMsg] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [liveTrackAlert, setLiveTrackAlert] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(3600);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,6 +78,18 @@ export const Store: React.FC<StoreProps> = ({
 
   const navigateTo = (step: number) => {
     setState(prev => ({ ...prev, currentStep: step }));
+    setMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleStoreReset = () => {
+    onReset();
+    setPromoInput('');
+    setPromoMsg(null);
+    setLiveTrackAlert(false);
+    setRemainingSeconds(3600);
+    setMenuOpen(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -200,7 +213,7 @@ export const Store: React.FC<StoreProps> = ({
   const totalCartCount = Object.values(state.cart).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between pb-16 md:pb-0 animate-fadeIn">
+    <div className="store-shell portal-shell min-h-screen flex flex-col justify-between pb-16 md:pb-0 animate-fadeIn" data-page="store">
       {/* Demo notice banner */}
       <div className="mx-auto max-w-4xl px-4 pt-3 w-full">
         <div className="rounded-lg border border-amber-400/30 bg-amber-950/30 p-3 text-[10px] leading-relaxed text-amber-100 flex items-start gap-2">
@@ -211,43 +224,43 @@ export const Store: React.FC<StoreProps> = ({
         </div>
       </div>
 
-      {/* TOP HEADER / NAV BAR — shared Celestial Lobby visual identity */}
-      <header className="store-header portal-header sticky top-0 z-40 w-full glass-card border-b border-purple-500/20 px-4 py-3 mt-2">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigateTo(1)}>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-900 to-indigo-900 flex items-center justify-center border border-amber-400/50 shadow-lg shadow-purple-900/40">
-              <svg className="w-6 h-6 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 tracking-wider text-base uppercase">
-                Celestial Lobby
-              </h1>
-              <p className="text-[10px] text-purple-300 tracking-widest uppercase font-semibold">
-                Orbit Store Ecosystem
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
+      {/* Shared CELESTIAL LOBBY header and navigation */}
+      <header className="store-header portal-header sticky top-0 z-40 w-full px-4 py-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+          <button type="button" className="portal-brand store-brand" aria-label="CELESTIAL LOBBY home" onClick={onReturnToLobby}>
+            <span className="brand-name">CELESTIAL LOBBY</span>
+          </button>
+          <div className="flex items-center gap-2">
             <button
-              onClick={onReset}
-              title="Reset Demo Data"
-              className="text-xs px-2.5 py-1.5 rounded-lg bg-red-950/40 text-red-300 border border-red-500/30 hover:bg-red-900/50 transition cursor-pointer flex items-center"
+              onClick={handleStoreReset}
+              title="Reset Store selections"
+              aria-label="Reset Store selections"
+              className="store-reset-button"
             >
               <i className="fa-solid fa-rotate-left mr-1"></i> Reset
             </button>
-            <div className="relative cursor-pointer" onClick={() => navigateTo(3)}>
-              <div className="w-9 h-9 rounded-full bg-indigo-950/80 border border-purple-500/40 flex items-center justify-center text-amber-300">
-                <i className="fa-solid fa-shopping-bag"></i>
-              </div>
-              <span className="absolute -top-1 -right-1 bg-amber-400 text-slate-950 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border border-slate-950">
-                {totalCartCount}
-              </span>
-            </div>
+            <button type="button" className="store-cart-button" aria-label={`Open cart, ${totalCartCount} items`} onClick={() => navigateTo(3)}>
+              <i className="fa-solid fa-shopping-bag"></i>
+              <span>{totalCartCount}</span>
+            </button>
+            <button type="button" className="lobby-menu-trigger" aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
+              <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
+            </button>
           </div>
         </div>
+        {menuOpen && <>
+          <button type="button" className="lobby-menu-backdrop" aria-label="Close navigation menu" onClick={() => setMenuOpen(false)} />
+          <nav className="lobby-menu-drawer store-menu-drawer" aria-label="Main navigation">
+            <button onClick={() => { setMenuOpen(false); onReturnToLobby(); }}>HOME</button>
+            <button onClick={() => { setMenuOpen(false); onOpenPortalPage('about'); }}>ABOUT US</button>
+            <button onClick={() => { setMenuOpen(false); onOpenPortalPage('three-s'); }}>3-S</button>
+            <button onClick={() => { setMenuOpen(false); onOpenPortalPage('no-nos'); }}>NO-NOS</button>
+            <button onClick={() => { setMenuOpen(false); onOpenPortalPage('faqs'); }}>FAQS</button>
+            <button onClick={() => navigateTo(1)}>STORE</button>
+            <button onClick={() => navigateTo(8)}>TRACK</button>
+          </nav>
+        </>}
+
 
         {/* 8-Step Navigation Tracker */}
         <div className="max-w-4xl mx-auto mt-3 pt-2 border-t border-purple-900/40 overflow-x-auto no-scrollbar">
@@ -1145,15 +1158,13 @@ export const Store: React.FC<StoreProps> = ({
         )}
       </main>
 
-      {/* Shared legal and contact footer */}
-      <footer className="portal-footer store-footer" aria-label="Legal and contact links">
-        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('terms')}>Terms and Conditions</button>
-        <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('privacy')}>Data and Privacy</button>
-        <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('info-sec')}>Info Sec</button>
-        <i aria-hidden="true">|</i>
-        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('contact')}>Contact Us</button>
+      {/* Shared legal footer, matching the portal pages */}
+      <footer className="portal-footer store-footer" aria-label="Legal links">
+        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('terms')}>TERMS</button>
+        <i aria-hidden="true">·</i>
+        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('privacy')}>PRIVACY</button>
+        <i aria-hidden="true">·</i>
+        <button type="button" className="portal-footer-link" onClick={() => onOpenPortalPage('info-sec')}>INFO SEC</button>
       </footer>
       <div className="demo-disclaimer store-disclaimer">DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.</div>
 
