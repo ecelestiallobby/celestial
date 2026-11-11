@@ -38,9 +38,22 @@ const DEFAULT_STATE: CelestialState = {
   }
 };
 
+function getInitialPortalView(): PortalRouteView {
+  const requestedView = portalViewForPath(window.location.pathname) ?? 'landing';
+  if (requestedView === 'onboarding' || requestedView === 'onboarding-terms') {
+    let activeSession = false;
+    try { activeSession = sessionStorage.getItem('CL_ONBOARDING_ACTIVE_SESSION') === '1'; } catch { /* storage unavailable */ }
+    if (!activeSession) {
+      window.history.replaceState({ celestialRoute: true }, '', pathForPortalView('guest'));
+      return 'guest';
+    }
+  }
+  return requestedView;
+}
+
 export const App: React.FC = () => {
   const [mode, setMode] = useState<'portal' | 'store'>(() => isStorePath(window.location.pathname) ? 'store' : 'portal');
-  const [portalStartView, setPortalStartView] = useState<PortalRouteView>(() => portalViewForPath(window.location.pathname) ?? 'landing');
+  const [portalStartView, setPortalStartView] = useState<PortalRouteView>(getInitialPortalView);
   const [portalInstanceKey, setPortalInstanceKey] = useState(0);
 
   useEffect(() => {
