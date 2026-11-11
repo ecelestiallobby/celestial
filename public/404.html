@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b17">
+  <title>Returning to CELESTIAL LOBBY</title>
+  <script>
+    (function () {
+      try {
+        sessionStorage.setItem('cl-gh-pages-redirect', window.location.href);
+      } catch (error) {
+        // The fallback still returns visitors to the portal entrance if storage is unavailable.
+      }
+      window.location.replace('/celestial/');
+    })();
+  </script>
+</head>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#080b17;color:#f2e9d3;font-family:Arial,sans-serif">
+  <main style="padding:24px;text-align:center">
+    <p>Returning to CELESTIAL LOBBY…</p>
+    <p><a href="/celestial/" style="color:#e8cc91">Open the lobby entrance</a></p>
+  </main>
+</body>
+</html>
