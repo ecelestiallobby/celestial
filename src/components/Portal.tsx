@@ -762,7 +762,7 @@ export const Portal: React.FC<PortalProps> = ({
             <p className="mt-7 max-w-sm text-[10px] leading-5 tracking-[0.08em] text-slate-500">DEMO ONLY — NOT SECURE FOR REAL CUSTOMER DATA</p>
 
             {showOwnerAccessField && (
-              <div className="portal-panel mt-6 w-full max-w-sm p-4 text-left" role="region" aria-label="Owner access">
+              <div className="portal-modal portal-panel mt-6 w-full max-w-sm p-4 text-left" role="dialog" aria-modal="true" aria-label="Owner access">
                 <small className="font-bold tracking-widest text-amber-300">RESTRICTED OWNER ACCESS</small>
                 {ownerSessionUntil > Date.now() ? (
                   <>
