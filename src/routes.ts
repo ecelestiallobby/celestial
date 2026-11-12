@@ -1,6 +1,6 @@
 export type PortalRouteView =
   | 'landing' | 'environment-gate' | 'environment-route' | 'invitation-gate'
-  | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms'
+  | 'owner-preview' | 'army-home' | 'guest' | 'onboarding' | 'onboarding-terms'
   | 'restriction' | 'store-locked' | 'onboarding-submitted'
   | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs'
   | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
@@ -13,6 +13,7 @@ const ROUTES: Record<PortalRouteView, string> = {
   'environment-route': '/celestial/environment/route',
   'invitation-gate': '/celestial/beta/invitation',
   'owner-preview': '/celestial/owner',
+  'army-home': '/celestial/armies',
   guest: '/celestial/guest',
   onboarding: '/celestial/onboarding',
   'onboarding-terms': '/celestial/onboarding/terms',
