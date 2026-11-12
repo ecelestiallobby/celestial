@@ -177,7 +177,7 @@ export const Store: React.FC<StoreProps> = ({
     setFlowNotice('DEMO ONLY — PAYMENT SUBMISSION IS DISABLED. No payment proof will be transmitted or processed.');
     return;
     if (remainingSeconds <= 0) { setFlowNotice('The payment submission window has expired.'); return; }
-    if (state.activeOrder.paymentSender.trim().length !== 3 || !state.activeOrder.paymentScreenshot) { setFlowNotice('Enter the first three sender letters and upload payment proof before submitting.'); return; }
+    if (state.activeOrder.paymentSender.trim().length !== 4 || !state.activeOrder.paymentScreenshot) { setFlowNotice('Enter the first four sender letters and upload payment proof before submitting.'); return; }
     setFlowNotice(''); const now = new Date();
     const timeStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
       ' • ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -832,10 +832,10 @@ export const Store: React.FC<StoreProps> = ({
                 <span className="text-lg font-bold text-amber-300">₱{grandTotal.toLocaleString()}</span>
               </div>
               <div>
-                <label className="text-[11px] text-purple-300 block mb-1">Sender (First 3 Letters of Account)</label>
+                <label className="text-[11px] text-purple-300 block mb-1">Sender (First 4 Letters of Account)</label>
                 <input
                   type="text"
-                  maxLength={3}
+                  maxLength={4}
                   value={state.activeOrder.paymentSender}
                   onChange={(e) =>
                     setState(prev => ({
