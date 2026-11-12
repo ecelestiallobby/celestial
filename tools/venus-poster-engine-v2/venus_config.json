@@ -1,0 +1,92 @@
+{
+  "canvas": {
+    "width": 2160,
+    "height": 4320
+  },
+  "identity": {
+    "server": "VENUS",
+    "subtitle": "INCUBUS' FAVORITE",
+    "section": "DWELLER",
+    "name": "VAELITH",
+    "epithet": "THE VELVETBORN",
+    "traits": "CHARM • SYNERGY • ELITE PROGRESSION",
+    "classification": "MID-HIGH • ADVANCED PLAYERS"
+  },
+  "palette": {
+    "shadow": [
+      17,
+      7,
+      24
+    ],
+    "plum": [
+      49,
+      23,
+      66
+    ],
+    "rose_gold": [
+      221,
+      151,
+      132
+    ],
+    "champagne": [
+      255,
+      224,
+      178
+    ],
+    "pearl": [
+      255,
+      241,
+      231
+    ],
+    "pink": [
+      225,
+      139,
+      177
+    ]
+  },
+  "assets": {
+    "background": "background.png",
+    "architecture": "architecture.png",
+    "character": "character.png",
+    "foreground": "foreground.png",
+    "particles": "particles.png"
+  },
+  "character": {
+    "height": 0.76,
+    "anchor_x": 0.5,
+    "anchor_y": 0.77,
+    "x_offset": 0,
+    "glow": 36,
+    "glow_opacity": 0.2,
+    "shadow_opacity": 0.45
+  },
+  "effects": {
+    "vignette": 0.38,
+    "atmosphere": 0.12,
+    "bottom_fade_start": 0.68,
+    "bottom_fade": 0.88,
+    "particles": 180,
+    "seed": 2711,
+    "grain": 0.012,
+    "contrast": 1.07,
+    "color": 1.05
+  },
+  "type": {
+    "font_regular": "",
+    "font_bold": "",
+    "server_y": 0.715,
+    "server_size": 250,
+    "subtitle_y": 0.795,
+    "subtitle_size": 78,
+    "section_y": 0.855,
+    "section_size": 42,
+    "name_y": 0.884,
+    "name_size": 112,
+    "epithet_y": 0.92,
+    "epithet_size": 58,
+    "traits_y": 0.957,
+    "traits_size": 37,
+    "classification_y": 0.978,
+    "classification_size": 31
+  }
+}
