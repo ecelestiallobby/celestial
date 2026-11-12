@@ -200,6 +200,23 @@ export const Portal: React.FC<PortalProps> = ({
     persistOnboarding(record); try { sessionStorage.setItem('CL_ONBOARDING_ACTIVE_SESSION', '1'); } catch { /* best effort */ } setOnboardStep(step); setPurchaseIntent('now'); setShowExitWarning(false); setView('onboarding'); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Modal lifecycle: Escape dismisses the Owner prompt or cancels the leave-warning.
+  // The shared CSS backdrop is driven by the mounted aria-modal element, so it clears with the modal.
+  useEffect(() => {
+    if (!showOwnerAccessField && !showExitWarning) return;
+    const handleModalEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      if (showOwnerAccessField) {
+        setShowOwnerAccessField(false);
+        setOwnerAccessPhrase('');
+        setOwnerAccessMessage('');
+      }
+      if (showExitWarning) setShowExitWarning(false);
+    };
+    window.addEventListener('keydown', handleModalEscape);
+    return () => window.removeEventListener('keydown', handleModalEscape);
+  }, [showOwnerAccessField, showExitWarning]);
+
   const requestOnboardingExit = () => setShowExitWarning(true);
   const confirmOnboardingExit = () => applyOnboardingRestriction('You chose to leave or navigate away while onboarding was active.');
   const isOnboardingActive = view === 'onboarding' || view === 'onboarding-terms';
