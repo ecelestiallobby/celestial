@@ -21,7 +21,7 @@ export const Store: React.FC<StoreProps> = ({
 }) => {
   const [flowNotice, setFlowNotice] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [remainingSeconds] = useState(3600);
+
 
   // Calculations
   const stardustSubtotal = CATALOG.stardust.reduce((acc, item) => {
@@ -98,7 +98,22 @@ export const Store: React.FC<StoreProps> = ({
   };
 
   const placeOrder = () => {
-    setFlowNotice('DEMO ONLY — NO REAL ORDER WILL BE CREATED OR PROCESSED. Your cart remains a preview. No order number or order record will be generated.');
+    if (totalItemsCount < 1) {
+      setFlowNotice('Your cart is empty. Add at least one ITEM first.');
+      setState(prev => ({ ...prev, currentStep: 2 }));
+      return;
+    }
+    if (!state.deliveryDetails.name.trim() || !state.deliveryDetails.phone.trim() || !state.deliveryDetails.address.trim()) {
+      setFlowNotice('Complete the required delivery preview details before opening the next demo screen.');
+      return;
+    }
+    if (state.deliveryDetails.method !== 'Standard Rider Delivery') {
+      setFlowNotice('Please select the permitted standard delivery method.');
+      return;
+    }
+    setFlowNotice('DEMO ONLY — NO REAL ORDER WILL BE CREATED OR PROCESSED. This opens a payment-screen preview only.');
+    setState(prev => ({ ...prev, currentStep: 7 }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const submitPayment = () => {
@@ -721,7 +736,7 @@ export const Store: React.FC<StoreProps> = ({
               <p className="text-[10px] text-purple-300">The payment screen is a visual preview only. No order has been created and no payment is due through this prototype.</p>
             </div>
 
-            <div><button onClick={submitPayment} className="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer font-bold">Preview Payment Step <i className="fa-solid fa-arrow-right"></i></button></div>
+            <div><button onClick={submitPayment} className="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer font-bold">Payment Submission Disabled <i className="fa-solid fa-lock"></i></button></div>
           </section>
         )}
 
