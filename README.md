@@ -35,3 +35,10 @@ A modern React SPA rewritten with TypeScript, Vite, and Tailwind CSS, preserving
 - **Bundler**: Vite
 - **Styling**: Tailwind CSS v4 + Custom Celestial Glassmorphism
 - **Icons**: FontAwesome 6 + Lucide Icons
+
+
+## Telegram bot and Mini App
+
+The existing `@celestiallobbybot` integration is being prepared in `telegram-worker/`. It includes guided inline-button menus, returning-user recognition, the portal launch button, and a protected restriction-notification endpoint. The website now initializes Telegram's official Web Apps SDK when opened inside Telegram.
+
+Deployment is intentionally pending until a replacement BotFather token is stored as a backend secret and the Worker/KV configuration is completed. See [telegram-worker/README.md](telegram-worker/README.md) for setup steps and security boundaries. Never commit bot tokens or send them in chat.
