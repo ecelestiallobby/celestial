@@ -87,6 +87,11 @@ export const Portal: React.FC<PortalProps> = ({
   const [recoverySender, setRecoverySender] = useState('');
   const [recoveryMessage, setRecoveryMessage] = useState('');
   const [recoveryOrderFound, setRecoveryOrderFound] = useState(false);
+  const [employeeRecoveryId, setEmployeeRecoveryId] = useState('');
+  const [employeeRecoveryAnswer, setEmployeeRecoveryAnswer] = useState('');
+  const [employeeRecoveryVerified, setEmployeeRecoveryVerified] = useState(false);
+  const [employeeRecoveryMessage, setEmployeeRecoveryMessage] = useState('');
+  const [employeeNewApg, setEmployeeNewApg] = useState('');
   const [activeArmyPanel, setActiveArmyPanel] = useState<'emp01' | 'emp02' | null>(null);
 
   useEffect(() => {
@@ -94,7 +99,7 @@ export const Portal: React.FC<PortalProps> = ({
       setView('landing');
       return;
     }
-    if (view === 'army-home' && !gatewaySession?.role?.startsWith('emp')) { setView('landing'); return; }
+    if (view === 'army-home' && gatewaySession?.role !== 'emp01' && gatewaySession?.role !== 'emp02') { setActiveArmyPanel(null); setView('landing'); return; }
     if (view === 'regular-home' && gatewaySession?.role !== 'client' && ownerSessionUntil <= Date.now()) { setView('landing'); return; }
     let hasClientSession = false;
     try { hasClientSession = sessionStorage.getItem('CL_ACTIVE_CLIENT_SESSION_V1') === '1'; } catch { /* storage unavailable */ }
@@ -452,7 +457,10 @@ export const Portal: React.FC<PortalProps> = ({
       try { localStorage.removeItem(ACCESS_FAILURE_KEY); } catch { /* best effort */ }
     }
     const account = DEMO_CREDENTIALS[a];
-    if (!account || account.apg !== p) {
+    let savedApgOverrides: Record<string, string> = {};
+    try { savedApgOverrides = JSON.parse(localStorage.getItem('CL_EMPLOYEE_APG_OVERRIDES_V1') || '{}'); } catch { /* demo defaults */ }
+    const expectedApg = account ? (savedApgOverrides[a] || account.apg) : '';
+    if (!account || expectedApg !== p) {
       const count = Number(failureState.count || 0) + 1;
       const lockUntil = count >= 3 ? now + ACCESS_LOCK_MS : 0;
       try { localStorage.setItem(ACCESS_FAILURE_KEY, JSON.stringify({ count, lockUntil })); } catch { /* best effort */ }
@@ -469,6 +477,7 @@ export const Portal: React.FC<PortalProps> = ({
     setGatewayLockUntil(0);
     setGateMessage({ text: 'ACCESS VERIFIED. OPENING YOUR ENVIRONMENT…', success: true });
     setRecoveryOpen(false);
+    setActiveArmyPanel(null);
     if (account.role === 'client') {
       try { sessionStorage.setItem('CL_ACTIVE_CLIENT_SESSION_V1', '1'); } catch { /* best effort */ }
       setActiveEnvironment('regular'); setActiveHomePanel('tracker'); setView('regular-home');
@@ -484,29 +493,70 @@ export const Portal: React.FC<PortalProps> = ({
 
   const lockSwitchAccess = () => {
     try { sessionStorage.removeItem(ACCESS_SESSION_KEY); sessionStorage.removeItem('CL_ACTIVE_CLIENT_SESSION_V1'); sessionStorage.removeItem('CL_ACTIVE_INVITATION_V1'); } catch { /* best effort */ }
-    setGatewaySession(null); setOwnerSessionUntil(0); setActiveEnvironment('guest'); setGuestPage(null);
+    setGatewaySession(null); setOwnerSessionUntil(0); setActiveEnvironment('guest'); setGuestPage(null); setActiveArmyPanel(null);
     try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
     onOwnerSessionChange?.(false); setGateMessage(null); setRecoveryOpen(false); setView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const DEMO_RECOVERY_ORDER = { orderId: 'DEMO-CL-2026-001', startTime: new Date('2026-11-12T00:00:00+08:00').getTime(), totalPaid: 1250, paymentSender: 'NOVA' };
   const handleRecoveryOrderLookup = () => {
     const number = recoveryOrderNumber.trim().toUpperCase();
     if (!number) { setRecoveryMessage('ENTER YOUR ORDER NUMBER.'); setRecoveryOrderFound(false); return; }
-    const orderDate = activeOrder?.startTime || 0;
-    const withinWindow = orderDate > 0 && Date.now() - orderDate <= 90 * 24 * 60 * 60 * 1000;
-    const found = withinWindow && activeOrder?.orderId?.toUpperCase() === number;
-    setRecoveryOrderFound(Boolean(found));
-    setRecoveryMessage(found ? 'ORDER NUMBER FOUND. Continue with the amount paid and first four letters of the payment sender.' : 'ORDER NUMBER NOT FOUND. Please check your entry and try again.');
+    const records = [activeOrder, DEMO_RECOVERY_ORDER].filter(order => Boolean(order?.orderId));
+    const foundRecord = records.find(order => {
+      const orderDate = Number(order.startTime || 0);
+      const age = Date.now() - orderDate;
+      return orderDate > 0 && age >= 0 && age <= 90 * 24 * 60 * 60 * 1000 && String(order.orderId).toUpperCase() === number;
+    });
+    setRecoveryOrderFound(Boolean(foundRecord));
+    setRecoveryMessage(foundRecord ? 'ORDER NUMBER FOUND. Continue with the exact amount paid and first four letters of the payment sender.' : 'ORDER NUMBER NOT FOUND. Please check your entry and try again.');
   };
 
   const handleRecoveryVerification = () => {
+    const number = recoveryOrderNumber.trim().toUpperCase();
+    const order = number === DEMO_RECOVERY_ORDER.orderId ? DEMO_RECOVERY_ORDER : activeOrder;
     const amount = Number(recoveryAmount);
-    const sender = String(activeOrder?.paymentSender || '').trim().slice(0, 4).toUpperCase();
-    if (recoveryOrderFound && amount === Number(activeOrder?.totalPaid) && recoverySender.trim().slice(0, 4).toUpperCase() === sender && sender.length === 4) {
-      setRecoveryMessage('DEMO VERIFICATION MATCHED. Contact the support address to complete a real account recovery.');
+    const sender = String(order?.paymentSender || '').trim().slice(0, 4).toUpperCase();
+    if (recoveryOrderFound && amount === Number(order?.totalPaid) && recoverySender.trim().slice(0, 4).toUpperCase() === sender && sender.length === 4) {
+      setRecoveryMessage('DEMO VERIFICATION MATCHED. This confirms the sample record only. Contact celestiallobby@gmail.com for real account recovery.');
     } else {
       setRecoveryMessage('DETAILS COULD NOT BE VERIFIED. Check the information or contact celestiallobby@gmail.com.');
+    }
+  };
+
+  const EMPLOYEE_RECOVERY = {
+    'EMP-01': { question: 'What is the demo recovery word assigned to EMP-01?', answer: 'ORION' },
+    'EMP-02': { question: 'What is the demo recovery word assigned to EMP-02?', answer: 'LYRA' }
+  } as const;
+  const handleEmployeeRecoveryVerify = () => {
+    const id = employeeRecoveryId.trim().toUpperCase() as keyof typeof EMPLOYEE_RECOVERY;
+    const record = EMPLOYEE_RECOVERY[id];
+    if (!record || employeeRecoveryAnswer.trim().toUpperCase() !== record.answer) {
+      setEmployeeRecoveryVerified(false);
+      setEmployeeRecoveryMessage('RECOVERY LOCKED. No credentials were revealed. Contact celestiallobby@gmail.com for Owner verification.');
+      return;
+    }
+    setEmployeeRecoveryVerified(true);
+    setEmployeeRecoveryMessage(`IDENTITY CHECK PASSED IN DEMO. Confirmed Access ID: ${id}. Set a new demo AGP Code below.`);
+  };
+  const handleEmployeeApgReset = () => {
+    const id = employeeRecoveryId.trim().toUpperCase();
+    const code = employeeNewApg.trim().toUpperCase();
+    if (!employeeRecoveryVerified || !['EMP-01', 'EMP-02'].includes(id) || !/^[A-Z0-9]{8}$/.test(code)) {
+      setEmployeeRecoveryMessage('ENTER A NEW 8-CHARACTER LETTER/NUMBER AGP CODE.');
+      return;
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem('CL_EMPLOYEE_APG_OVERRIDES_V1') || '{}') as Record<string, string>;
+      saved[id] = code;
+      localStorage.setItem('CL_EMPLOYEE_APG_OVERRIDES_V1', JSON.stringify(saved));
+      setEmployeeRecoveryMessage(`DEMO AGP CODE RESET FOR ${id}. Use the confirmed Access ID and your new code. Owner oversight is still required for real access restoration.`);
+      setEmployeeRecoveryVerified(false);
+      setEmployeeRecoveryAnswer('');
+      setEmployeeNewApg('');
+    } catch {
+      setEmployeeRecoveryMessage('THIS BROWSER COULD NOT SAVE THE DEMO RESET. Contact celestiallobby@gmail.com.');
     }
   };
   const handleLookupOrder = () => {
@@ -658,8 +708,8 @@ export const Portal: React.FC<PortalProps> = ({
               <button type="submit" className="primary-action min-h-14 w-full tracking-[0.16em]">VERIFY ACCESS</button>
               {gateMessage && <p className={`form-message ${gateMessage.success ? 'text-emerald-300' : 'text-amber-200'}`} role="status">{gateMessage.text}</p>}
               {Object.prototype.hasOwnProperty.call(DEMO_CREDENTIALS, accessIdInput.trim().toUpperCase()) && <button type="button" className="text-link w-full" onClick={() => { const demo = DEMO_CREDENTIALS[accessIdInput.trim().toUpperCase()]; setApgInput(demo.apg); setGateMessage({ text: 'DEMO QUICK-FILL populated the matching test credential.', success: true }); }}>DEMO QUICK-FILL · FILL TEST CODE</button>}
-              <button type="button" className="text-link w-full" onClick={() => { setRecoveryOpen(v => !v); setRecoveryMessage(''); setRecoveryOrderFound(false); }}>FORGOT YOUR ACCESS?</button>
-              {recoveryOpen && <div className="portal-panel p-3 space-y-3" role="region" aria-label="Client access recovery"><b className="text-amber-200 text-xs tracking-widest">CLIENT ACCESS RECOVERY</b><p className="text-xs text-slate-300">Enter your order number. The demo checks available order records from the last three months. No receipt copy is required.</p><label className="block text-xs">ORDER NUMBER<input className="mt-1 w-full" value={recoveryOrderNumber} onChange={e => { setRecoveryOrderNumber(e.target.value); setRecoveryOrderFound(false); }} placeholder="Enter order number" /></label><button type="button" className="secondary-action w-full" onClick={handleRecoveryOrderLookup}>LOOK UP ORDER</button>{recoveryOrderFound && <><label className="block text-xs">EXACT AMOUNT PAID<input className="mt-1 w-full" inputMode="decimal" value={recoveryAmount} onChange={e => setRecoveryAmount(e.target.value)} placeholder="0.00" /></label><label className="block text-xs">FIRST FOUR LETTERS OF PAYMENT SENDER<input className="mt-1 w-full" value={recoverySender} onChange={e => setRecoverySender(e.target.value.toUpperCase().slice(0,4))} maxLength={4} placeholder="ABCD" /></label><button type="button" className="primary-action w-full" onClick={handleRecoveryVerification}>VERIFY DETAILS</button></>}{recoveryMessage && <p className="form-message" role="status">{recoveryMessage}</p>}<p className="small-caveat">DEMO ONLY · Recovery checks only the current browser's available order record. Support: celestiallobby@gmail.com</p></div>}
+              <button type="button" className="text-link w-full" onClick={() => { setRecoveryOpen(v => !v); setRecoveryMessage(''); setRecoveryOrderFound(false); setEmployeeRecoveryMessage(''); }}>FORGOT YOUR ACCESS?</button>
+              {recoveryOpen && <div className="portal-panel p-3 space-y-3" role="region" aria-label="Access recovery"><div className="border-b border-purple-400/20 pb-3"><b className="text-amber-200 text-xs tracking-widest">CLIENT ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your order number. The demo checks the available browser record and one clearly labelled sample record from the last 90 days. No receipt copy is required.</p><label className="block text-xs mt-2">ORDER NUMBER<input className="mt-1 w-full" value={recoveryOrderNumber} onChange={e => { setRecoveryOrderNumber(e.target.value); setRecoveryOrderFound(false); }} placeholder="Enter order number" /></label><button type="button" className="secondary-action w-full mt-2" onClick={handleRecoveryOrderLookup}>LOOK UP ORDER</button>{recoveryOrderFound && <><label className="block text-xs mt-2">EXACT AMOUNT PAID<input className="mt-1 w-full" inputMode="decimal" value={recoveryAmount} onChange={e => setRecoveryAmount(e.target.value)} placeholder="0.00" /></label><label className="block text-xs mt-2">FIRST FOUR LETTERS OF PAYMENT SENDER<input className="mt-1 w-full" value={recoverySender} onChange={e => setRecoverySender(e.target.value.toUpperCase().slice(0,4))} maxLength={4} placeholder="ABCD" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleRecoveryVerification}>VERIFY DETAILS</button></>}{recoveryMessage && <p className="form-message mt-2" role="status">{recoveryMessage}</p>}<p className="small-caveat mt-2">DEMO SAMPLE ORDER: DEMO-CL-2026-001 · Amount: ₱1,250 · Sender: NOVA. Sample data only, not a customer order.</p></div><div className="pt-2"><b className="text-amber-200 text-xs tracking-widest">EMPLOYEE ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your Employee ID and answer its assigned demo security question. Three failed gateway sign-ins still trigger the standard one-hour lockout.</p><label className="block text-xs mt-2">EMPLOYEE ID<input className="mt-1 w-full" value={employeeRecoveryId} onChange={e => { setEmployeeRecoveryId(e.target.value.toUpperCase()); setEmployeeRecoveryVerified(false); setEmployeeRecoveryMessage(''); }} placeholder="EMP-01 or EMP-02" /></label>{(employeeRecoveryId.trim().toUpperCase() === 'EMP-01' || employeeRecoveryId.trim().toUpperCase() === 'EMP-02') && <><p className="text-xs text-purple-200 mt-2">{EMPLOYEE_RECOVERY[employeeRecoveryId.trim().toUpperCase() as keyof typeof EMPLOYEE_RECOVERY].question}</p><label className="block text-xs mt-2">SECURITY ANSWER<input className="mt-1 w-full" value={employeeRecoveryAnswer} onChange={e => setEmployeeRecoveryAnswer(e.target.value)} placeholder="Enter assigned answer" /></label><button type="button" className="secondary-action w-full mt-2" onClick={handleEmployeeRecoveryVerify}>VERIFY EMPLOYEE</button></>}{employeeRecoveryVerified && <><p className="text-xs text-slate-300">New AGP Code must contain exactly 8 letters and/or numbers.</p><label className="block text-xs mt-2">NEW AGP CODE<input className="mt-1 w-full" type="password" maxLength={8} value={employeeNewApg} onChange={e => setEmployeeNewApg(e.target.value.toUpperCase())} placeholder="8 characters" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleEmployeeApgReset}>RESET DEMO AGP CODE</button></>}{employeeRecoveryMessage && <p className="form-message mt-2" role="status">{employeeRecoveryMessage}</p>}<p className="small-caveat mt-2">DEMO ONLY · Questions and reset values are stored in this browser. A real employee recovery requires manual Owner verification. Support: celestiallobby@gmail.com</p></div></div>}
               {gatewayLockUntil > Date.now() && <p className="small-caveat text-rose-300">LOCKED UNTIL {new Date(gatewayLockUntil).toLocaleTimeString()}</p>}
             </form>
 
@@ -701,7 +751,7 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
-        {view === 'army-home' && gatewaySession && (gatewaySession.role === 'emp01' || gatewaySession.role === 'emp02') && <section className="guest-content-page animate-fadeIn"><div className="portal-topline"><button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button><span>CELESTIAL ARMIES</span></div><p className="eyebrow">AUTHORIZED DEMO WORKSPACE</p><h2 className="section-title">Celestial Armies Homepage</h2><p className="section-copy">Signed in as {gatewaySession.accessId}. Both employee panels are visible in this demo; only your assigned panel is enabled.</p><div className="grid gap-3 mt-5"><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp01'} onClick={() => setActiveArmyPanel('emp01')} style={{ opacity: gatewaySession.role === 'emp01' ? 1 : 0.45, cursor: gatewaySession.role === 'emp01' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-01 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp01' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp02'} onClick={() => setActiveArmyPanel('emp02')} style={{ opacity: gatewaySession.role === 'emp02' ? 1 : 0.45, cursor: gatewaySession.role === 'emp02' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-02 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp02' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button></div>{activeArmyPanel && <div className="portal-panel p-4 mt-4"><div className="flex items-center justify-between"><b className="text-amber-200">{activeArmyPanel.toUpperCase()} WORKSPACE</b><button className="text-link" onClick={() => setActiveArmyPanel(null)}>CLOSE</button></div><p className="expand-body mt-2">{activeArmyPanel === 'emp01' ? 'EMP-01 workspace is active for this signed-in account.' : 'EMP-02 workspace is active for this signed-in account.'} This is a connected navigation placeholder for the demo dashboard.</p></div>}<p className="small-caveat mt-4">DEMO ONLY · Role permissions are browser-local and are not secure server authorization.</p></section>}
+        {view === 'army-home' && gatewaySession && (gatewaySession.role === 'emp01' || gatewaySession.role === 'emp02') && <section className="guest-content-page animate-fadeIn"><div className="portal-topline"><button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button><span>CELESTIAL ARMIES</span></div><p className="eyebrow">AUTHORIZED DEMO WORKSPACE</p><h2 className="section-title">Celestial Armies Homepage</h2><p className="section-copy">Signed in as {gatewaySession.accessId}. Both employee panels are visible; only your assigned panel is enabled and selectable.</p><div className="grid gap-3 mt-5"><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp01'} onClick={() => setActiveArmyPanel('emp01')} style={{ opacity: gatewaySession.role === 'emp01' ? 1 : 0.45, cursor: gatewaySession.role === 'emp01' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-01 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp01' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp02'} onClick={() => setActiveArmyPanel('emp02')} style={{ opacity: gatewaySession.role === 'emp02' ? 1 : 0.45, cursor: gatewaySession.role === 'emp02' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-02 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp02' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button></div>{activeArmyPanel && <div className="portal-panel p-4 mt-4"><div className="flex items-center justify-between"><b className="text-amber-200">{activeArmyPanel.toUpperCase()} WORKSPACE</b><button className="text-link" onClick={() => setActiveArmyPanel(null)}>CLOSE</button></div><p className="expand-body mt-2">{activeArmyPanel === 'emp01' ? 'EMP-01 workspace is active for this signed-in account.' : 'EMP-02 workspace is active for this signed-in account.'} This is the {activeArmyPanel === 'emp01' ? 'EMP-01' : 'EMP-02'} role workspace preview. Live team records, task queues, and management actions are not connected in this browser-only demo.</p></div>}<p className="small-caveat mt-4">DEMO ONLY · Role permissions are browser-local and are not secure server authorization.</p></section>}
 
         {/* GUEST ENVIRONMENT */}
         {view === 'guest' && (
