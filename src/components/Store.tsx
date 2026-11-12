@@ -134,6 +134,8 @@ export const Store: React.FC<StoreProps> = ({
   };
 
   const placeOrder = () => {
+    setFlowNotice('DEMO ONLY — NO REAL ORDER WILL BE CREATED OR PROCESSED. Checkout submission is disabled in this prototype.');
+    return;
     if (totalItemsCount < 1) { setFlowNotice('Your cart is empty. Add at least one ITEM first.'); setState(prev => ({ ...prev, currentStep: 2 })); return; }
     if (!state.deliveryDetails.name.trim() || !state.deliveryDetails.phone.trim() || !state.deliveryDetails.address.trim()) { setFlowNotice('Complete the required delivery details before submitting your order.'); return; }
     if (state.deliveryDetails.method !== 'Standard Rider Delivery') { setFlowNotice('Please select the permitted standard delivery method.'); return; }
@@ -172,6 +174,8 @@ export const Store: React.FC<StoreProps> = ({
   };
 
   const submitPayment = () => {
+    setFlowNotice('DEMO ONLY — PAYMENT SUBMISSION IS DISABLED. No payment proof will be transmitted or processed.');
+    return;
     if (remainingSeconds <= 0) { setFlowNotice('The payment submission window has expired.'); return; }
     if (state.activeOrder.paymentSender.trim().length !== 3 || !state.activeOrder.paymentScreenshot) { setFlowNotice('Enter the first three sender letters and upload payment proof before submitting.'); return; }
     setFlowNotice(''); const now = new Date();
