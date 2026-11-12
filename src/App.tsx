@@ -10,6 +10,20 @@ const OWNER_SESSION_KEY = 'CL_OWNER_BROWSER_SESSION_V1';
 const OWNER_NOTEPAD_KEY = 'CL_OWNER_NOTEPAD_V1';
 const OWNER_FEEDBACK_KEY = 'CL_OWNER_FEEDBACK_V1';
 
+function canAccessStore(): boolean {
+  try {
+    const rawSession = sessionStorage.getItem('CL_GATEWAY_SESSION_V1');
+    const session = rawSession ? JSON.parse(rawSession) as { role?: string } : null;
+    if (session?.role === 'client' || session?.role === 'owner') return true;
+    const ownerExpiresAt = Number(localStorage.getItem(OWNER_SESSION_KEY) || 0);
+    if (ownerExpiresAt > Date.now()) return true;
+    const onboarding = JSON.parse(localStorage.getItem('CL_GUEST_ONBOARDING_V1') || 'null') as { status?: string; termsAccepted?: boolean } | null;
+    return onboarding?.status === 'completed' && onboarding.termsAccepted === true;
+  } catch {
+    return false;
+  }
+}
+
 const DEFAULT_STATE: CelestialState = {
   currentStep: 1,
   cart: {},
@@ -44,7 +58,12 @@ function getInitialPortalView(): PortalRouteView {
 }
 
 export const App: React.FC = () => {
-  const [mode, setMode] = useState<'portal' | 'store'>(() => isStorePath(window.location.pathname) ? 'store' : 'portal');
+  const [mode, setMode] = useState<'portal' | 'store'>(() => {
+    if (!isStorePath(window.location.pathname)) return 'portal';
+    if (canAccessStore()) return 'store';
+    window.history.replaceState({ celestialRoute: true }, '', pathForPortalView('landing'));
+    return 'portal';
+  });
   const [portalStartView, setPortalStartView] = useState<PortalRouteView>(getInitialPortalView);
   const [portalInstanceKey, setPortalInstanceKey] = useState(0);
 
@@ -56,7 +75,14 @@ export const App: React.FC = () => {
       if (onboardingSessionActive) return;
 
       if (isStorePath(window.location.pathname)) {
-        setMode('store');
+        if (canAccessStore()) {
+          setMode('store');
+        } else {
+          window.history.replaceState({ celestialRoute: true }, '', pathForPortalView('landing'));
+          setMode('portal');
+          setPortalStartView('landing');
+          setPortalInstanceKey(key => key + 1);
+        }
         return;
       }
       const requestedView = portalViewForPath(window.location.pathname);
@@ -160,6 +186,13 @@ export const App: React.FC = () => {
           }}
           onOwnerSessionChange={setOwnerActive}
           onEnterStore={() => {
+            if (!canAccessStore()) {
+              window.history.replaceState({ celestialRoute: true }, '', pathForPortalView('landing'));
+              setPortalStartView('landing');
+              setMode('portal');
+              setPortalInstanceKey(key => key + 1);
+              return;
+            }
             window.history.pushState({ celestialRoute: true }, '', '/celestial/store');
             setMode('store');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -215,7 +248,7 @@ export const App: React.FC = () => {
             <div className="owner-menu-heading"><div><b>OWNER CONTROL CENTER</b><small>Workspace · previews · tools</small></div><button type="button" aria-label="Close menu" onClick={()=>setOwnerMenuOpen(false)}>×</button></div>
             <div className="owner-menu-group"><small>WORKSPACE</small>
               <button onClick={()=>{setPortalStartView('owner-preview');setPortalInstanceKey(k=>k+1);setMode('portal');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>✦ Owner Workspace <span>Open</span></button>
-              <button onClick={()=>{window.history.pushState({ celestialRoute: true }, '', '/celestial/store');setMode('store');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>◈ Store / Order Preview <span>Open</span></button>
+              <button onClick={()=>{if(canAccessStore()){window.history.pushState({ celestialRoute: true }, '', '/celestial/store');setMode('store');}else{setPortalStartView('landing');setPortalInstanceKey(k=>k+1);setMode('portal');}setOwnerMenuOpen(false);window.scrollTo(0,0);}}>◈ Store / Order Preview <span>Open</span></button>
             </div>
             <div className="owner-menu-group"><small>ENVIRONMENT PREVIEW</small>
               <button onClick={()=>{window.history.pushState({ celestialRoute: true }, '', pathForPortalView('guest'));setPortalStartView('guest');setPortalInstanceKey(k=>k+1);setMode('portal');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>Guest Environment <span>Preview</span></button>
