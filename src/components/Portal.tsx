@@ -95,7 +95,25 @@ export const Portal: React.FC<PortalProps> = ({
   const [activeArmyPanel, setActiveArmyPanel] = useState<'emp01' | 'emp02' | null>(null);
 
   useEffect(() => {
-    if (view === 'owner-preview' && ownerSessionUntil <= Date.now() && gatewaySession?.role !== 'owner') {
+    if (!ownerSessionUntil) return;
+    const delay = ownerSessionUntil - Date.now();
+    if (delay <= 0) {
+      setOwnerSessionUntil(0);
+      onOwnerSessionChange?.(false);
+      if (view === 'owner-preview') setView('landing');
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
+      setOwnerSessionUntil(0);
+      onOwnerSessionChange?.(false);
+      if (viewRef.current === 'owner-preview') setView('landing');
+    }, delay);
+    return () => window.clearTimeout(timer);
+  }, [ownerSessionUntil, view, onOwnerSessionChange]);
+
+  useEffect(() => {
+    if (view === 'owner-preview' && ownerSessionUntil <= Date.now()) {
       setView('landing');
       return;
     }
@@ -604,7 +622,7 @@ export const Portal: React.FC<PortalProps> = ({
       {/* Main Views Container */}
       <main className="portal-main flex-grow">
         {/* OWNER OVERRIDE / BROWSER-LOCAL PREVIEW */}
-        {view === 'owner-preview' && (gatewaySession?.role === 'owner' || ownerSessionUntil > Date.now()) && (
+        {view === 'owner-preview' && ownerSessionUntil > Date.now() && (
           <section className="guest-content-page animate-fadeIn">
             <div className="portal-topline">
               <button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button>
