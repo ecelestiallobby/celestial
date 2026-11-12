@@ -14,13 +14,23 @@ interface PortalProps {
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
 }
 
-type PortalView = 'landing' | 'environment-gate' | 'environment-route' | 'invitation-gate' | 'owner-preview' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
+type PortalView = 'landing' | 'environment-gate' | 'environment-route' | 'invitation-gate' | 'owner-preview' | 'army-home' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
 
 type OnboardingRecord = { status: 'in-progress' | 'restricted' | 'completed'; step: number; startedAt: number; restrictionUntil: number | null; restrictionReason: string; termsAccepted: boolean; helpUsed: boolean; completedSteps?: number[]; purchaseWindowStartedAt?: number | null; purchaseWindowOrderPlacedAt?: number | null; };
 const ONBOARDING_STORAGE_KEY = 'CL_GUEST_ONBOARDING_V1';
 const ONBOARDING_TIMEOUT_MS = 30 * 60 * 1000;
 const RESTRICTION_MS = 24 * 60 * 60 * 1000;
 const OWNER_SESSION_KEY = 'CL_OWNER_BROWSER_SESSION_V1';
+const ACCESS_SESSION_KEY = 'CL_GATEWAY_SESSION_V1';
+const ACCESS_FAILURE_KEY = 'CL_GATEWAY_FAILURES_V1';
+const ACCESS_LOCK_MS = 60 * 60 * 1000;
+const DEMO_CREDENTIALS: Record<string, { apg: string; role: 'client' | 'emp01' | 'emp02' | 'owner' }> = {
+  'CLI-01': { apg: 'AGP-2026', role: 'client' },
+  'EMP-01': { apg: 'AGP-2026', role: 'emp01' },
+  'EMP-02': { apg: 'AGP-2026', role: 'emp02' },
+  'OWN-01': { apg: 'AGP-9999', role: 'owner' }
+};
+type GatewaySession = { accessId: string; role: 'client' | 'emp01' | 'emp02' | 'owner'; startedAt: number };
 const OWNER_SESSION_MS = 24 * 60 * 60 * 1000;
 const INVITATION_STORAGE_KEY = 'CL_BETA_INVITATIONS_V1';
 const INVITATION_ATTEMPTS_KEY = 'CL_INVITATION_ATTEMPTS_V1';
@@ -69,19 +79,29 @@ export const Portal: React.FC<PortalProps> = ({
     return () => window.removeEventListener('popstate', handleRoutePop);
   }, []);
   const [ownerSessionUntil, setOwnerSessionUntil] = useState<number>(() => readOwnerSession());
+  const [gatewaySession, setGatewaySession] = useState<GatewaySession | null>(() => { try { const raw = sessionStorage.getItem(ACCESS_SESSION_KEY); return raw ? JSON.parse(raw) as GatewaySession : null; } catch { return null; } });
+  const [gatewayLockUntil, setGatewayLockUntil] = useState<number>(() => { try { const raw = JSON.parse(localStorage.getItem(ACCESS_FAILURE_KEY) || '{}'); return Number(raw.lockUntil || 0); } catch { return 0; } });
+  const [recoveryOpen, setRecoveryOpen] = useState(false);
+  const [recoveryOrderNumber, setRecoveryOrderNumber] = useState('');
+  const [recoveryAmount, setRecoveryAmount] = useState('');
+  const [recoverySender, setRecoverySender] = useState('');
+  const [recoveryMessage, setRecoveryMessage] = useState('');
+  const [recoveryOrderFound, setRecoveryOrderFound] = useState(false);
 
   useEffect(() => {
-    if (view === 'owner-preview' && ownerSessionUntil <= Date.now()) {
+    if (view === 'owner-preview' && ownerSessionUntil <= Date.now() && gatewaySession?.role !== 'owner') {
       setView('landing');
       return;
     }
+    if (view === 'army-home' && !gatewaySession?.role?.startsWith('emp')) { setView('landing'); return; }
+    if (view === 'regular-home' && gatewaySession?.role !== 'client' && ownerSessionUntil <= Date.now()) { setView('landing'); return; }
     let hasClientSession = false;
     try { hasClientSession = sessionStorage.getItem('CL_ACTIVE_CLIENT_SESSION_V1') === '1'; } catch { /* storage unavailable */ }
     if (view === 'regular-home' && ownerSessionUntil <= Date.now() && !hasClientSession) {
       // A direct client-dashboard URL is not a substitute for a verified client session.
       setView('regular-gate');
     }
-  }, [view, ownerSessionUntil]);
+  }, [view, ownerSessionUntil, gatewaySession]);
   const [ownerTriggerTaps, setOwnerTriggerTaps] = useState(0);
   const [showOwnerAccessField, setShowOwnerAccessField] = useState(false);
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
@@ -129,10 +149,8 @@ export const Portal: React.FC<PortalProps> = ({
   const [ownerPrefixMessage, setOwnerPrefixMessage] = useState('');
 
 
-  // Remove credentials created by the previous onboarding demo. Account issuance is not enabled yet.
-  useEffect(() => {
-    localStorage.removeItem('CL_DEMO_ACCESS');
-  }, []);
+  // Gateway credentials are deliberately hardcoded only for this controlled browser demo.
+  // They must move to trusted server-side validation before production.
 
   // Tracker & History in Regular Home
   const [activeHomePanel, setActiveHomePanel] = useState<'none' | 'tracker' | 'history'>('tracker');
@@ -420,6 +438,78 @@ export const Portal: React.FC<PortalProps> = ({
   const handleVerifyAccess = () => {
     const a = accessIdInput.trim().toUpperCase();
     const p = apgInput.trim().toUpperCase();
+    const now = Date.now();
+    let failureState: { count: number; lockUntil: number } = { count: 0, lockUntil: 0 };
+    try { failureState = JSON.parse(localStorage.getItem(ACCESS_FAILURE_KEY) || '{"count":0,"lockUntil":0}'); } catch { /* use clean demo state */ }
+    if (Number(failureState.lockUntil || 0) > now) {
+      setGatewayLockUntil(Number(failureState.lockUntil));
+      setGateMessage({ text: `ACCESS LOCKED. Try again after ${new Date(failureState.lockUntil).toLocaleTimeString()}.`, success: false });
+      return;
+    }
+    if (Number(failureState.lockUntil || 0) && Number(failureState.lockUntil) <= now) {
+      failureState = { count: 0, lockUntil: 0 };
+      try { localStorage.removeItem(ACCESS_FAILURE_KEY); } catch { /* best effort */ }
+    }
+    const account = DEMO_CREDENTIALS[a];
+    if (!account || account.apg !== p) {
+      const count = Number(failureState.count || 0) + 1;
+      const lockUntil = count >= 3 ? now + ACCESS_LOCK_MS : 0;
+      try { localStorage.setItem(ACCESS_FAILURE_KEY, JSON.stringify({ count, lockUntil })); } catch { /* best effort */ }
+      setGatewayLockUntil(lockUntil);
+      setGateMessage({ text: lockUntil ? 'THREE UNSUCCESSFUL ATTEMPTS. ACCESS LOCKED FOR ONE HOUR.' : `ACCESS NOT RECOGNIZED. ${3-count} ATTEMPT${3-count === 1 ? '' : 'S'} REMAINING.`, success: false });
+      return;
+    }
+    try {
+      localStorage.removeItem(ACCESS_FAILURE_KEY);
+      const session: GatewaySession = { accessId: a, role: account.role, startedAt: now };
+      sessionStorage.setItem(ACCESS_SESSION_KEY, JSON.stringify(session));
+      setGatewaySession(session);
+    } catch { /* best effort in this browser demo */ }
+    setGatewayLockUntil(0);
+    setGateMessage({ text: 'ACCESS VERIFIED. OPENING YOUR ENVIRONMENT…', success: true });
+    setRecoveryOpen(false);
+    if (account.role === 'client') {
+      try { sessionStorage.setItem('CL_ACTIVE_CLIENT_SESSION_V1', '1'); } catch { /* best effort */ }
+      setActiveEnvironment('regular'); setActiveHomePanel('tracker'); setView('regular-home');
+    } else if (account.role === 'emp01' || account.role === 'emp02') {
+      setView('army-home');
+    } else {
+      const expiresAt = now + OWNER_SESSION_MS;
+      try { localStorage.setItem(OWNER_SESSION_KEY, String(expiresAt)); } catch { /* best effort */ }
+      setOwnerSessionUntil(expiresAt); onOwnerSessionChange?.(true); setView('owner-preview');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const lockSwitchAccess = () => {
+    try { sessionStorage.removeItem(ACCESS_SESSION_KEY); sessionStorage.removeItem('CL_ACTIVE_CLIENT_SESSION_V1'); sessionStorage.removeItem('CL_ACTIVE_INVITATION_V1'); } catch { /* best effort */ }
+    setGatewaySession(null); setOwnerSessionUntil(0); setActiveEnvironment('guest'); setGuestPage(null);
+    try { localStorage.removeItem(OWNER_SESSION_KEY); } catch { /* best effort */ }
+    onOwnerSessionChange?.(false); setGateMessage(null); setRecoveryOpen(false); setView('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleRecoveryOrderLookup = () => {
+    const number = recoveryOrderNumber.trim().toUpperCase();
+    if (!number) { setRecoveryMessage('ENTER YOUR ORDER NUMBER.'); setRecoveryOrderFound(false); return; }
+    const orderDate = activeOrder?.startTime || 0;
+    const withinWindow = orderDate > 0 && Date.now() - orderDate <= 90 * 24 * 60 * 60 * 1000;
+    const found = withinWindow && activeOrder?.orderId?.toUpperCase() === number;
+    setRecoveryOrderFound(Boolean(found));
+    setRecoveryMessage(found ? 'ORDER NUMBER FOUND. Continue with the amount paid and first four letters of the payment sender.' : 'ORDER NUMBER NOT FOUND. Please check your entry and try again.');
+  };
+
+  const handleRecoveryVerification = () => {
+    const amount = Number(recoveryAmount);
+    const sender = String(activeOrder?.paymentSender || '').trim().slice(0, 4).toUpperCase();
+    if (recoveryOrderFound && amount === Number(activeOrder?.totalPaid) && recoverySender.trim().slice(0, 4).toUpperCase() === sender && sender.length === 4) {
+      setRecoveryMessage('DEMO VERIFICATION MATCHED. Contact the support address to complete a real account recovery.');
+    } else {
+      setRecoveryMessage('DETAILS COULD NOT BE VERIFIED. Check the information or contact celestiallobby@gmail.com.');
+    }
+  };
+    const a = accessIdInput.trim().toUpperCase();
+    const p = apgInput.trim().toUpperCase();
     let creds: DemoAccessCredentials | null = null;
 
     try {
@@ -602,6 +692,10 @@ export const Portal: React.FC<PortalProps> = ({
               </label>
               <button type="submit" className="primary-action min-h-14 w-full tracking-[0.16em]">VERIFY ACCESS</button>
               {gateMessage && <p className={`form-message ${gateMessage.success ? 'text-emerald-300' : 'text-amber-200'}`} role="status">{gateMessage.text}</p>}
+              {Object.prototype.hasOwnProperty.call(DEMO_CREDENTIALS, accessIdInput.trim().toUpperCase()) && <button type="button" className="text-link w-full" onClick={() => { const demo = DEMO_CREDENTIALS[accessIdInput.trim().toUpperCase()]; setApgInput(demo.apg); setGateMessage({ text: 'DEMO QUICK-FILL populated the matching test credential.', success: true }); }}>DEMO QUICK-FILL · FILL TEST CODE</button>}
+              <button type="button" className="text-link w-full" onClick={() => { setRecoveryOpen(v => !v); setRecoveryMessage(''); setRecoveryOrderFound(false); }}>FORGOT YOUR ACCESS?</button>
+              {recoveryOpen && <div className="portal-panel p-3 space-y-3" role="region" aria-label="Client access recovery"><b className="text-amber-200 text-xs tracking-widest">CLIENT ACCESS RECOVERY</b><p className="text-xs text-slate-300">Enter your order number. The demo checks available order records from the last three months. No receipt copy is required.</p><label className="block text-xs">ORDER NUMBER<input className="mt-1 w-full" value={recoveryOrderNumber} onChange={e => { setRecoveryOrderNumber(e.target.value); setRecoveryOrderFound(false); }} placeholder="Enter order number" /></label><button type="button" className="secondary-action w-full" onClick={handleRecoveryOrderLookup}>LOOK UP ORDER</button>{recoveryOrderFound && <><label className="block text-xs">EXACT AMOUNT PAID<input className="mt-1 w-full" inputMode="decimal" value={recoveryAmount} onChange={e => setRecoveryAmount(e.target.value)} placeholder="0.00" /></label><label className="block text-xs">FIRST FOUR LETTERS OF PAYMENT SENDER<input className="mt-1 w-full" value={recoverySender} onChange={e => setRecoverySender(e.target.value.toUpperCase().slice(0,4))} maxLength={4} placeholder="ABCD" /></label><button type="button" className="primary-action w-full" onClick={handleRecoveryVerification}>VERIFY DETAILS</button></>}{recoveryMessage && <p className="form-message" role="status">{recoveryMessage}</p>}<p className="small-caveat">DEMO ONLY · Recovery checks only the current browser's available order record. Support: celestiallobby@gmail.com</p></div>}
+              {gatewayLockUntil > Date.now() && <p className="small-caveat text-rose-300">LOCKED UNTIL {new Date(gatewayLockUntil).toLocaleTimeString()}</p>}
             </form>
 
             <div className="mt-5 w-full max-w-sm">
@@ -641,6 +735,8 @@ export const Portal: React.FC<PortalProps> = ({
             )}
           </section>
         )}
+
+        {view === 'army-home' && gatewaySession && (gatewaySession.role === 'emp01' || gatewaySession.role === 'emp02') && <section className="guest-content-page animate-fadeIn"><div className="portal-topline"><button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button><span>CELESTIAL ARMIES</span></div><p className="eyebrow">AUTHORIZED DEMO WORKSPACE</p><h2 className="section-title">Celestial Armies Homepage</h2><p className="section-copy">Signed in as {gatewaySession.accessId}. Both employee panels are visible in this demo; only your assigned panel is enabled.</p><div className="grid gap-3 mt-5"><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp01'} onClick={() => setShowOwnerTools(true)} style={{ opacity: gatewaySession.role === 'emp01' ? 1 : 0.45, cursor: gatewaySession.role === 'emp01' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-01 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp01' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp02'} onClick={() => setShowOwnerTools(true)} style={{ opacity: gatewaySession.role === 'emp02' ? 1 : 0.45, cursor: gatewaySession.role === 'emp02' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-02 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp02' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button></div><p className="small-caveat mt-4">DEMO ONLY · Role permissions are browser-local and are not secure server authorization.</p></section>}
 
         {/* GUEST ENVIRONMENT */}
         {view === 'guest' && (
@@ -1104,6 +1200,7 @@ export const Portal: React.FC<PortalProps> = ({
               </button>
               <span>REGULAR CLIENT ENVIRONMENT</span>
             </div>
+            {gatewaySession?.role === 'client' && <button type="button" className="secondary-action mb-4" onClick={lockSwitchAccess}>LOCK / SWITCH ACCESS</button>}
 
             <h2 className="section-title">Client Dashboard</h2>
 
