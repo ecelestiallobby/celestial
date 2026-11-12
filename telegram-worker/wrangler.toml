@@ -1,0 +1,18 @@
+name = "celestial-lobby-telegram-bot"
+main = "src/index.ts"
+compatibility_date = "2026-11-12"
+
+# Create a KV namespace, then replace the placeholder ID below.
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "REPLACE_WITH_CLOUDFLARE_KV_NAMESPACE_ID"
+
+[vars]
+WEB_APP_URL = "https://ecelestiallobby.github.io/celestial/access"
+
+# Set secrets with:
+# npx wrangler secret put BOT_TOKEN
+# npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
+# npx wrangler secret put EVENT_INGEST_SECRET
+# Optional owner allowlist:
+# npx wrangler secret put OWNER_TELEGRAM_IDS
