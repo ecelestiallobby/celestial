@@ -1428,8 +1428,8 @@ export const Portal: React.FC<PortalProps> = ({
             )}
 
             <div className="pt-4">
-              <button className="text-back" onClick={() => { try { sessionStorage.removeItem('CL_ACTIVE_CLIENT_SESSION_V1'); } catch { /* best effort */ } setView('landing'); }}>
-                Sign out to Lobby
+              <button className="text-back" onClick={() => gatewaySession?.role === 'client' ? lockSwitchAccess() : setView('landing')}>
+                {gatewaySession?.role === 'client' ? 'Lock / Switch Access' : 'Return to Lobby'}
               </button>
             </div>
           </section>
