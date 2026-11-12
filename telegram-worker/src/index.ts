@@ -160,7 +160,8 @@ async function handleMessage(env: Env, message: TelegramMessage) {
       ? `Welcome back${message.from.first_name ? `, ${message.from.first_name}` : ""}. Your CELESTIAL LOBBY menu is ready.`
       : `Welcome to CELESTIAL LOBBY${message.from.first_name ? `, ${message.from.first_name}` : ""}. This bot is your guide to the lobby, portal, and support topics.`;
     const lastMenu = typeof previous?.lastMenu === "string" ? previous.lastMenu : "home";
-    const keyboard = previous && lastMenu !== "home" && menuText(lastMenu)
+    const canResume = ["welcome", "guest", "client", "support", "security", "employee", "owner"].includes(lastMenu);
+    const keyboard = previous && canResume
       ? [[{ text: "Resume Last Section", callback_data: `resume:${lastMenu}` }], [{ text: "Main Menu", callback_data: "menu:home" }]]
       : mainMenu(env, message.from.id);
     await sendMessage(env, message.chat.id, `${greeting}\n\nChoose a destination below. You can return to this menu at any time with /menu.`, { inline_keyboard: keyboard });
@@ -181,8 +182,9 @@ async function handleCallback(env: Env, callback: TelegramCallback) {
   const message = callback.message;
   if (!message || message.chat.type !== "private") return;
   const data = callback.data || "";
-  const menuKey = data.startsWith("menu:") ? data.slice(5) : data.split(":")[0];
-  await saveUser(env, callback.from, menuKey);
+  const requestedMenu = data.startsWith("menu:") ? data.slice(5) : data.split(":")[0];
+  const validMenus = ["welcome", "guest", "client", "support", "security", "employee", "owner"];
+  await saveUser(env, callback.from, validMenus.includes(requestedMenu) ? requestedMenu : undefined);
 
   if (data.startsWith("resume:")) {
     const menu = menuText(data.slice(7));
