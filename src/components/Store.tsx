@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CATALOG } from '../catalog';
 import { CelestialState } from '../types';
 
@@ -21,8 +21,7 @@ export const Store: React.FC<StoreProps> = ({
 }) => {
   const [flowNotice, setFlowNotice] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [remainingSeconds, setRemainingSeconds] = useState(3600);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [remainingSeconds] = useState(3600);
 
   // Calculations
   const stardustSubtotal = CATALOG.stardust.reduce((acc, item) => {
@@ -60,20 +59,6 @@ export const Store: React.FC<StoreProps> = ({
     return () => window.clearInterval(timer);
   }, [onPurchaseWindowExpired]);
 
-  // Timer logic for View 7
-  useEffect(() => {
-    if (state.currentStep === 7 && state.activeOrder.startTime) {
-      const updateTimer = () => {
-        const elapsed = Math.floor((Date.now() - (state.activeOrder.startTime || Date.now())) / 1000);
-        const left = Math.max(0, 3600 - elapsed); setRemainingSeconds(left);
-        if (left === 0 && state.activeOrder.status === 'submitted') setState(prev => ({ ...prev, activeOrder: { ...prev.activeOrder, status: 'payment_expired' }, currentStep: 8 }));
-      };
-      updateTimer();
-      const interval = setInterval(updateTimer, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [state.currentStep, state.activeOrder.startTime]);
-
   const navigateTo = (step: number) => {
     if (step > state.currentStep + 1) { setFlowNotice('Please complete the current step before moving ahead.'); return; }
     if (step >= 4 && totalItemsCount === 0) { setFlowNotice('Add at least one ITEM before continuing.'); if (state.currentStep > 2) setState(prev => ({ ...prev, currentStep: 2 })); return; }
@@ -83,9 +68,7 @@ export const Store: React.FC<StoreProps> = ({
   const handleStoreReset = () => {
     onReset();
     setFlowNotice('');
-    setRemainingSeconds(3600);
     setMenuOpen(false);
-    if (fileInputRef.current) fileInputRef.current.value = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -120,12 +103,6 @@ export const Store: React.FC<StoreProps> = ({
 
   const submitPayment = () => {
     setFlowNotice('DEMO ONLY — PAYMENT SUBMISSION IS DISABLED. No payment proof is collected, stored, transmitted, or processed.');
-  };
-
-  const formatTimer = (totalSec: number) => {
-    const mins = Math.floor(totalSec / 60);
-    const secs = totalSec % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
   const totalCartCount = Object.values(state.cart).reduce((a, b) => a + b, 0);
@@ -728,24 +705,12 @@ export const Store: React.FC<StoreProps> = ({
         {/* VIEW 7: CONFIRMATION & PAYMENT */}
         {state.currentStep === 7 && (
           <section className="space-y-6 animate-fadeIn">
-            {/* Countdown Timer Header */}
-            <div className="glass-card p-6 rounded-2xl text-center relative overflow-hidden border border-amber-400/30">
-              <div className="w-32 h-32 mx-auto rounded-full border-4 border-amber-400/40 flex flex-col items-center justify-center relative bg-indigo-950/50 shadow-inner">
-                <span className="text-3xl font-extrabold text-white tracking-widest font-mono">
-                  {formatTimer(remainingSeconds)}
-                </span>
-                <span className="text-[10px] text-amber-300 font-semibold uppercase mt-0.5">
-                  {remainingSeconds > 0 ? 'Submit within 1 hour' : 'Window expired'}
-                </span>
-              </div>
+            <div className="glass-card p-6 rounded-2xl text-center border border-amber-400/30">
+              <div className="w-24 h-24 mx-auto rounded-full border border-amber-400/40 flex items-center justify-center bg-indigo-950/50 text-amber-200 text-2xl">DEMO</div>
               <div className="mt-4 space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
-                  <i className="fa-solid fa-clock"></i> Order Submitted · Payment Pending
-                </div>
-                <p className="text-xs text-purple-200 font-mono tracking-wider pt-1">
-                  Order {state.activeOrder.orderId}
-                </p>
-                <p className="text-[11px] text-purple-300">Payment proof is reviewed separately. Submission does not mean payment has been verified.</p>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-200 text-xs font-semibold">Checkout Preview · Not Submitted</div>
+                <p className="text-xs text-purple-200 font-mono tracking-wider pt-1">No order number has been generated.</p>
+                <p className="text-[11px] text-purple-300">This is a visual preview only. No payment deadline or payment request is active.</p>
               </div>
             </div>
 
@@ -756,7 +721,7 @@ export const Store: React.FC<StoreProps> = ({
               <p className="text-[10px] text-purple-300">The payment screen is a visual preview only. No order has been created and no payment is due through this prototype.</p>
             </div>
 
-            <div><button onClick={submitPayment} disabled={remainingSeconds <= 0} className="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer font-bold disabled:opacity-40 disabled:cursor-not-allowed">Submit Payment Proof for Review <i className="fa-solid fa-arrow-right"></i></button></div>
+            <div><button onClick={submitPayment} className="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer font-bold">Preview Payment Step <i className="fa-solid fa-arrow-right"></i></button></div>
           </section>
         )}
 
