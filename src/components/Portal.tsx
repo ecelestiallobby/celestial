@@ -1210,12 +1210,11 @@ export const Portal: React.FC<PortalProps> = ({
         {view === 'regular-home' && (
           <section className="animate-fadeIn">
             <div className="portal-topline">
-              <button className="text-back flex items-center gap-1" onClick={() => setView('landing')}>
-                ← Lobby
+              <button className="text-back flex items-center gap-1" onClick={() => gatewaySession?.role === 'client' ? lockSwitchAccess() : setView('landing')}>
+                {gatewaySession?.role === 'client' ? '← Lock / Switch Access' : '← Lobby'}
               </button>
               <span>REGULAR CLIENT ENVIRONMENT</span>
             </div>
-            {gatewaySession?.role === 'client' && <button type="button" className="secondary-action mb-4" onClick={lockSwitchAccess}>LOCK / SWITCH ACCESS</button>}
 
             <h2 className="section-title">Client Dashboard</h2>
 
