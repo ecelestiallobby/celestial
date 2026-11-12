@@ -114,85 +114,12 @@ export const Store: React.FC<StoreProps> = ({
     });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.size > 5 * 1024 * 1024) { setFlowNotice('The payment image must be 5 MB or smaller.'); e.target.value = ''; return; }
-    if (file && file.type.startsWith('image/')) { setFlowNotice('');
-      const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        const result = uploadEvent.target?.result as string;
-        setState(prev => ({
-          ...prev,
-          activeOrder: {
-            ...prev.activeOrder,
-            paymentScreenshot: result
-          }
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const placeOrder = () => {
-    setFlowNotice('DEMO ONLY — NO REAL ORDER WILL BE CREATED OR PROCESSED. Checkout submission is disabled in this prototype.');
-    return;
-    if (totalItemsCount < 1) { setFlowNotice('Your cart is empty. Add at least one ITEM first.'); setState(prev => ({ ...prev, currentStep: 2 })); return; }
-    if (!state.deliveryDetails.name.trim() || !state.deliveryDetails.phone.trim() || !state.deliveryDetails.address.trim()) { setFlowNotice('Complete the required delivery details before submitting your order.'); return; }
-    if (state.deliveryDetails.method !== 'Standard Rider Delivery') { setFlowNotice('Please select the permitted standard delivery method.'); return; }
-    setFlowNotice(''); try {
-      const raw = localStorage.getItem('CL_GUEST_ONBOARDING_V1');
-      if (raw) {
-        const record = JSON.parse(raw);
-        if (typeof record.purchaseWindowStartedAt === 'number' && !record.purchaseWindowOrderPlacedAt) {
-          if (Date.now() - record.purchaseWindowStartedAt >= 60 * 60 * 1000) {
-            const nowMs = Date.now();
-            localStorage.setItem('CL_GUEST_ONBOARDING_V1', JSON.stringify({ ...record, status: 'restricted', restrictionUntil: nowMs + 24 * 60 * 60 * 1000, restrictionReason: 'The one-hour purchasing window expired before an order was placed.', termsAccepted: false }));
-            onPurchaseWindowExpired();
-            return;
-          }
-          localStorage.setItem('CL_GUEST_ONBOARDING_V1', JSON.stringify({ ...record, purchaseWindowOrderPlacedAt: Date.now() }));
-        }
-      }
-    } catch { /* best effort in this browser demo */ }
-    const now = new Date();
-    const timeStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
-      ' • ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-    setState(prev => ({
-      ...prev,
-      activeOrder: {
-        ...prev.activeOrder,
-        orderId: prev.activeOrder.orderId || `CL-${Date.now()}`,
-        startTime: prev.activeOrder.startTime || Date.now(),
-        submittedTime: prev.activeOrder.submittedTime || timeStr,
-        status: 'submitted',
-        totalPaid: grandTotal
-      },
-      currentStep: 7
-    }));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setFlowNotice('DEMO ONLY — NO REAL ORDER WILL BE CREATED OR PROCESSED. Your cart remains a preview. No order number or order record will be generated.');
   };
 
   const submitPayment = () => {
-    setFlowNotice('DEMO ONLY — PAYMENT SUBMISSION IS DISABLED. No payment proof will be transmitted or processed.');
-    return;
-    if (remainingSeconds <= 0) { setFlowNotice('The payment submission window has expired.'); return; }
-    if (state.activeOrder.paymentSender.trim().length !== 4 || !state.activeOrder.paymentScreenshot) { setFlowNotice('Enter the first four sender letters and upload payment proof before submitting.'); return; }
-    setFlowNotice(''); const now = new Date();
-    const timeStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
-      ' • ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-    setState(prev => ({
-      ...prev,
-      activeOrder: {
-        ...prev.activeOrder,
-        paymentTime: timeStr,
-        status: 'payment_submitted',
-        totalPaid: grandTotal
-      },
-      currentStep: 8
-    }));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setFlowNotice('DEMO ONLY — PAYMENT SUBMISSION IS DISABLED. No payment proof is collected, stored, transmitted, or processed.');
   };
 
   const formatTimer = (totalSec: number) => {
@@ -822,68 +749,11 @@ export const Store: React.FC<StoreProps> = ({
               </div>
             </div>
 
-            {/* Payment Information Form */}
-            <div className="glass-card p-5 rounded-2xl space-y-4">
-              <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider border-b border-purple-900/40 pb-2">
-                Payment Information
-              </h3>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-purple-300">Amount Sent</span>
-                <span className="text-lg font-bold text-amber-300">₱{grandTotal.toLocaleString()}</span>
-              </div>
-              <div>
-                <label className="text-[11px] text-purple-300 block mb-1">Sender (First 4 Letters of Account)</label>
-                <input
-                  type="text"
-                  maxLength={4}
-                  value={state.activeOrder.paymentSender}
-                  onChange={(e) =>
-                    setState(prev => ({
-                      ...prev,
-                      activeOrder: { ...prev.activeOrder, paymentSender: e.target.value.toUpperCase() }
-                    }))
-                  }
-                  className="w-full bg-slate-950/80 border border-purple-500/30 rounded-lg px-3 py-2 text-xs text-white uppercase tracking-widest focus:outline-none focus:border-amber-400 font-mono"
-                />
-              </div>
-
-              {/* Screenshot Upload Box */}
-              <div className="space-y-2">
-                <label className="text-[11px] text-purple-300 block">Upload Payment Screenshot</label>
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-purple-500/30 hover:border-amber-400/60 rounded-xl p-6 text-center cursor-pointer bg-slate-950/40 transition"
-                >
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                  />
-
-                  {state.activeOrder.paymentScreenshot ? (
-                    <div className="flex flex-col items-center">
-                      <img
-                        src={state.activeOrder.paymentScreenshot}
-                        alt="Screenshot preview"
-                        className="max-h-36 rounded-lg border border-amber-400/40 mb-2 object-contain"
-                      />
-                      <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
-                        <i className="fa-solid fa-check"></i> Image Loaded (Click to replace)
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="w-12 h-12 mx-auto rounded-full bg-purple-900/40 flex items-center justify-center text-amber-300">
-                        <i className="fa-solid fa-camera text-xl"></i>
-                      </div>
-                      <p className="text-xs text-purple-200 font-semibold">Upload Payment Screenshot</p>
-                      <p className="text-[10px] text-gray-400">(PNG, JPG, up to 5MB)</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+            <div className="glass-card p-5 rounded-2xl space-y-3">
+              <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Payment Preview</h3>
+              <p className="text-xs text-purple-200">Estimated cart total: ₱{grandTotal.toLocaleString()}</p>
+              <p className="text-xs text-amber-200">DEMO ONLY — PAYMENT PROOF COLLECTION IS DISABLED. Do not enter sender details or upload receipts.</p>
+              <p className="text-[10px] text-purple-300">The payment screen is a visual preview only. No order has been created and no payment is due through this prototype.</p>
             </div>
 
             <div><button onClick={submitPayment} disabled={remainingSeconds <= 0} className="w-full btn-gold py-3.5 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer font-bold disabled:opacity-40 disabled:cursor-not-allowed">Submit Payment Proof for Review <i className="fa-solid fa-arrow-right"></i></button></div>
@@ -893,7 +763,7 @@ export const Store: React.FC<StoreProps> = ({
         {/* VIEW 8: ORDER STATUS & TRACKING */}
         {state.currentStep === 8 && (
           <section className="space-y-6 animate-fadeIn">
-            <div className="glass-card p-6 rounded-2xl text-center border border-amber-400/30"><div className="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/40 flex items-center justify-center text-2xl"><i className={state.activeOrder.status === 'payment_expired' ? 'fa-solid fa-hourglass-end' : 'fa-solid fa-clipboard-check'}></i></div><h2 className="text-xl font-bold text-white mb-1">{state.activeOrder.status === 'payment_expired' ? 'Payment Window Expired' : 'Order Received'}</h2><p className="text-xs text-purple-300 font-mono">Order {state.activeOrder.orderId || 'Demo order'}</p><p className="mt-3 text-xs text-amber-200">{state.activeOrder.status === 'payment_expired' ? 'The payment submission window has ended. This demo does not accept late payment submissions.' : state.activeOrder.status === 'payment_submitted' ? 'Your payment proof has been submitted and is awaiting review. Payment is not yet verified.' : 'Your order has been recorded in this browser demo. Payment is still pending.'}</p></div>
+            <div className="glass-card p-6 rounded-2xl text-center border border-amber-400/30"><div className="w-14 h-14 mx-auto mb-3 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/40 flex items-center justify-center text-2xl"><i className={state.activeOrder.status === 'payment_expired' ? 'fa-solid fa-hourglass-end' : 'fa-solid fa-clipboard-check'}></i></div><h2 className="text-xl font-bold text-white mb-1">{state.activeOrder.status === 'payment_expired' ? 'Payment Window Expired' : 'Order Received'}</h2><p className="text-xs text-purple-300 font-mono">Order {state.activeOrder.orderId || 'Demo order'}</p><p className="mt-3 text-xs text-amber-200">DEMO ONLY — NO REAL ORDER WAS CREATED. This screen is a legacy preview state and does not represent a submitted order or payment.</p></div>
             <div className="glass-card p-5 rounded-2xl space-y-4"><div className="flex items-center justify-between border-b border-purple-900/40 pb-3"><h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Order Status</h3><span className="rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 text-[10px] font-bold text-amber-200">{state.activeOrder.status === 'payment_submitted' ? 'UNDER REVIEW' : state.activeOrder.status === 'payment_expired' ? 'EXPIRED' : 'PAYMENT PENDING'}</span></div>
               <div className="space-y-4"><div><b className="text-xs text-white">Order Submitted</b><p className="text-[10px] text-purple-300">{state.activeOrder.submittedTime || 'Recorded in this browser session'}</p></div><div><b className="text-xs text-white">Payment Proof</b><p className="text-[10px] text-purple-300">{state.activeOrder.status === 'payment_submitted' ? 'Submitted ' + (state.activeOrder.paymentTime || '') + ' · Awaiting authorized review' : state.activeOrder.status === 'payment_expired' ? 'Not submitted before the deadline' : 'Awaiting client submission'}</p></div><div><b className="text-xs text-white">Verification</b><p className="text-[10px] text-purple-300">No live payment-verification service is connected to this GitHub Pages demo.</p></div><div><b className="text-xs text-white">Fulfillment</b><p className="text-[10px] text-purple-300">Processing and delivery updates appear only when an authorized operator records them.</p></div></div>
               <div className="border-t border-purple-900/40 pt-3 flex justify-between text-xs"><span className="text-purple-200">Order Total</span><b className="text-amber-300">₱{(state.activeOrder.totalPaid ?? grandTotal).toLocaleString()}</b></div></div>
@@ -903,7 +773,7 @@ export const Store: React.FC<StoreProps> = ({
       </main>
 
       <div className="demo-disclaimer store-disclaimer">
-        DEMO ONLY · Browser-local storage · Not secure for real customer data or live transactions.
+        DEMO ONLY — NO REAL ORDER WILL BE CREATED OR PROCESSED. No payment proof is collected or transmitted. Browser-local preview only; not secure for real customer data.
       </div>
       {/* Shared legal footer, matching portal Screens 1–5 */}
       <footer className="portal-footer store-footer" aria-label="Legal links">
