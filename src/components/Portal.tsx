@@ -297,8 +297,7 @@ export const Portal: React.FC<PortalProps> = ({
         setVoiceAccessListening(false);
         recognition.stop();
         enterOwnerOverride();
-      } else {
-        setVoiceAccessListening(false);        setOwnerAccessMessage('Voice phrase was not recognized exactly. Please try again or enter the password manually.');
+      } else {        setVoiceAccessListening(false);        setOwnerAccessMessage('Voice phrase was not recognized exactly. Please try again or enter the password manually.');
       }
     };
     recognition.onerror = (event: any) => {
@@ -597,22 +596,21 @@ export const Portal: React.FC<PortalProps> = ({
   };
 
   return (
-    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
-      <>
+    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (      <>
       {/* Top Header */}
       <header className="portal-header">
         <button type="button" className="lobby-menu-trigger" aria-label="Open environment navigation" aria-expanded={environmentMenuOpen} onClick={() => setEnvironmentMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>
         <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigateEnvironmentHome(); } }}>
           <div className="brand-name">CELESTIAL LOBBY</div>
         </div>
-        <button type="button" className="lobby-menu-trigger" aria-label="Open Owner navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>
+        {view === 'owner-preview' && ownerSessionUntil > Date.now() && <button type="button" className="lobby-menu-trigger" aria-label="Open Owner navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>}
         {environmentMenuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close environment navigation" onClick={() => setEnvironmentMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Environment navigation">
           <p className="eyebrow">ENVIRONMENTS</p>
           <button onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); setEnvironmentMenuOpen(false); }}>GUEST / VISITOR</button>
           <button onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); setEnvironmentMenuOpen(false); }}>MEMBER / CLIENT</button>
           <button onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); setEnvironmentMenuOpen(false); }}>CELESTIAL ARMY</button>
         </nav></>}
-        {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close Owner navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Owner navigation">
+        {view === 'owner-preview' && ownerSessionUntil > Date.now() && menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close Owner navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Owner navigation">
           <p className="eyebrow">OWNER CONTROLS</p>
           <button onClick={() => { setView('owner-preview'); setMenuOpen(false); }}>OWNER HOMEPAGE</button>
           <button onClick={() => { setShowOwnerTools(true); setMenuOpen(false); }}>OWNER TOOLS</button>
@@ -897,8 +895,7 @@ export const Portal: React.FC<PortalProps> = ({
                 <p className="eyebrow">LOWER ORBIT SECTOR</p><h2 className="section-title">The first awakening.</h2>
                 <p className="section-copy">Some arrive seeking restoration. Others come to feel their energy return. Here, the first ascent is only the beginning.</p>
                 <div className="portal-panel mt-4 p-4">
-                  <small className="text-amber-300 font-bold tracking-widest">☁️ CLOUD9 · NEW SPAWN'S AREA</small>
-                  <h3 className="text-lg font-bold text-amber-100 mt-2">Aelunari — The Dreamborn</h3>
+                  <small className="text-amber-300 font-bold tracking-widest">☁️ CLOUD9 · NEW SPAWN'S AREA</small>                  <h3 className="text-lg font-bold text-amber-100 mt-2">Aelunari — The Dreamborn</h3>
                   <p className="expand-body mt-2">The Aelunari inhabit Cloud9, a tranquil pocket-realm suspended above the dimensional network. Their bodies naturally regenerate Stardust energy, making their server the preferred recovery zone for newly onboarded players and veteran players needing a quick reboost.</p>
                   <p className="text-xs text-purple-200 mt-3">Trait: Low-Latency • Recovery • Respawn<br/>Difficulty: Easy<br/>Recommended: Beginners<br/>System: Rest. Recharge. Respawn.</p>
                   <p className="text-sm italic text-amber-100 mt-3">Let your strength return. Feel the weight of the world fall away, and remember what it is to rise.</p>
@@ -1197,8 +1194,7 @@ export const Portal: React.FC<PortalProps> = ({
                 <input
                   id="regular-client-agp-code"
                   value={apgInput}
-                  onChange={(e) => setApgInput(e.target.value)}
-                  placeholder="Enter your AGP Code"
+                  onChange={(e) => setApgInput(e.target.value)}                  placeholder="Enter your AGP Code"
                   aria-label="AGP Code"
                   autoComplete="off"
                   spellCheck="false"
@@ -1497,8 +1493,7 @@ export const Portal: React.FC<PortalProps> = ({
 
         {view === 'privacy' && (
           <section className="guest-content-page animate-fadeIn">
-            <div className="portal-topline">
-              <button className="text-back" onClick={() => setView('landing')}>← Homepage</button>
+            <div className="portal-topline">              <button className="text-back" onClick={() => setView('landing')}>← Homepage</button>
               <span>CELESTIAL LOBBY</span>
             </div>
             <h2 className="section-title">Data and Privacy</h2>
