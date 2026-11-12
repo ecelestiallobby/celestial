@@ -87,6 +87,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [recoverySender, setRecoverySender] = useState('');
   const [recoveryMessage, setRecoveryMessage] = useState('');
   const [recoveryOrderFound, setRecoveryOrderFound] = useState(false);
+  const [activeArmyPanel, setActiveArmyPanel] = useState<'emp01' | 'emp02' | null>(null);
 
   useEffect(() => {
     if (view === 'owner-preview' && ownerSessionUntil <= Date.now() && gatewaySession?.role !== 'owner') {
@@ -592,8 +593,8 @@ export const Portal: React.FC<PortalProps> = ({
         {view === 'owner-preview' && (
           <section className="guest-content-page animate-fadeIn">
             <div className="portal-topline">
-              <button className="text-back" onClick={() => setView('landing')}>← Lobby</button>
-              <span>OWNER OVERRIDE · PRIVATE PREVIEW</span>
+              <button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button>
+              <span>OWNER HOMEPAGE · PRIVATE WORKSPACE</span>
             </div>
             <p className="eyebrow">AUTHORIZED BROWSER SESSION</p>
             <h2 className="section-title">Welcome, Commander.</h2>
@@ -611,7 +612,7 @@ export const Portal: React.FC<PortalProps> = ({
               <div className="flex flex-wrap gap-3 mt-4">
                 <button className="primary-action" onClick={() => { setActiveEnvironment('guest'); setView('guest'); setGuestPage(null); }}>Open Guest Environment</button>
                 <button className="secondary-action" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); }}>Regular Client Preview</button>
-                <button className="text-back" onClick={exitOwnerOverride}>Exit Owner Override</button>
+                <button className="text-back" onClick={lockSwitchAccess}>Lock / Switch Access</button>
               </div>
             </div>
             <div className="portal-panel p-4 mt-4">
@@ -704,7 +705,7 @@ export const Portal: React.FC<PortalProps> = ({
                 className="secondary-action min-h-14 w-full tracking-[0.12em]"
                 onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               >
-                JOIN US / SIGN UP
+                JOIN US / ENTER AS VISITOR
               </button>
             </div>
 
@@ -736,7 +737,7 @@ export const Portal: React.FC<PortalProps> = ({
           </section>
         )}
 
-        {view === 'army-home' && gatewaySession && (gatewaySession.role === 'emp01' || gatewaySession.role === 'emp02') && <section className="guest-content-page animate-fadeIn"><div className="portal-topline"><button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button><span>CELESTIAL ARMIES</span></div><p className="eyebrow">AUTHORIZED DEMO WORKSPACE</p><h2 className="section-title">Celestial Armies Homepage</h2><p className="section-copy">Signed in as {gatewaySession.accessId}. Both employee panels are visible in this demo; only your assigned panel is enabled.</p><div className="grid gap-3 mt-5"><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp01'} onClick={() => setShowOwnerTools(true)} style={{ opacity: gatewaySession.role === 'emp01' ? 1 : 0.45, cursor: gatewaySession.role === 'emp01' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-01 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp01' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp02'} onClick={() => setShowOwnerTools(true)} style={{ opacity: gatewaySession.role === 'emp02' ? 1 : 0.45, cursor: gatewaySession.role === 'emp02' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-02 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp02' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button></div><p className="small-caveat mt-4">DEMO ONLY · Role permissions are browser-local and are not secure server authorization.</p></section>}
+        {view === 'army-home' && gatewaySession && (gatewaySession.role === 'emp01' || gatewaySession.role === 'emp02') && <section className="guest-content-page animate-fadeIn"><div className="portal-topline"><button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button><span>CELESTIAL ARMIES</span></div><p className="eyebrow">AUTHORIZED DEMO WORKSPACE</p><h2 className="section-title">Celestial Armies Homepage</h2><p className="section-copy">Signed in as {gatewaySession.accessId}. Both employee panels are visible in this demo; only your assigned panel is enabled.</p><div className="grid gap-3 mt-5"><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp01'} onClick={() => setActiveArmyPanel('emp01')} style={{ opacity: gatewaySession.role === 'emp01' ? 1 : 0.45, cursor: gatewaySession.role === 'emp01' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-01 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp01' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button><button className="portal-panel p-4 text-left" disabled={gatewaySession.role !== 'emp02'} onClick={() => setActiveArmyPanel('emp02')} style={{ opacity: gatewaySession.role === 'emp02' ? 1 : 0.45, cursor: gatewaySession.role === 'emp02' ? 'pointer' : 'not-allowed' }}><b className="text-amber-200">EMP-02 PANEL</b><p className="text-xs text-slate-300 mt-1">{gatewaySession.role === 'emp02' ? 'Enabled for this session.' : 'Unavailable for this account.'}</p></button></div>{activeArmyPanel && <div className="portal-panel p-4 mt-4"><div className="flex items-center justify-between"><b className="text-amber-200">{activeArmyPanel.toUpperCase()} WORKSPACE</b><button className="text-link" onClick={() => setActiveArmyPanel(null)}>CLOSE</button></div><p className="expand-body mt-2">{activeArmyPanel === 'emp01' ? 'EMP-01 workspace is active for this signed-in account.' : 'EMP-02 workspace is active for this signed-in account.'} This is a connected navigation placeholder for the demo dashboard.</p></div>}<p className="small-caveat mt-4">DEMO ONLY · Role permissions are browser-local and are not secure server authorization.</p></section>}
 
         {/* GUEST ENVIRONMENT */}
         {view === 'guest' && (
