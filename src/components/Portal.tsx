@@ -604,7 +604,7 @@ export const Portal: React.FC<PortalProps> = ({
       {/* Main Views Container */}
       <main className="portal-main flex-grow">
         {/* OWNER OVERRIDE / BROWSER-LOCAL PREVIEW */}
-        {view === 'owner-preview' && (
+        {view === 'owner-preview' && (gatewaySession?.role === 'owner' || ownerSessionUntil > Date.now()) && (
           <section className="guest-content-page animate-fadeIn">
             <div className="portal-topline">
               <button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button>
@@ -1207,7 +1207,7 @@ export const Portal: React.FC<PortalProps> = ({
         )}
 
         {/* REGULAR HOME (DASHBOARD) */}
-        {view === 'regular-home' && (
+        {view === 'regular-home' && (gatewaySession?.role === 'client' || ownerSessionUntil > Date.now()) && (
           <section className="animate-fadeIn">
             <div className="portal-topline">
               <button className="text-back flex items-center gap-1" onClick={() => gatewaySession?.role === 'client' ? lockSwitchAccess() : setView('landing')}>
