@@ -136,7 +136,7 @@ function detail(data: string): { text: string; keyboard: Keyboard } {
   return pages[data] || { text: "Choose a topic from the menu below.", keyboard: [[{ text: "Main Menu", callback_data: "menu:home" }]] };
 }
 
-async function saveUser(env: Env, user: TelegramUser) {
+async function saveUser(env: Env, user: TelegramUser, lastMenu?: string) {
   const key = `user:${user.id}`;
   const previous = await env.SESSIONS.get(key, "json") as Record<string, unknown> | null;
   await env.SESSIONS.put(key, JSON.stringify({
@@ -145,21 +145,25 @@ async function saveUser(env: Env, user: TelegramUser) {
     firstName: user.first_name || null,
     firstSeenAt: previous?.firstSeenAt || new Date().toISOString(),
     lastSeenAt: new Date().toISOString(),
-    visits: Number(previous?.visits || 0) + (previous ? 0 : 1),
-    lastMenu: previous?.lastMenu || "home",
+    visits: Number(previous?.visits || 0) + 1,
+    lastMenu: lastMenu || previous?.lastMenu || "home",
   }));
-  return Boolean(previous);
+  return previous;
 }
 
 async function handleMessage(env: Env, message: TelegramMessage) {
   if (message.chat.type !== "private" || !message.from) return;
-  const returning = await saveUser(env, message.from);
+  const previous = await saveUser(env, message.from);
   const text = (message.text || "").trim();
   if (text.startsWith("/start")) {
-    const greeting = returning
+    const greeting = previous
       ? `Welcome back${message.from.first_name ? `, ${message.from.first_name}` : ""}. Your CELESTIAL LOBBY menu is ready.`
       : `Welcome to CELESTIAL LOBBY${message.from.first_name ? `, ${message.from.first_name}` : ""}. This bot is your guide to the lobby, portal, and support topics.`;
-    await sendMessage(env, message.chat.id, `${greeting}\n\nChoose a destination below. You can return to this menu at any time with /menu.`, { inline_keyboard: mainMenu(env, message.from.id) });
+    const lastMenu = typeof previous?.lastMenu === "string" ? previous.lastMenu : "home";
+    const keyboard = previous && lastMenu !== "home" && menuText(lastMenu)
+      ? [[{ text: "Resume Last Section", callback_data: `resume:${lastMenu}` }], [{ text: "Main Menu", callback_data: "menu:home" }]]
+      : mainMenu(env, message.from.id);
+    await sendMessage(env, message.chat.id, `${greeting}\n\nChoose a destination below. You can return to this menu at any time with /menu.`, { inline_keyboard: keyboard });
     return;
   }
   if (/^\/(menu|help)(@\w+)?$/i.test(text)) {
@@ -177,8 +181,14 @@ async function handleCallback(env: Env, callback: TelegramCallback) {
   const message = callback.message;
   if (!message || message.chat.type !== "private") return;
   const data = callback.data || "";
-  await saveUser(env, callback.from);
+  const menuKey = data.startsWith("menu:") ? data.slice(5) : data.split(":")[0];
+  await saveUser(env, callback.from, menuKey);
 
+  if (data.startsWith("resume:")) {
+    const menu = menuText(data.slice(7));
+    await editMessage(env, message.chat.id, message.message_id, menu.text, { inline_keyboard: menu.keyboard });
+    return;
+  }
   if (data === "menu:home") {
     await editMessage(env, message.chat.id, message.message_id, "CELESTIAL LOBBY · MAIN MENU\n\nChoose a destination.", { inline_keyboard: mainMenu(env, callback.from.id) });
     return;
