@@ -2183,3 +2183,29 @@ body:has([aria-modal="true"])::before {
     max-height: 80svh;
   }
 }
+
+/* CELESTIAL LOBBY navigation consolidation — November 2026.
+   Owner mode uses the single Owner navigation controller mounted by App.tsx.
+   Suppress the two legacy Portal hamburger controllers while that Owner
+   controller is present, preventing three competing hamburger buttons. */
+body:has(.owner-menu-anchor) .portal-header .lobby-menu-trigger,
+body:has(.owner-menu-anchor) .portal-header .lobby-menu-backdrop,
+body:has(.owner-menu-anchor) .portal-header .lobby-menu-drawer {
+  display: none !important;
+}
+
+/* Keep the Owner navigation visually translucent rather than opaque. */
+.owner-menu-drawer {
+  background: rgba(7, 9, 24, .84);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+/* Align the single Owner menu control with the mobile header safe area. */
+.owner-menu-anchor {
+  top: max(12px, env(safe-area-inset-top));
+}
+.owner-menu-drawer {
+  top: max(68px, calc(env(safe-area-inset-top) + 56px));
+  max-height: calc(100dvh - max(82px, calc(env(safe-area-inset-top) + 70px)));
+}
