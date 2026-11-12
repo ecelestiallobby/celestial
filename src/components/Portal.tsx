@@ -117,7 +117,7 @@ export const Portal: React.FC<PortalProps> = ({
       setView('landing');
       return;
     }
-    if (view === 'army-home' && gatewaySession?.role !== 'emp01' && gatewaySession?.role !== 'emp02') { setActiveArmyPanel(null); setView('landing'); return; }
+    if (view === 'army-home' && gatewaySession?.role !== 'emp01' && gatewaySession?.role !== 'emp02' && ownerSessionUntil <= Date.now()) { setActiveArmyPanel(null); setView('landing'); return; }
     if (view === 'regular-home' && gatewaySession?.role !== 'client' && ownerSessionUntil <= Date.now()) { setView('landing'); return; }
     let hasClientSession = false;
     try { hasClientSession = sessionStorage.getItem('CL_ACTIVE_CLIENT_SESSION_V1') === '1'; } catch { /* storage unavailable */ }
@@ -135,6 +135,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [showOwnerTools, setShowOwnerTools] = useState(false);
   const [guestPage, setGuestPage] = useState<GuestPage | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [environmentMenuOpen, setEnvironmentMenuOpen] = useState(false);
   const [activeEnvironment, setActiveEnvironment] = useState<'guest' | 'regular'>(() => initialView === 'regular-home' || initialView === 'regular-gate' ? 'regular' : 'guest');
   const navigateEnvironmentHome = () => { if (activeEnvironment === 'regular') { setView('regular-home'); } else { setGuestPage(null); setView('guest'); } window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const [threeSOpen, setThreeSOpen] = useState({ security: false, secrecy: false, safety: false });
@@ -297,8 +298,7 @@ export const Portal: React.FC<PortalProps> = ({
         recognition.stop();
         enterOwnerOverride();
       } else {
-        setVoiceAccessListening(false);
-        setOwnerAccessMessage('Voice phrase was not recognized exactly. Please try again or enter the password manually.');
+        setVoiceAccessListening(false);        setOwnerAccessMessage('Voice phrase was not recognized exactly. Please try again or enter the password manually.');
       }
     };
     recognition.onerror = (event: any) => {
@@ -597,23 +597,26 @@ export const Portal: React.FC<PortalProps> = ({
   };
 
   return (
-    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>
-      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
+    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
       <>
       {/* Top Header */}
       <header className="portal-header">
+        <button type="button" className="lobby-menu-trigger" aria-label="Open environment navigation" aria-expanded={environmentMenuOpen} onClick={() => setEnvironmentMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>
         <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigateEnvironmentHome(); } }}>
           <div className="brand-name">CELESTIAL LOBBY</div>
         </div>
-        <button type="button" className="lobby-menu-trigger" aria-label="Open navigation menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>
-        {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close navigation menu" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Main navigation">
-          <button onClick={() => { navigateEnvironmentHome(); setMenuOpen(false); }}>HOME</button>
-          <button onClick={() => { handleChromeNavigation('about'); setMenuOpen(false); }}>ABOUT US</button>
-          <button onClick={() => { handleChromeNavigation('three-s'); setMenuOpen(false); }}>3-S</button>
-          <button onClick={() => { handleChromeNavigation('no-nos'); setMenuOpen(false); }}>NO-NOS</button>
-          <button onClick={() => { handleChromeNavigation('faqs'); setMenuOpen(false); }}>FAQS</button>
-          <button onClick={() => { if (activeEnvironment === 'guest') handleGuestStoreAccess(); else onEnterStore(); setMenuOpen(false); }}>STORE</button>
-          <button onClick={() => { setMenuOpen(false); if (activeEnvironment === 'guest') setView('regular-gate'); else { setActiveHomePanel('tracker'); setView('regular-home'); } }}>TRACK</button>
+        <button type="button" className="lobby-menu-trigger" aria-label="Open Owner navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>
+        {environmentMenuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close environment navigation" onClick={() => setEnvironmentMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Environment navigation">
+          <p className="eyebrow">ENVIRONMENTS</p>
+          <button onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); setEnvironmentMenuOpen(false); }}>GUEST / VISITOR</button>
+          <button onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); setEnvironmentMenuOpen(false); }}>MEMBER / CLIENT</button>
+          <button onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); setEnvironmentMenuOpen(false); }}>CELESTIAL ARMY</button>
+        </nav></>}
+        {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close Owner navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Owner navigation">
+          <p className="eyebrow">OWNER CONTROLS</p>
+          <button onClick={() => { setView('owner-preview'); setMenuOpen(false); }}>OWNER HOMEPAGE</button>
+          <button onClick={() => { setShowOwnerTools(true); setMenuOpen(false); }}>OWNER TOOLS</button>
+          <button onClick={() => { exitOwnerOverride(); setMenuOpen(false); }}>LOCK / SWITCH ACCESS</button>
         </nav></>}
       </header>
       </>
@@ -631,6 +634,23 @@ export const Portal: React.FC<PortalProps> = ({
             <p className="eyebrow">AUTHORIZED BROWSER SESSION</p>
             <h2 className="section-title">Welcome, Commander.</h2>
             <p className="section-copy">Owner Preview is active in this browser. This workspace is reserved for previewing and testing the portal experience.</p>
+            <div className="portal-panel p-4 mt-4">
+              <small className="text-amber-300 font-bold tracking-widest">CURRENT ORDER QUEUE</small>
+              <h3 className="section-title mt-2">Active Order</h3>
+              <p className="section-copy">Operational view. Orders are identified by order number, not Access ID.</p>
+              <div className="mt-3 rounded-xl border border-purple-400/20 bg-slate-950/60 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">ORDER NUMBER</span><strong className="text-sm text-amber-200">{activeOrder?.orderId || 'No active order'}</strong></div>
+                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">ORDER DATE</span><strong className="text-xs text-white">{activeOrder?.submittedTime || 'Not recorded'}</strong></div>
+                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">PAYMENT SENT</span><strong className="text-xs text-white">{activeOrder?.paymentTime || 'Not recorded'}</strong></div>
+                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">PAYMENT AMOUNT</span><strong className="text-sm text-white">{typeof activeOrder?.totalPaid === 'number' ? '₱' + activeOrder.totalPaid.toLocaleString() : 'Not recorded'}</strong></div>
+                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">STATUS</span><strong className="text-xs text-emerald-200">{activeOrder?.status?.replaceAll('_', ' ').toUpperCase() || 'NO STATUS'}</strong></div>
+              </div>
+              <p className="small-caveat mt-3">Current demo data exposes one active order only. A multi-order, oldest-first queue requires a shared order collection.</p>
+            </div>
+            <div className="portal-panel p-4 mt-4">
+              <small className="text-amber-300 font-bold tracking-widest">TODAY'S ORDERS</small>
+              <p className="section-copy mt-2">Today's totals will appear here when the order system stores a dated order history. No sample totals are displayed as real activity.</p>
+            </div>
             <div className="portal-panel p-4 mt-5">
               <small className="text-amber-300 font-bold tracking-widest">SESSION STATUS</small>
               <p className="expand-body mt-2">This browser remembers Owner access until:</p>
@@ -897,8 +917,7 @@ export const Portal: React.FC<PortalProps> = ({
               <div className="guest-content-page">
                 <p className="eyebrow">CENTRAL ORBIT SECTOR</p><h2 className="section-title">Refinement has its price.</h2>
                 <p className="section-copy">Here, presence becomes influence. Synergy deepens, and every enhancement brings you closer to the build you were meant to command.</p>
-                <div className="portal-panel mt-4 p-4">
-                  <small className="text-amber-300 font-bold tracking-widest">🟣 VENUS · INCUBUS' FAVORITE</small>
+                <div className="portal-panel mt-4 p-4">                  <small className="text-amber-300 font-bold tracking-widest">🟣 VENUS · INCUBUS' FAVORITE</small>
                   <h3 className="text-lg font-bold text-amber-100 mt-2">Vaelith — The Velvetborn</h3>
                   <p className="expand-body mt-2">Venusian species renowned throughout the Galactic Federation for their exceptional Charm, Synergy, and Focus stats. Their server operates like a permanent high-tier guild instance, where experienced players pursue increasingly difficult encounters and rare leaderboard achievements.</p>
                   <p className="text-xs text-purple-200 mt-3">Trait: Charm • Synergy • Elite Progression<br/>Difficulty: Mid-High<br/>Recommended: Advanced Players<br/>System: Velvet Aura. Elite Guild.</p>
@@ -1198,7 +1217,6 @@ export const Portal: React.FC<PortalProps> = ({
                   {gateMessage.text}
                 </p>
               )}
-
               <div className="client-access-divider">
                 <span>OR</span>
               </div>
@@ -1497,8 +1515,7 @@ export const Portal: React.FC<PortalProps> = ({
               <span>OUR STANDARDS</span>
             </div>
 
-            <div className="three-s-intro">
-              <p className="eyebrow">CELESTIAL LOBBY · CLIENT COMMITMENT</p>
+            <div className="three-s-intro">              <p className="eyebrow">CELESTIAL LOBBY · CLIENT COMMITMENT</p>
               <h2 id="three-s-title" className="section-title">The 3S Framework</h2>
               <p className="three-s-lead">Three principles. One standard of care.</p>
               <p className="section-copy">Security, Secrecy and Safety guide how we approach information, account access and order handling across the Celestial Lobby experience.</p>
