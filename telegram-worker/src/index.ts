@@ -182,9 +182,19 @@ async function handleCallback(env: Env, callback: TelegramCallback) {
   const message = callback.message;
   if (!message || message.chat.type !== "private") return;
   const data = callback.data || "";
-  const requestedMenu = data.startsWith("menu:") ? data.slice(5) : data.split(":")[0];
+  const ownerIds = (env.OWNER_TELEGRAM_IDS || "").split(",").map(x => x.trim()).filter(Boolean);
+  const isOwner = ownerIds.includes(String(callback.from.id));
+  const requestedMenu = data.startsWith("menu:") ? data.slice(5) : data.startsWith("resume:") ? data.slice(7) : data.split(":")[0];
   const validMenus = ["welcome", "guest", "client", "support", "security", "employee", "owner"];
   await saveUser(env, callback.from, validMenus.includes(requestedMenu) ? requestedMenu : undefined);
+
+  // Never rely on a hidden button as authorization. Validate every Owner callback server-side.
+  if ((requestedMenu === "owner" || data.startsWith("owner:")) && !isOwner) {
+    await editMessage(env, message.chat.id, message.message_id, "This section is restricted to an approved Owner Telegram account.", {
+      inline_keyboard: [[{ text: "Main Menu", callback_data: "menu:home" }]],
+    });
+    return;
+  }
 
   if (data.startsWith("resume:")) {
     const menu = menuText(data.slice(7));
