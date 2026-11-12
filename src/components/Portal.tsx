@@ -509,42 +509,6 @@ export const Portal: React.FC<PortalProps> = ({
       setRecoveryMessage('DETAILS COULD NOT BE VERIFIED. Check the information or contact celestiallobby@gmail.com.');
     }
   };
-    const a = accessIdInput.trim().toUpperCase();
-    const p = apgInput.trim().toUpperCase();
-    let creds: DemoAccessCredentials | null = null;
-
-    try {
-      const saved = localStorage.getItem('CL_DEMO_ACCESS');
-      if (saved) creds = JSON.parse(saved);
-    } catch {
-      // ignore
-    }
-
-    let activeInvitation = '';
-    try { activeInvitation = sessionStorage.getItem('CL_ACTIVE_INVITATION_V1') || ''; } catch { /* best effort */ }
-    const assignedInvitation = invitationSlots.find(slot => slot.invitationCode === activeInvitation);
-    if (assignedInvitation && assignedInvitation.accessId === a && creds && a === creds.accessId && p === creds.apg) {
-      try { sessionStorage.setItem('CL_ACTIVE_CLIENT_SESSION_V1', '1'); } catch { /* browser storage unavailable */ }
-      setGateMessage({
-        text: 'Access verified for this browser demo. Warping to Client Dashboard...',
-        success: true
-      });
-      setTimeout(() => {
-        setGateMessage(null);
-        setView('regular-home');
-        setActiveHomePanel('tracker');
-        setTrackerQuery(activeOrder?.orderId || '');
-        setTrackerResult(activeOrder?.orderId ? { found: true, message: `Active order ${activeOrder.orderId} verified in celestial ledger.` } : null);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 700);
-    } else {
-      setGateMessage({
-        text: 'No active client credentials are being issued yet. Completing onboarding does not create an account or grant dashboard access.',
-        success: false
-      });
-    }
-  };
-
   const handleLookupOrder = () => {
     const val = trackerQuery.trim();
     if (!val) {
