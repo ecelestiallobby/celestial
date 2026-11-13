@@ -324,6 +324,8 @@ export const Portal: React.FC<PortalProps> = ({
       if (ownerPattern.join('-') !== ownerPatternConfirm.join('-')) { setOwnerAccessMessage('The patterns do not match. Start again.'); setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerPatternSetupStep(0); return; }
       try { localStorage.setItem(OWNER_PATTERN_KEY, await hashOwnerCredential(ownerPattern.join('-'))); } catch { setOwnerAccessMessage('This browser could not save the pattern.'); return; }
       setOwnerPatternSetupStep(2);
+      setOwnerPattern([]);
+      setOwnerPatternConfirm([]);
       setOwnerAccessMessage('Pattern created for this browser. Draw it once more to sign in.');
       return;
     }
