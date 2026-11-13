@@ -620,6 +620,7 @@ export const Portal: React.FC<PortalProps> = ({
         <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigateEnvironmentHome(); } }}>
           <div className="brand-name">CELESTIAL LOBBY</div>
         </div>
+        {ownerSessionUntil > Date.now() && view !== 'owner-preview' && !['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route', 'onboarding', 'onboarding-terms'].includes(view) && <button type="button" className="owner-return-dashboard" onClick={() => { setView('owner-preview'); setMenuOpen(false); setEnvironmentMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>← RETURN TO OWNER DASHBOARD</button>}
         {view === 'owner-preview' && ownerSessionUntil > Date.now() && <button type="button" className="lobby-menu-trigger" aria-label="Open Owner navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>}
         {environmentMenuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close environment navigation" onClick={() => setEnvironmentMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Environment navigation">
           <p className="eyebrow">ENVIRONMENTS</p>
@@ -651,6 +652,15 @@ export const Portal: React.FC<PortalProps> = ({
             <p className="section-copy">Owner Preview is active in this browser. This workspace is reserved for previewing and testing the portal experience.</p>
             <div className="owner-command-center" aria-label="Owner command center">
               <div className="owner-command-heading"><span>COMMAND CENTER</span><small>OWNER WORKSPACE · DEMO</small></div>
+              <section className="owner-environment-control" aria-labelledby="owner-environment-control-title">
+                <div className="owner-group-heading"><b id="owner-environment-control-title">ENVIRONMENT CONTROL</b><small>OPEN ANOTHER ENVIRONMENT · RETURN HERE AT ANY TIME</small></div>
+                <div className="owner-environment-actions">
+                  <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>GUEST ENVIRONMENT</button>
+                  <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>REGULAR CLIENT ENVIRONMENT</button>
+                  <button type="button" onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>CELESTIAL ARMY ENVIRONMENT</button>
+                </div>
+              </section>
+              <div className="owner-group-heading owner-destinations-heading"><b>DESTINATIONS</b><small>GUEST CONTENT AREAS</small></div>
               <div className="owner-destination-grid">
                 <button type="button" className="owner-destination-card" onClick={() => { setActiveEnvironment('guest'); setGuestPage('celestial-overview'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><span className="owner-destination-icon">✦</span><b>CELESTIALS</b><small>Explore the celestial environment</small></button>
                 <button type="button" className="owner-destination-card" onClick={() => { setActiveEnvironment('guest'); setGuestPage('founders'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><span className="owner-destination-icon">✧</span><b>FOUNDERS</b><small>Open the Founders destination</small></button>
@@ -1662,7 +1672,7 @@ export const Portal: React.FC<PortalProps> = ({
       {ownerSessionUntil > Date.now() && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'onboarding' && view !== 'onboarding-terms' && (
         <nav className="owner-preview-dock" aria-label="Persistent Owner Preview controls">
           <span className="owner-preview-dock-label">OWNER PREVIEW</span>
-          <button type="button" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner Workspace</button>
+          <button type="button" onClick={() => { setView('owner-preview'); setMenuOpen(false); setEnvironmentMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Return to Owner Dashboard</button>
           <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest View</button>
           <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Regular Client Preview</button>
           <button type="button" className="owner-preview-exit" onClick={exitOwnerOverride}>Exit Override</button>
