@@ -25,10 +25,10 @@ const ACCESS_SESSION_KEY = 'CL_GATEWAY_SESSION_V1';
 const ACCESS_FAILURE_KEY = 'CL_GATEWAY_FAILURES_V1';
 const ACCESS_LOCK_MS = 60 * 60 * 1000;
 const DEMO_CREDENTIALS: Record<string, { apg: string; role: 'client' | 'emp01' | 'emp02' | 'owner' }> = {
-  'CLI-01': { apg: 'AGP-2026', role: 'client' },
-  'EMP-01': { apg: 'AGP-2026', role: 'emp01' },
-  'EMP-02': { apg: 'AGP-2026', role: 'emp02' },
-  'OWN-01': { apg: 'AGP-9999', role: 'owner' }
+  'CLI-01': { apg: 'CLNT2026', role: 'client' },
+  'EMP-01': { apg: 'CLNT2026', role: 'emp01' },
+  'EMP-02': { apg: 'CLNT2026', role: 'emp02' },
+  'OWN-01': { apg: 'OWNR2026', role: 'owner' }
 };
 type GatewaySession = { accessId: string; role: 'client' | 'emp01' | 'emp02' | 'owner'; startedAt: number };
 const OWNER_SESSION_MS = 24 * 60 * 60 * 1000;
@@ -602,7 +602,7 @@ export const Portal: React.FC<PortalProps> = ({
     }
     const account = DEMO_CREDENTIALS[a];
     let savedApgOverrides: Record<string, string> = {};
-    try { savedApgOverrides = JSON.parse(localStorage.getItem('CL_EMPLOYEE_APG_OVERRIDES_V1') || '{}'); } catch { /* demo defaults */ }
+    try { savedApgOverrides = JSON.parse(localStorage.getItem('CL_EMPLOYEE_Access Code_OVERRIDES_V1') || '{}'); } catch { /* demo defaults */ }
     const expectedApg = account ? (savedApgOverrides[a] || account.apg) : '';
     if (!account || expectedApg !== p) {
       const count = Number(failureState.count || 0) + 1;
@@ -682,20 +682,20 @@ export const Portal: React.FC<PortalProps> = ({
       return;
     }
     setEmployeeRecoveryVerified(true);
-    setEmployeeRecoveryMessage(`IDENTITY CHECK PASSED IN DEMO. Confirmed Access ID: ${id}. Set a new demo AGP Code below.`);
+    setEmployeeRecoveryMessage(`IDENTITY CHECK PASSED IN DEMO. Confirmed Access ID: ${id}. Set a new demo Access Code below.`);
   };
   const handleEmployeeApgReset = () => {
     const id = employeeRecoveryId.trim().toUpperCase();
     const code = employeeNewApg.trim().toUpperCase();
     if (!employeeRecoveryVerified || !['EMP-01', 'EMP-02'].includes(id) || !/^[A-Z0-9]{8}$/.test(code)) {
-      setEmployeeRecoveryMessage('ENTER A NEW 8-CHARACTER LETTER/NUMBER AGP CODE.');
+      setEmployeeRecoveryMessage('ENTER A NEW 8-CHARACTER LETTER/NUMBER ACCESS CODE.');
       return;
     }
     try {
-      const saved = JSON.parse(localStorage.getItem('CL_EMPLOYEE_APG_OVERRIDES_V1') || '{}') as Record<string, string>;
+      const saved = JSON.parse(localStorage.getItem('CL_EMPLOYEE_Access Code_OVERRIDES_V1') || '{}') as Record<string, string>;
       saved[id] = code;
-      localStorage.setItem('CL_EMPLOYEE_APG_OVERRIDES_V1', JSON.stringify(saved));
-      setEmployeeRecoveryMessage(`DEMO AGP CODE RESET FOR ${id}. Use the confirmed Access ID and your new code. Owner oversight is still required for real access restoration.`);
+      localStorage.setItem('CL_EMPLOYEE_Access Code_OVERRIDES_V1', JSON.stringify(saved));
+      setEmployeeRecoveryMessage(`DEMO ACCESS CODE RESET FOR ${id}. Use the confirmed Access ID and your new code. Owner oversight is still required for real access restoration.`);
       setEmployeeRecoveryVerified(false);
       setEmployeeRecoveryAnswer('');
       setEmployeeNewApg('');
@@ -889,13 +889,13 @@ export const Portal: React.FC<PortalProps> = ({
                 />
               </label>
               <label htmlFor="gate-apg-code" className="block">
-                <span className="mb-2 block text-[10px] font-bold tracking-[0.2em] text-amber-200">AGP CODE</span>
+                <span className="mb-2 block text-[10px] font-bold tracking-[0.2em] text-amber-200">ACCESS CODE</span>
                 <input
                   id="gate-apg-code"
                   type="password"
                   value={apgInput}
                   onChange={(event) => setApgInput(event.target.value.toUpperCase())}
-                  placeholder="Enter your AGP Code"
+                  placeholder="Enter your Access Code"
                   autoComplete="off"
                   required
                 />
@@ -904,7 +904,7 @@ export const Portal: React.FC<PortalProps> = ({
               {gateMessage && <p className={`form-message ${gateMessage.success ? 'text-emerald-300' : 'text-amber-200'}`} role="status">{gateMessage.text}</p>}
               {Object.prototype.hasOwnProperty.call(DEMO_CREDENTIALS, accessIdInput.trim().toUpperCase()) && <button type="button" className="text-link w-full" onClick={() => { const demo = DEMO_CREDENTIALS[accessIdInput.trim().toUpperCase()]; setApgInput(demo.apg); setGateMessage({ text: 'DEMO QUICK-FILL populated the matching test credential.', success: true }); }}>DEMO QUICK-FILL · FILL TEST CODE</button>}
               <button type="button" className="text-link w-full" onClick={() => { setRecoveryOpen(v => !v); setRecoveryMessage(''); setRecoveryOrderFound(false); setEmployeeRecoveryMessage(''); }}>FORGOT YOUR ACCESS?</button>
-              {recoveryOpen && <div className="portal-panel p-3 space-y-3" role="region" aria-label="Access recovery"><div className="border-b border-purple-400/20 pb-3"><b className="text-amber-200 text-xs tracking-widest">CLIENT ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your order number. The demo checks the available browser record and one clearly labelled sample record from the last 90 days. No receipt copy is required.</p><label className="block text-xs mt-2">ORDER NUMBER<input className="mt-1 w-full" value={recoveryOrderNumber} onChange={e => { setRecoveryOrderNumber(e.target.value); setRecoveryOrderFound(false); }} placeholder="Enter order number" /></label><button type="button" className="secondary-action w-full mt-2" onClick={handleRecoveryOrderLookup}>LOOK UP ORDER</button>{recoveryOrderFound && <><label className="block text-xs mt-2">EXACT AMOUNT PAID<input className="mt-1 w-full" inputMode="decimal" value={recoveryAmount} onChange={e => setRecoveryAmount(e.target.value)} placeholder="0.00" /></label><label className="block text-xs mt-2">FIRST FOUR LETTERS OF PAYMENT SENDER<input className="mt-1 w-full" value={recoverySender} onChange={e => setRecoverySender(e.target.value.toUpperCase().slice(0,4))} maxLength={4} placeholder="ABCD" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleRecoveryVerification}>VERIFY DETAILS</button></>}{recoveryMessage && <p className="form-message mt-2" role="status">{recoveryMessage}</p>}<p className="small-caveat mt-2">DEMO SAMPLE ORDER: DEMO-CL-2026-001 · Amount: ₱1,250 · Sender: NOVA. Sample data only, not a customer order.</p></div><div className="pt-2"><b className="text-amber-200 text-xs tracking-widest">EMPLOYEE ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your Employee ID and answer its assigned demo security question. Three failed gateway sign-ins still trigger the standard one-hour lockout.</p><label className="block text-xs mt-2">EMPLOYEE ID<input className="mt-1 w-full" value={employeeRecoveryId} onChange={e => { setEmployeeRecoveryId(e.target.value.toUpperCase()); setEmployeeRecoveryVerified(false); setEmployeeRecoveryMessage(''); }} placeholder="EMP-01 or EMP-02" /></label>{(employeeRecoveryId.trim().toUpperCase() === 'EMP-01' || employeeRecoveryId.trim().toUpperCase() === 'EMP-02') && <><p className="text-xs text-purple-200 mt-2">{EMPLOYEE_RECOVERY[employeeRecoveryId.trim().toUpperCase() as keyof typeof EMPLOYEE_RECOVERY].question}</p><label className="block text-xs mt-2">SECURITY ANSWER<input className="mt-1 w-full" value={employeeRecoveryAnswer} onChange={e => setEmployeeRecoveryAnswer(e.target.value)} placeholder="Enter assigned answer" /></label></>}<button type="button" className="secondary-action w-full mt-2" onClick={handleEmployeeRecoveryVerify}>VERIFY EMPLOYEE</button>{employeeRecoveryVerified && <><p className="text-xs text-slate-300">New AGP Code must contain exactly 8 letters and/or numbers.</p><label className="block text-xs mt-2">NEW AGP CODE<input className="mt-1 w-full" type="password" maxLength={8} value={employeeNewApg} onChange={e => setEmployeeNewApg(e.target.value.toUpperCase())} placeholder="8 characters" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleEmployeeApgReset}>RESET DEMO AGP CODE</button></>}{employeeRecoveryMessage && <p className="form-message mt-2" role="status">{employeeRecoveryMessage}</p>}<p className="small-caveat mt-2">DEMO ONLY · Questions and reset values are stored in this browser. A real employee recovery requires manual Owner verification. Support: celestiallobby@gmail.com</p></div></div>}
+              {recoveryOpen && <div className="portal-panel p-3 space-y-3" role="region" aria-label="Access recovery"><div className="border-b border-purple-400/20 pb-3"><b className="text-amber-200 text-xs tracking-widest">CLIENT ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your order number. The demo checks the available browser record and one clearly labelled sample record from the last 90 days. No receipt copy is required.</p><label className="block text-xs mt-2">ORDER NUMBER<input className="mt-1 w-full" value={recoveryOrderNumber} onChange={e => { setRecoveryOrderNumber(e.target.value); setRecoveryOrderFound(false); }} placeholder="Enter order number" /></label><button type="button" className="secondary-action w-full mt-2" onClick={handleRecoveryOrderLookup}>LOOK UP ORDER</button>{recoveryOrderFound && <><label className="block text-xs mt-2">EXACT AMOUNT PAID<input className="mt-1 w-full" inputMode="decimal" value={recoveryAmount} onChange={e => setRecoveryAmount(e.target.value)} placeholder="0.00" /></label><label className="block text-xs mt-2">FIRST FOUR LETTERS OF PAYMENT SENDER<input className="mt-1 w-full" value={recoverySender} onChange={e => setRecoverySender(e.target.value.toUpperCase().slice(0,4))} maxLength={4} placeholder="ABCD" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleRecoveryVerification}>VERIFY DETAILS</button></>}{recoveryMessage && <p className="form-message mt-2" role="status">{recoveryMessage}</p>}<p className="small-caveat mt-2">DEMO SAMPLE ORDER: DEMO-CL-2026-001 · Amount: ₱1,250 · Sender: NOVA. Sample data only, not a customer order.</p></div><div className="pt-2"><b className="text-amber-200 text-xs tracking-widest">EMPLOYEE ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your Employee ID and answer its assigned demo security question. Three failed gateway sign-ins still trigger the standard one-hour lockout.</p><label className="block text-xs mt-2">EMPLOYEE ID<input className="mt-1 w-full" value={employeeRecoveryId} onChange={e => { setEmployeeRecoveryId(e.target.value.toUpperCase()); setEmployeeRecoveryVerified(false); setEmployeeRecoveryMessage(''); }} placeholder="EMP-01 or EMP-02" /></label>{(employeeRecoveryId.trim().toUpperCase() === 'EMP-01' || employeeRecoveryId.trim().toUpperCase() === 'EMP-02') && <><p className="text-xs text-purple-200 mt-2">{EMPLOYEE_RECOVERY[employeeRecoveryId.trim().toUpperCase() as keyof typeof EMPLOYEE_RECOVERY].question}</p><label className="block text-xs mt-2">SECURITY ANSWER<input className="mt-1 w-full" value={employeeRecoveryAnswer} onChange={e => setEmployeeRecoveryAnswer(e.target.value)} placeholder="Enter assigned answer" /></label></>}<button type="button" className="secondary-action w-full mt-2" onClick={handleEmployeeRecoveryVerify}>VERIFY EMPLOYEE</button>{employeeRecoveryVerified && <><p className="text-xs text-slate-300">New Access Code must contain exactly 8 letters and/or numbers.</p><label className="block text-xs mt-2">NEW ACCESS CODE<input className="mt-1 w-full" type="password" maxLength={8} value={employeeNewApg} onChange={e => setEmployeeNewApg(e.target.value.toUpperCase())} placeholder="8 characters" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleEmployeeApgReset}>RESET DEMO ACCESS CODE</button></>}{employeeRecoveryMessage && <p className="form-message mt-2" role="status">{employeeRecoveryMessage}</p>}<p className="small-caveat mt-2">DEMO ONLY · Questions and reset values are stored in this browser. A real employee recovery requires manual Owner verification. Support: celestiallobby@gmail.com</p></div></div>}
               {gatewayLockUntil > Date.now() && <p className="small-caveat text-rose-300">LOCKED UNTIL {new Date(gatewayLockUntil).toLocaleTimeString()}</p>}
             </form>
 
@@ -1327,7 +1327,7 @@ export const Portal: React.FC<PortalProps> = ({
               <div className="mt-5 rounded-xl border border-purple-500/20 bg-slate-950/50 p-4 space-y-2 text-xs leading-relaxed text-purple-100">
                 <p><strong className="text-amber-300">What happens now?</strong></p>
                 <p>1. Your onboarding flow is complete.</p>
-                <p>2. No Access ID or AGP code has been generated or saved.</p>
+                <p>2. No Access ID or Access Code has been generated or saved.</p>
                 <p>3. No Regular Client Dashboard account has been created or approved.</p>
                 <p>4. Account eligibility, restrictions, and access permissions will be configured later by the owner.</p>
                 <p>5. You can return to the Guest Environment to explore its public information.</p>
@@ -1373,7 +1373,7 @@ export const Portal: React.FC<PortalProps> = ({
             <div className="client-access-fields"><label>INVITATION CODE<input value={invitationInput} onChange={event => setInvitationInput(event.target.value.toUpperCase())} placeholder="Enter your invitation code" autoComplete="off" spellCheck={false} disabled={invitationAttempts >= 3} /></label></div>
             <button type="button" className="primary-action full client-access-verify" onClick={handleVerifyInvitation} disabled={invitationAttempts >= 3}>SUBMIT</button>
             {invitationMessage && <p className="form-message" role="alert">{invitationMessage}</p>}
-            <p className="small-caveat client-access-note">{invitationAttempts >= 3 ? 'This browser has been locked after three unsuccessful attempts.' : `${3-invitationAttempts} attempts available.`} Invitation verification is separate from your Access ID and Access Code or AGP Code.</p>
+            <p className="small-caveat client-access-note">{invitationAttempts >= 3 ? 'This browser has been locked after three unsuccessful attempts.' : `${3-invitationAttempts} attempts available.`} Invitation verification is separate from your Access ID and Access Code or Access Code.</p>
             <div className="client-access-guest"><button type="button" className="text-link" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); }}>Join In / Access</button><span>Continue directly to the Guest Environment.</span></div>
             <p className="small-caveat">DEMO ONLY · Browser-local validation · Not secure for real customer data.</p>
           </div></section>
@@ -1401,12 +1401,12 @@ export const Portal: React.FC<PortalProps> = ({
                   spellCheck="false"
                 />
 
-                <label className="sr-only" htmlFor="regular-client-agp-code">AGP Code</label>
+                <label className="sr-only" htmlFor="regular-client-agp-code">Access Code</label>
                 <input
                   id="regular-client-agp-code"
                   value={apgInput}
-                  onChange={(e) => setApgInput(e.target.value)}                  placeholder="Enter your AGP Code"
-                  aria-label="AGP Code"
+                  onChange={(e) => setApgInput(e.target.value)}                  placeholder="Enter your Access Code"
+                  aria-label="Access Code"
                   autoComplete="off"
                   spellCheck="false"
                 />
