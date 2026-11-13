@@ -2229,3 +2229,83 @@ body:has(.owner-menu-anchor) .portal-header .lobby-menu-drawer {
 .owner-command-groups small{color:#9994ad;font-size:8px;line-height:1.35}
 .owner-module-panel{scroll-margin-top:18px}
 @media(max-width:520px){.owner-command-center{margin:14px -2px 18px;padding:11px;border-radius:16px}.owner-destination-grid{gap:6px}.owner-destination-card{min-height:104px;padding:9px 7px}.owner-destination-card b{font-size:8px;letter-spacing:.05em}.owner-destination-card small{font-size:8px}.owner-command-groups{gap:6px}.owner-command-groups button{grid-template-columns:1fr;gap:4px;padding:9px 6px}.owner-command-groups button>span{grid-row:auto;text-align:left}.owner-command-groups b,.owner-command-groups small{font-size:7px}}
+
+
+/* Owner environment controls and persistent return navigation */
+.owner-return-dashboard {
+  flex: 0 0 auto;
+  border: 1px solid rgba(232, 211, 154, .55);
+  border-radius: 999px;
+  padding: .55rem .85rem;
+  color: #f4dfaa;
+  background: rgba(15, 23, 42, .92);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .07em;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+.owner-return-dashboard:hover,
+.owner-return-dashboard:focus-visible {
+  background: rgba(120, 87, 35, .28);
+  border-color: #e8d39a;
+  outline: none;
+}
+.owner-environment-control {
+  margin: 1rem 0 1.25rem;
+  padding: 1rem;
+  border: 1px solid rgba(232, 211, 154, .28);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(31, 41, 66, .72), rgba(11, 15, 25, .9));
+}
+.owner-group-heading {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  margin-bottom: .75rem;
+}
+.owner-group-heading b {
+  color: #f3dda5;
+  font-size: .78rem;
+  letter-spacing: .12em;
+}
+.owner-group-heading small {
+  color: #a8a4bd;
+  font-size: .61rem;
+  letter-spacing: .08em;
+}
+.owner-environment-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .6rem;
+}
+.owner-environment-actions button {
+  min-height: 3.25rem;
+  padding: .7rem .55rem;
+  border: 1px solid rgba(167, 139, 250, .25);
+  border-radius: .75rem;
+  color: #eee9ff;
+  background: rgba(15, 23, 42, .78);
+  font-size: .68rem;
+  font-weight: 750;
+  letter-spacing: .045em;
+  cursor: pointer;
+}
+.owner-environment-actions button:hover,
+.owner-environment-actions button:focus-visible {
+  border-color: rgba(232, 211, 154, .7);
+  color: #f4dfaa;
+  outline: none;
+}
+.owner-destinations-heading { margin-top: .9rem; }
+@media (max-width: 640px) {
+  .owner-return-dashboard {
+    max-width: 47vw;
+    padding: .48rem .62rem;
+    font-size: .57rem;
+    white-space: normal;
+  }
+  .owner-environment-actions { grid-template-columns: 1fr; }
+  .owner-environment-actions button { min-height: 2.8rem; text-align: left; }
+}
