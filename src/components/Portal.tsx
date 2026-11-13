@@ -135,7 +135,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
   const [ownerActivationPhrase, setOwnerActivationPhrase] = useState('');
   const [ownerActivationPassed, setOwnerActivationPassed] = useState(false);
-  const [ownerSignInMethod, setOwnerSignInMethod] = useState<'password' | 'pattern' | 'pin' | 'google'>('password');
+  const [ownerSignInMethod, setOwnerSignInMethod] = useState<'password' | 'pattern' | 'pin' | 'google' | 'voice'>('password');
   const [ownerPattern, setOwnerPattern] = useState<number[]>([]);
   const [ownerPatternConfirm, setOwnerPatternConfirm] = useState<number[]>([]);
   const [ownerPatternSetupStep, setOwnerPatternSetupStep] = useState<0 | 1 | 2>(0);
@@ -145,6 +145,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [ownerGoogleMessage, setOwnerGoogleMessage] = useState('');
   const [ownerAccessMessage, setOwnerAccessMessage] = useState('');
   const [voiceAccessListening, setVoiceAccessListening] = useState(false);
+  const [ownerVoicePhrase, setOwnerVoicePhrase] = useState('');
   const [ownerNotepad, setOwnerNotepad] = useState(() => { try { return localStorage.getItem('CL_OWNER_NOTEPAD_V1') || ''; } catch { return ''; } });
   const [showFloatingNotepad, setShowFloatingNotepad] = useState(false);
   const [showOwnerTools, setShowOwnerTools] = useState(false);
@@ -414,6 +415,21 @@ export const Portal: React.FC<PortalProps> = ({
       setVoiceAccessListening(false);
       setOwnerAccessMessage('Voice recognition could not start. Please try again or use your Access ID and password.');
     }
+  };
+
+  const handleOwnerVoicePhraseSubmit = () => {
+    const normalizedPhrase = ownerVoicePhrase.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (normalizedPhrase !== 'AVISALAESHMA') {
+      setOwnerAccessMessage('Passphrase not recognized. Enter AVISALA ESHMA exactly, or use the microphone.');
+      return;
+    }
+    setOwnerAccessMessage('Passphrase accepted. Opening Owner Preview…');
+    setVoiceAccessListening(false);
+    setShowOwnerAccessField(false);
+    setOwnerAccessId('');
+    setOwnerAccessPhrase('');
+    setOwnerVoicePhrase('');
+    enterOwnerOverride();
   };
 
   const handleOwnerAccessSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -921,6 +937,7 @@ export const Portal: React.FC<PortalProps> = ({
                       <button type="button" className={ownerSignInMethod === 'pattern' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('pattern'); setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerPatternSetupStep(localStorage.getItem(OWNER_PATTERN_KEY) ? 2 : 0); setOwnerAccessMessage(''); }}>Pattern Unlock</button>
                       <button type="button" className={ownerSignInMethod === 'pin' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('pin'); setOwnerPin(''); setOwnerPinConfirm(''); setOwnerPinSetupStep(localStorage.getItem(OWNER_PIN_KEY) ? 2 : 0); setOwnerAccessMessage(''); }}>6-Digit PIN</button>
                       <button type="button" className={ownerSignInMethod === 'google' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('google'); setOwnerAccessMessage(''); setOwnerGoogleMessage(''); }}>Google Sign-In</button>
+                      <button type="button" className={ownerSignInMethod === 'voice' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('voice'); setOwnerVoicePhrase(''); setOwnerAccessMessage(''); }}>Voice Command</button>
                     </div>
                     {ownerSignInMethod === 'password' && <>
                     <label htmlFor="owner-access-id">OWNER ACCESS ID
@@ -931,9 +948,6 @@ export const Portal: React.FC<PortalProps> = ({
                     </label>
                     {ownerAccessMessage && <p className="form-message text-amber-200" role="status">{ownerAccessMessage}</p>}
                     <button className="primary-action" type="submit">Sign in to Owner Dashboard</button>
-                    <button className="secondary-action mt-2 w-full" type="button" onClick={startVoiceOwnerAccess} disabled={voiceAccessListening}>
-                      {voiceAccessListening ? 'Listening for Owner phrase…' : 'Use Voice Command'}
-                    </button>
                     <p className="small-caveat mt-2">DEMO ONLY — credentials are checked in browser code and are not secure production authentication.</p>
                     </>}
                     {ownerSignInMethod === 'pattern' && <div className="space-y-3">
@@ -950,6 +964,18 @@ export const Portal: React.FC<PortalProps> = ({
                       <input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={ownerPin} onChange={(event) => setOwnerPin(event.target.value.replace(/\\D/g, '').slice(0, 6))} placeholder="6-digit PIN" aria-label="Owner six-digit PIN" />
                       {ownerPinSetupStep === 1 && <input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={ownerPinConfirm} onChange={(event) => setOwnerPinConfirm(event.target.value.replace(/\\D/g, '').slice(0, 6))} placeholder="Confirm PIN" aria-label="Confirm Owner PIN" />}
                       <button type="button" className="primary-action" onClick={handleOwnerPinSubmit}>{ownerPinSetupStep === 0 ? 'Continue PIN Setup' : ownerPinSetupStep === 1 ? 'Confirm PIN' : 'Unlock with PIN'}</button>
+                    </div>}
+                    {ownerSignInMethod === 'voice' && <div className="space-y-3">
+                      <p className="section-copy">Use the microphone to say your Owner passphrase, or type it below if microphone access is unavailable.</p>
+                      <button type="button" className="primary-action w-full" onClick={startVoiceOwnerAccess} disabled={voiceAccessListening}>
+                        {voiceAccessListening ? '● Listening… Speak now' : '🎙 Activate Microphone'}
+                      </button>
+                      <label htmlFor="owner-voice-phrase" className="block">TYPE OWNER PASSPHRASE
+                        <input id="owner-voice-phrase" type="text" autoComplete="off" value={ownerVoicePhrase} onChange={(event) => setOwnerVoicePhrase(event.target.value)} placeholder="AVISALA ESHMA" />
+                      </label>
+                      <button type="button" className="secondary-action w-full" onClick={handleOwnerVoicePhraseSubmit}>Submit Typed Passphrase</button>
+                      {ownerAccessMessage && <p className="form-message text-amber-200" role="status">{ownerAccessMessage}</p>}
+                      <p className="small-caveat">DEMO ONLY — this passphrase is checked in browser code and is not secure production authentication.</p>
                     </div>}
                     {ownerSignInMethod === 'google' && <div className="space-y-3">
                       <p className="section-copy">Sign in with one of the Owner-approved Google accounts. Account eligibility will be checked privately by Google Apps Script.</p>
