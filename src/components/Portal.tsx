@@ -131,6 +131,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [ownerAccessId, setOwnerAccessId] = useState('');
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
   const [ownerAccessMessage, setOwnerAccessMessage] = useState('');
+  const [voiceAccessListening, setVoiceAccessListening] = useState(false);
   const [ownerNotepad, setOwnerNotepad] = useState(() => { try { return localStorage.getItem('CL_OWNER_NOTEPAD_V1') || ''; } catch { return ''; } });
   const [showFloatingNotepad, setShowFloatingNotepad] = useState(false);
   const [showOwnerTools, setShowOwnerTools] = useState(false);
@@ -288,6 +289,52 @@ export const Portal: React.FC<PortalProps> = ({
     setOwnerAccessPhrase('');
     setOwnerAccessMessage('');
     setShowOwnerAccessField(true);
+  };
+
+  const startVoiceOwnerAccess = () => {
+    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) {
+      setOwnerAccessMessage('Voice recognition is not supported in this browser. Please use the Access ID and password fields instead.');
+      return;
+    }
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = 'en-PH';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    setVoiceAccessListening(true);
+    setOwnerAccessMessage('Listening… Please say your Owner Access phrase clearly.');
+    recognition.onresult = (event: any) => {
+      const transcript = String(event.results?.[0]?.[0]?.transcript || '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9 ]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (transcript === 'AVISALA ESHMA') {
+        setOwnerAccessMessage('Voice phrase recognized. Opening Owner Preview…');
+        setVoiceAccessListening(false);
+        recognition.stop();
+        setShowOwnerAccessField(false);
+        setOwnerAccessId('');
+        setOwnerAccessPhrase('');
+        enterOwnerOverride();
+      } else {
+        setVoiceAccessListening(false);
+        setOwnerAccessMessage('Voice phrase was not recognized exactly. Please try again or use your Access ID and password.');
+      }
+    };
+    recognition.onerror = (event: any) => {
+      setVoiceAccessListening(false);
+      setOwnerAccessMessage(event.error === 'not-allowed'
+        ? 'Microphone permission was denied. Allow microphone access or use your Access ID and password.'
+        : 'Voice recognition could not complete. Please try again or use your Access ID and password.');
+    };
+    recognition.onend = () => setVoiceAccessListening(false);
+    try {
+      recognition.start();
+    } catch {
+      setVoiceAccessListening(false);
+      setOwnerAccessMessage('Voice recognition could not start. Please try again or use your Access ID and password.');
+    }
   };
 
   const handleOwnerAccessSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -788,6 +835,9 @@ export const Portal: React.FC<PortalProps> = ({
                     </label>
                     {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
                     <button className="primary-action" type="submit">Sign in to Owner Dashboard</button>
+                    <button className="secondary-action mt-2 w-full" type="button" onClick={startVoiceOwnerAccess} disabled={voiceAccessListening}>
+                      {voiceAccessListening ? 'Listening for Owner phrase…' : 'Use Voice Command'}
+                    </button>
                     <p className="small-caveat mt-2">DEMO ONLY — credentials are checked in browser code and are not secure production authentication.</p>
                   </form>
                 )}
