@@ -32,6 +32,9 @@ const DEMO_CREDENTIALS: Record<string, { apg: string; role: 'client' | 'emp01' |
 };
 type GatewaySession = { accessId: string; role: 'client' | 'emp01' | 'emp02' | 'owner'; startedAt: number };
 const OWNER_SESSION_MS = 24 * 60 * 60 * 1000;
+const OWNER_PATTERN_KEY = 'CL_OWNER_PATTERN_HASH_V1';
+const OWNER_PIN_KEY = 'CL_OWNER_PIN_HASH_V1';
+const OWNER_GOOGLE_AUTH_ENDPOINT = ''; // Configure only after deploying the private Google Apps Script verifier.
 const INVITATION_STORAGE_KEY = 'CL_BETA_INVITATIONS_V1';
 const INVITATION_ATTEMPTS_KEY = 'CL_INVITATION_ATTEMPTS_V1';
 type InvitationSlot = { slot: number; invitationCode: string; accessId: string };
@@ -132,6 +135,14 @@ export const Portal: React.FC<PortalProps> = ({
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
   const [ownerActivationPhrase, setOwnerActivationPhrase] = useState('');
   const [ownerActivationPassed, setOwnerActivationPassed] = useState(false);
+  const [ownerSignInMethod, setOwnerSignInMethod] = useState<'password' | 'pattern' | 'pin' | 'google'>('password');
+  const [ownerPattern, setOwnerPattern] = useState<number[]>([]);
+  const [ownerPatternConfirm, setOwnerPatternConfirm] = useState<number[]>([]);
+  const [ownerPatternSetupStep, setOwnerPatternSetupStep] = useState<0 | 1 | 2>(0);
+  const [ownerPin, setOwnerPin] = useState('');
+  const [ownerPinConfirm, setOwnerPinConfirm] = useState('');
+  const [ownerPinSetupStep, setOwnerPinSetupStep] = useState<0 | 1 | 2>(0);
+  const [ownerGoogleMessage, setOwnerGoogleMessage] = useState('');
   const [ownerAccessMessage, setOwnerAccessMessage] = useState('');
   const [voiceAccessListening, setVoiceAccessListening] = useState(false);
   const [ownerNotepad, setOwnerNotepad] = useState(() => { try { return localStorage.getItem('CL_OWNER_NOTEPAD_V1') || ''; } catch { return ''; } });
@@ -293,6 +304,57 @@ export const Portal: React.FC<PortalProps> = ({
     setOwnerActivationPassed(false);
     setOwnerAccessMessage('');
     setShowOwnerAccessField(true);
+  };
+
+  const hashOwnerCredential = async (value: string) => {
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+  };
+
+  const handleOwnerPatternSubmit = async () => {
+    if (ownerPattern.length < 4) { setOwnerAccessMessage('Connect at least four dots to create a pattern.'); return; }
+    if (ownerPatternSetupStep === 0) {
+      setOwnerPatternConfirm([]);
+      setOwnerPatternSetupStep(1);
+      setOwnerAccessMessage('Pattern recorded. Draw the same pattern again to confirm.');
+      return;
+    }
+    if (ownerPatternSetupStep === 1) {
+      if (ownerPattern.join('-') !== ownerPatternConfirm.join('-')) { setOwnerAccessMessage('The patterns do not match. Start again.'); setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerPatternSetupStep(0); return; }
+      try { localStorage.setItem(OWNER_PATTERN_KEY, await hashOwnerCredential(ownerPattern.join('-'))); } catch { setOwnerAccessMessage('This browser could not save the pattern.'); return; }
+      setOwnerPatternSetupStep(2);
+      setOwnerAccessMessage('Pattern created for this browser. Draw it once more to sign in.');
+      return;
+    }
+    try {
+      const saved = localStorage.getItem(OWNER_PATTERN_KEY);
+      if (saved && saved === await hashOwnerCredential(ownerPattern.join('-'))) { setShowOwnerAccessField(false); setOwnerPattern([]); setOwnerPatternConfirm([]); enterOwnerOverride(); }
+      else setOwnerAccessMessage('Pattern not recognized. Try again.');
+    } catch { setOwnerAccessMessage('Pattern verification is unavailable in this browser.'); }
+  };
+
+  const handleOwnerPinSubmit = async () => {
+    if (!/^\\d{6}$/.test(ownerPin)) { setOwnerAccessMessage('Enter exactly six digits.'); return; }
+    if (ownerPinSetupStep === 0) { setOwnerPinSetupStep(1); setOwnerAccessMessage('PIN entered. Re-enter the same six digits to confirm.'); return; }
+    if (ownerPinSetupStep === 1) {
+      if (ownerPin !== ownerPinConfirm) { setOwnerAccessMessage('The PIN entries do not match. Start again.'); setOwnerPin(''); setOwnerPinConfirm(''); setOwnerPinSetupStep(0); return; }
+      try { localStorage.setItem(OWNER_PIN_KEY, await hashOwnerCredential(ownerPin)); } catch { setOwnerAccessMessage('This browser could not save the PIN.'); return; }
+      setOwnerPinSetupStep(2); setOwnerPin(''); setOwnerPinConfirm(''); setOwnerAccessMessage('Six-digit PIN created for this browser. Enter it again to sign in.'); return;
+    }
+    try {
+      const saved = localStorage.getItem(OWNER_PIN_KEY);
+      if (saved && saved === await hashOwnerCredential(ownerPin)) { setShowOwnerAccessField(false); setOwnerPin(''); setOwnerPinConfirm(''); enterOwnerOverride(); }
+      else setOwnerAccessMessage('PIN not recognized. Try again.');
+    } catch { setOwnerAccessMessage('PIN verification is unavailable in this browser.'); }
+  };
+
+  const handleOwnerGoogleSignIn = () => {
+    if (!OWNER_GOOGLE_AUTH_ENDPOINT) {
+      setOwnerGoogleMessage('Google Sign-In is approved, but the private Apps Script verifier has not been deployed and connected yet. No Google account has been authenticated.');
+      return;
+    }
+    setOwnerGoogleMessage('Google verification endpoint is configured. Complete the Google identity flow to continue.');
   };
 
   const handleOwnerActivationSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -852,6 +914,13 @@ export const Portal: React.FC<PortalProps> = ({
                   </form>
                 ) : (
                   <form className="gate-panel mt-3 p-0" onSubmit={handleOwnerAccessSubmit}>
+                    <div className="grid grid-cols-2 gap-2 mb-3" role="group" aria-label="Owner sign-in methods">
+                      <button type="button" className={ownerSignInMethod === 'password' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('password'); setOwnerAccessMessage(''); }}>Access ID + Password</button>
+                      <button type="button" className={ownerSignInMethod === 'pattern' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('pattern'); setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerPatternSetupStep(localStorage.getItem(OWNER_PATTERN_KEY) ? 2 : 0); setOwnerAccessMessage(''); }}>Pattern Unlock</button>
+                      <button type="button" className={ownerSignInMethod === 'pin' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('pin'); setOwnerPin(''); setOwnerPinConfirm(''); setOwnerPinSetupStep(localStorage.getItem(OWNER_PIN_KEY) ? 2 : 0); setOwnerAccessMessage(''); }}>6-Digit PIN</button>
+                      <button type="button" className={ownerSignInMethod === 'google' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('google'); setOwnerAccessMessage(''); setOwnerGoogleMessage(''); }}>Google Sign-In</button>
+                    </div>
+                    {ownerSignInMethod === 'password' && <>
                     <label htmlFor="owner-access-id">OWNER ACCESS ID
                       <input id="owner-access-id" type="text" autoComplete="username" required value={ownerAccessId} onChange={(event) => setOwnerAccessId(event.target.value)} placeholder="Enter Owner Access ID" />
                     </label>
@@ -864,6 +933,28 @@ export const Portal: React.FC<PortalProps> = ({
                       {voiceAccessListening ? 'Listening for Owner phrase…' : 'Use Voice Command'}
                     </button>
                     <p className="small-caveat mt-2">DEMO ONLY — credentials are checked in browser code and are not secure production authentication.</p>
+                    </>}
+                    {ownerSignInMethod === 'pattern' && <div className="space-y-3">
+                      <p className="section-copy">{ownerPatternSetupStep === 0 ? 'Create a pattern by connecting at least four dots.' : ownerPatternSetupStep === 1 ? 'Confirm your new pattern.' : 'Draw your saved Owner pattern.'}</p>
+                      <div className="grid grid-cols-3 gap-3 max-w-[230px] mx-auto py-3" aria-label="3 by 3 pattern grid">
+                        {Array.from({ length: 9 }, (_, index) => <button key={index} type="button" aria-label={`Pattern dot ${index + 1}`} onClick={() => { const target = ownerPatternSetupStep === 1 ? setOwnerPatternConfirm : setOwnerPattern; target((previous) => previous.includes(index) ? previous : [...previous, index]); }} className={`aspect-square rounded-full border-2 ${ownerPattern.includes(index) || ownerPatternConfirm.includes(index) ? 'border-amber-200 bg-amber-300/30' : 'border-slate-400 bg-slate-900'}`}><span className="text-xs">{ownerPattern.includes(index) || ownerPatternConfirm.includes(index) ? '●' : '·'}</span></button>)}
+                      </div>
+                      <p className="text-center text-xs text-slate-300">{(ownerPatternSetupStep === 1 ? ownerPatternConfirm : ownerPattern).length} dots selected</p>
+                      <button type="button" className="primary-action" onClick={handleOwnerPatternSubmit}>{ownerPatternSetupStep === 0 ? 'Continue Pattern Setup' : ownerPatternSetupStep === 1 ? 'Confirm Pattern' : 'Unlock with Pattern'}</button>
+                      <button type="button" className="secondary-action w-full" onClick={() => { setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerAccessMessage('Pattern cleared.'); }}>Clear Pattern</button>
+                    </div>}
+                    {ownerSignInMethod === 'pin' && <div className="space-y-3">
+                      <p className="section-copy">{ownerPinSetupStep === 0 ? 'Create a six-digit Owner PIN.' : ownerPinSetupStep === 1 ? 'Confirm your six-digit PIN.' : 'Enter your saved six-digit PIN.'}</p>
+                      <input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={ownerPin} onChange={(event) => setOwnerPin(event.target.value.replace(/\\D/g, '').slice(0, 6))} placeholder="6-digit PIN" aria-label="Owner six-digit PIN" />
+                      {ownerPinSetupStep === 1 && <input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={ownerPinConfirm} onChange={(event) => setOwnerPinConfirm(event.target.value.replace(/\\D/g, '').slice(0, 6))} placeholder="Confirm PIN" aria-label="Confirm Owner PIN" />}
+                      <button type="button" className="primary-action" onClick={handleOwnerPinSubmit}>{ownerPinSetupStep === 0 ? 'Continue PIN Setup' : ownerPinSetupStep === 1 ? 'Confirm PIN' : 'Unlock with PIN'}</button>
+                    </div>}
+                    {ownerSignInMethod === 'google' && <div className="space-y-3">
+                      <p className="section-copy">Sign in with one of the Owner-approved Google accounts. Account eligibility will be checked privately by Google Apps Script.</p>
+                      <button type="button" className="primary-action" onClick={handleOwnerGoogleSignIn}>Continue with Google</button>
+                      {ownerGoogleMessage && <p className="form-message text-amber-200" role="status">{ownerGoogleMessage}</p>}
+                      <p className="small-caveat">Google identity verification is not active until the private verifier URL and OAuth client configuration are connected.</p>
+                    </div>}
                   </form>
                 )}
               </div>
