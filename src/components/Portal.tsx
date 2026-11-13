@@ -649,7 +649,20 @@ export const Portal: React.FC<PortalProps> = ({
             <p className="eyebrow">AUTHORIZED BROWSER SESSION</p>
             <h2 className="section-title">Welcome, Commander.</h2>
             <p className="section-copy">Owner Preview is active in this browser. This workspace is reserved for previewing and testing the portal experience.</p>
-            <div className="portal-panel p-4 mt-4">
+            <div className="owner-command-center" aria-label="Owner command center">
+              <div className="owner-command-heading"><span>COMMAND CENTER</span><small>OWNER WORKSPACE · DEMO</small></div>
+              <div className="owner-destination-grid">
+                <button type="button" className="owner-destination-card" onClick={() => { setActiveEnvironment('guest'); setGuestPage('celestial-overview'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><span className="owner-destination-icon">✦</span><b>CELESTIALS</b><small>Explore the celestial environment</small></button>
+                <button type="button" className="owner-destination-card" onClick={() => { setActiveEnvironment('guest'); setGuestPage('founders'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><span className="owner-destination-icon">✧</span><b>FOUNDERS</b><small>Open the Founders destination</small></button>
+                <button type="button" className="owner-destination-card" disabled title="Registry module is not connected yet"><span className="owner-destination-icon">⌘</span><b>ASCEND WITH US</b><small>Conversion registry · planned</small></button>
+              </div>
+              <div className="owner-command-groups">
+                <button type="button" onClick={() => document.getElementById('owner-orders-module')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><span>◷</span><b>ORDERS</b><small>Queue and daily activity</small></button>
+                <button type="button" onClick={() => document.getElementById('owner-access-module')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><span>⌑</span><b>ACCESS &amp; SECURITY</b><small>Invitations and environment IDs</small></button>
+                <button type="button" onClick={() => document.getElementById('owner-workspace-module')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><span>▣</span><b>WORKSPACE</b><small>Previews, session and notes</small></button>
+              </div>
+            </div>
+            <div id="owner-orders-module" className="portal-panel p-4 mt-4">
               <small className="text-amber-300 font-bold tracking-widest">CURRENT ORDER QUEUE</small>
               <h3 className="section-title mt-2">Active Order</h3>
               <p className="section-copy">Operational view. Orders are identified by order number, not Access ID.</p>
@@ -666,7 +679,7 @@ export const Portal: React.FC<PortalProps> = ({
               <small className="text-amber-300 font-bold tracking-widest">TODAY'S ORDERS</small>
               <p className="section-copy mt-2">Today's totals will appear here when the order system stores a dated order history. No sample totals are displayed as real activity.</p>
             </div>
-            <div className="portal-panel p-4 mt-5">
+            <div id="owner-workspace-module" className="portal-panel p-4 mt-5">
               <small className="text-amber-300 font-bold tracking-widest">SESSION STATUS</small>
               <p className="expand-body mt-2">This browser remembers Owner access until:</p>
               <p className="text-sm text-amber-200 font-semibold mt-2">{ownerSessionUntil ? new Date(ownerSessionUntil).toLocaleString() : 'No active session'}</p>
@@ -682,7 +695,7 @@ export const Portal: React.FC<PortalProps> = ({
                 <button className="text-back" onClick={lockSwitchAccess}>Lock / Switch Access</button>
               </div>
             </div>
-            <div className="portal-panel p-4 mt-4">
+            <div id="owner-access-module" className="portal-panel p-4 mt-4">
               <small className="text-amber-300 font-bold tracking-widest">BETA INVITATION CODE MANAGER</small>
               <h3 className="section-title mt-2">Screen 1 · 20 individual invitations</h3>
               <p className="section-copy">Generate a separate batch of 20 invitation codes. Assign each slot to the matching beta user's Access ID. These invitation codes are not the user's Access Code or AGP Code.</p>
