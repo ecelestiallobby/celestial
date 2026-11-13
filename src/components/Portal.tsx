@@ -922,16 +922,6 @@ export const Portal: React.FC<PortalProps> = ({
                     <p className="section-copy mt-2">Your Owner session is remembered on this browser.</p>
                     <button className="primary-action mt-3" onClick={activateOwnerTrigger}>Resume Owner Preview</button>
                   </>
-                ) : !ownerActivationPassed ? (
-                  <form className="gate-panel mt-3 p-0" onSubmit={handleOwnerActivationSubmit}>
-                    <p className="section-copy mb-3">Hidden Owner route detected. Enter the activation phrase to reveal the restricted sign-in methods. This phrase does not grant dashboard access by itself.</p>
-                    <label htmlFor="owner-activation-phrase">OWNER ACTIVATION PHRASE
-                      <input id="owner-activation-phrase" type="password" autoComplete="off" required value={ownerActivationPhrase} onChange={(event) => setOwnerActivationPhrase(event.target.value)} placeholder="Enter activation phrase" />
-                    </label>
-                    {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
-                    <button className="primary-action" type="submit">Continue to Owner Sign-in</button>
-                    <p className="small-caveat mt-2">The five-tap emblem trigger and activation phrase are discovery steps only. Owner authentication is still required.</p>
-                  </form>
                 ) : (
                   <form className="gate-panel mt-3 p-0" onSubmit={handleOwnerAccessSubmit}>
                     <div className="grid grid-cols-2 gap-2 mb-3" role="group" aria-label="Owner sign-in methods">
