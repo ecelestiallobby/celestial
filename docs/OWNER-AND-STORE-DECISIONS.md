@@ -233,3 +233,19 @@ Implementation should proceed in small logical changes:
 6. Verify the GitHub Pages deployment before proceeding.
 
 No paid services are authorized by this specification.
+
+
+## Owner Dashboard persistence and environment navigation update
+
+The Owner Dashboard is the persistent Owner workspace. Opening a module or accessing another environment must not automatically dismiss the dashboard. The dashboard may be closed only through its dedicated **X** control. Closing the dashboard is distinct from leaving an environment or ending the Owner session.
+
+All controls that switch, open, preview, or otherwise control another environment must be grouped under a dedicated **Environment Control** section. Environment controls must remain separate from ordinary Owner operations such as order management, inventory, security, team management, reports, and settings.
+
+Whenever an authenticated Owner accesses another environment, a clearly visible **Return to Owner Dashboard** control must be available. It routes directly back to the Owner Dashboard without logging out, terminating the Owner session, or treating the action as the dashboard's X close control.
+
+The return control and the dashboard X control have different responsibilities:
+- **Return to Owner Dashboard:** leave the currently accessed environment and return to the Owner workspace.
+- **X:** close the Owner Dashboard itself.
+- **Exit / Lock Owner Session:** a separate security action that ends or locks Owner access.
+
+The current implementation adds the Environment Control group and the Return to Owner Dashboard action. The persistent dashboard shell and its dedicated X close behavior remain an implementation requirement and must be completed without removing existing Owner tools.
