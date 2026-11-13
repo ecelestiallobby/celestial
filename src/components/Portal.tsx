@@ -128,6 +128,7 @@ export const Portal: React.FC<PortalProps> = ({
   }, [view, ownerSessionUntil, gatewaySession]);
   const [ownerTriggerTaps, setOwnerTriggerTaps] = useState(0);
   const [showOwnerAccessField, setShowOwnerAccessField] = useState(false);
+  const [ownerAccessId, setOwnerAccessId] = useState('');
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
   const [ownerAccessMessage, setOwnerAccessMessage] = useState('');
   const [ownerNotepad, setOwnerNotepad] = useState(() => { try { return localStorage.getItem('CL_OWNER_NOTEPAD_V1') || ''; } catch { return ''; } });
@@ -283,62 +284,20 @@ export const Portal: React.FC<PortalProps> = ({
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    setOwnerAccessId('');
     setOwnerAccessPhrase('');
     setOwnerAccessMessage('');
     setShowOwnerAccessField(true);
   };
 
-  const [voiceAccessListening, setVoiceAccessListening] = useState(false);
-
-  const startVoiceOwnerAccess = () => {
-    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognitionCtor) {
-      setOwnerAccessMessage('Voice recognition is not supported in this browser. Please use the password field instead.');
-      return;
-    }
-    const recognition = new SpeechRecognitionCtor();
-    recognition.lang = 'en-PH';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    setVoiceAccessListening(true);
-    setOwnerAccessMessage('Listening… Please say your Owner Access phrase clearly.');
-    recognition.onresult = (event: any) => {
-      const transcript = String(event.results?.[0]?.[0]?.transcript || '')
-        .toUpperCase()
-        .replace(/[^A-Z0-9 ]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-      const expected = 'AVISALA ESHMA';
-      if (transcript === expected) {
-        setOwnerAccessMessage('Voice phrase recognized. Opening Owner Preview…');
-        setVoiceAccessListening(false);
-        recognition.stop();
-        enterOwnerOverride();
-      } else {        setVoiceAccessListening(false);        setOwnerAccessMessage('Voice phrase was not recognized exactly. Please try again or enter the password manually.');
-      }
-    };
-    recognition.onerror = (event: any) => {
-      setVoiceAccessListening(false);
-      setOwnerAccessMessage(event.error === 'not-allowed'
-        ? 'Microphone permission was denied. Allow microphone access or enter the password manually.'
-        : 'Voice recognition could not complete. Please try again or enter the password manually.');
-    };
-    recognition.onend = () => setVoiceAccessListening(false);
-    try {
-      recognition.start();
-    } catch {
-      setVoiceAccessListening(false);
-      setOwnerAccessMessage('Voice recognition could not start. Please try again or enter the password manually.');
-    }
-  };
-
   const handleOwnerAccessSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (ownerAccessPhrase.trim().toUpperCase().replace(/\s+/g, ' ') !== 'AVISALA ESHMA') {
-      setOwnerAccessMessage('Access phrase not recognized. Please try again.');
+    if (ownerAccessId.trim() !== 'CL-OWNER-001' || ownerAccessPhrase !== 'V7!Orion#92Lx@Q4') {
+      setOwnerAccessMessage('Access ID or password not recognized. Please try again.');
       return;
     }
     setShowOwnerAccessField(false);
+    setOwnerAccessId('');
     setOwnerAccessPhrase('');
     enterOwnerOverride();
   };
@@ -811,15 +770,15 @@ export const Portal: React.FC<PortalProps> = ({
                   </>
                 ) : (
                   <form className="gate-panel mt-3 p-0" onSubmit={handleOwnerAccessSubmit}>
-                    <label htmlFor="owner-access-phrase">ENTER OWNER ACCESS PHRASE
-                      <input id="owner-access-phrase" type="password" autoComplete="off" required value={ownerAccessPhrase} onChange={(event) => setOwnerAccessPhrase(event.target.value)} placeholder="Enter access phrase" />
+                    <label htmlFor="owner-access-id">OWNER ACCESS ID
+                      <input id="owner-access-id" type="text" autoComplete="username" required value={ownerAccessId} onChange={(event) => setOwnerAccessId(event.target.value)} placeholder="Enter Owner Access ID" />
+                    </label>
+                    <label htmlFor="owner-access-phrase" className="mt-3 block">OWNER PASSWORD
+                      <input id="owner-access-phrase" type="password" autoComplete="current-password" required value={ownerAccessPhrase} onChange={(event) => setOwnerAccessPhrase(event.target.value)} placeholder="Enter Owner password" />
                     </label>
                     {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
-                    <button className="primary-action" type="submit">Continue to Owner Preview</button>
-                    <button className="secondary-action mt-2 w-full" type="button" onClick={startVoiceOwnerAccess} disabled={voiceAccessListening}>
-                      {voiceAccessListening ? 'Listening for Owner phrase…' : 'Use Voice Command'}
-                    </button>
-                    <p className="small-caveat mt-2">Browser-local demo access only. Not secure authentication.</p>
+                    <button className="primary-action" type="submit">Sign in to Owner Dashboard</button>
+                    <p className="small-caveat mt-2">DEMO ONLY — credentials are checked in browser code and are not secure production authentication.</p>
                   </form>
                 )}
               </div>
