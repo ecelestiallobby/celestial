@@ -16,7 +16,7 @@ A modern React SPA rewritten with TypeScript, Vite, and Tailwind CSS, preserving
 - **Celestial Lobby Portal**:
   - **Guest Environment**: Explore celestial realm information, founder archives, and policies.
   - **New Client Journey**: Interactive 8-step onboarding flow covering 3S principles (Security, Secrecy, Safety), the 10 Non-Negotiables, process flow, calculation review, and automatic browser-demo credential provisioning.
-  - **Regular Client Access Gate**: Access code & APG verification flow with instant validation against browser-stored demo credentials.
+  - **Regular Client Access Gate**: Access ID and Access Code verification flow with instant validation against browser-stored demo credentials.
   - **Client Dashboard**: Functions for direct store entry, order tracking, and order history inspection.
 
 - **Orbit Store Ecosystem**:
