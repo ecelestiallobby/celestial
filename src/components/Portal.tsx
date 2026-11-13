@@ -130,6 +130,8 @@ export const Portal: React.FC<PortalProps> = ({
   const [showOwnerAccessField, setShowOwnerAccessField] = useState(false);
   const [ownerAccessId, setOwnerAccessId] = useState('');
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
+  const [ownerActivationPhrase, setOwnerActivationPhrase] = useState('');
+  const [ownerActivationPassed, setOwnerActivationPassed] = useState(false);
   const [ownerAccessMessage, setOwnerAccessMessage] = useState('');
   const [voiceAccessListening, setVoiceAccessListening] = useState(false);
   const [ownerNotepad, setOwnerNotepad] = useState(() => { try { return localStorage.getItem('CL_OWNER_NOTEPAD_V1') || ''; } catch { return ''; } });
@@ -287,8 +289,21 @@ export const Portal: React.FC<PortalProps> = ({
     }
     setOwnerAccessId('');
     setOwnerAccessPhrase('');
+    setOwnerActivationPhrase('');
+    setOwnerActivationPassed(false);
     setOwnerAccessMessage('');
     setShowOwnerAccessField(true);
+  };
+
+  const handleOwnerActivationSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (ownerActivationPhrase !== 'HIDDEN ACTIVATION PHRASE # CELESTIAL ARMY') {
+      setOwnerAccessMessage('Activation phrase not recognized. The Owner sign-in methods remain locked.');
+      return;
+    }
+    setOwnerActivationPassed(true);
+    setOwnerActivationPhrase('');
+    setOwnerAccessMessage('Activation accepted. Complete Owner authentication to continue.');
   };
 
   const startVoiceOwnerAccess = () => {
@@ -751,7 +766,7 @@ export const Portal: React.FC<PortalProps> = ({
             <button
               type="button"
               aria-label="CELESTIAL LOBBY emblem. Tap five times for Owner access."
-              onClick={() => { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) { setShowOwnerAccessField(true); setOwnerAccessMessage(''); } }}
+              onClick={() => { const next = ownerTriggerTaps + 1; setOwnerTriggerTaps(next >= 5 ? 0 : next); if (next >= 5) activateOwnerTrigger(); }}
               className="mb-7 flex h-24 w-24 items-center justify-center rounded-full border border-amber-300/70 bg-slate-900/80 shadow-[0_0_45px_rgba(59,130,246,0.22)]"
             >
               <span className="text-5xl text-amber-200" aria-hidden="true">✦</span>
@@ -815,7 +830,7 @@ export const Portal: React.FC<PortalProps> = ({
                     type="button"
                     className="secondary-action min-h-9 px-3"
                     aria-label="Close Owner Access"
-                    onClick={() => { setShowOwnerAccessField(false); setOwnerAccessId(''); setOwnerAccessPhrase(''); setOwnerAccessMessage(''); }}
+                    onClick={() => { setShowOwnerAccessField(false); setOwnerAccessId(''); setOwnerAccessPhrase(''); setOwnerActivationPhrase(''); setOwnerActivationPassed(false); setOwnerAccessMessage(''); }}
                   >
                     CLOSE / EXIT
                   </button>
@@ -825,6 +840,16 @@ export const Portal: React.FC<PortalProps> = ({
                     <p className="section-copy mt-2">Your Owner session is remembered on this browser.</p>
                     <button className="primary-action mt-3" onClick={activateOwnerTrigger}>Resume Owner Preview</button>
                   </>
+                ) : !ownerActivationPassed ? (
+                  <form className="gate-panel mt-3 p-0" onSubmit={handleOwnerActivationSubmit}>
+                    <p className="section-copy mb-3">Hidden Owner route detected. Enter the activation phrase to reveal the restricted sign-in methods. This phrase does not grant dashboard access by itself.</p>
+                    <label htmlFor="owner-activation-phrase">OWNER ACTIVATION PHRASE
+                      <input id="owner-activation-phrase" type="password" autoComplete="off" required value={ownerActivationPhrase} onChange={(event) => setOwnerActivationPhrase(event.target.value)} placeholder="Enter activation phrase" />
+                    </label>
+                    {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
+                    <button className="primary-action" type="submit">Continue to Owner Sign-in</button>
+                    <p className="small-caveat mt-2">The five-tap emblem trigger and activation phrase are discovery steps only. Owner authentication is still required.</p>
+                  </form>
                 ) : (
                   <form className="gate-panel mt-3 p-0" onSubmit={handleOwnerAccessSubmit}>
                     <label htmlFor="owner-access-id">OWNER ACCESS ID
@@ -833,7 +858,7 @@ export const Portal: React.FC<PortalProps> = ({
                     <label htmlFor="owner-access-phrase" className="mt-3 block">OWNER PASSWORD
                       <input id="owner-access-phrase" type="password" autoComplete="current-password" required value={ownerAccessPhrase} onChange={(event) => setOwnerAccessPhrase(event.target.value)} placeholder="Enter Owner password" />
                     </label>
-                    {ownerAccessMessage && <p className="form-message text-rose-300" role="alert">{ownerAccessMessage}</p>}
+                    {ownerAccessMessage && <p className="form-message text-amber-200" role="status">{ownerAccessMessage}</p>}
                     <button className="primary-action" type="submit">Sign in to Owner Dashboard</button>
                     <button className="secondary-action mt-2 w-full" type="button" onClick={startVoiceOwnerAccess} disabled={voiceAccessListening}>
                       {voiceAccessListening ? 'Listening for Owner phrase…' : 'Use Voice Command'}
