@@ -301,8 +301,10 @@ export const Portal: React.FC<PortalProps> = ({
     }
     setOwnerAccessId('');
     setOwnerAccessPhrase('');
+    // Five-tap Owner trigger opens the sign-in choices directly.
+    // The five methods are alternatives; no extra activation phrase is required.
     setOwnerActivationPhrase('');
-    setOwnerActivationPassed(false);
+    setOwnerActivationPassed(true);
     setOwnerAccessMessage('');
     setShowOwnerAccessField(true);
   };
