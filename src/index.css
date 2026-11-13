@@ -2209,3 +2209,23 @@ body:has(.owner-menu-anchor) .portal-header .lobby-menu-drawer {
   top: max(68px, calc(env(safe-area-inset-top) + 56px));
   max-height: calc(100dvh - max(82px, calc(env(safe-area-inset-top) + 70px)));
 }
+
+
+/* Owner command center: compact, responsive navigation above preserved modules. */
+.owner-command-center{margin:18px 0 22px;padding:15px;border:1px solid rgba(223,183,108,.28);border-radius:20px;background:linear-gradient(145deg,rgba(19,24,47,.96),rgba(10,13,29,.94));box-shadow:0 16px 42px rgba(0,0,0,.25)}
+.owner-command-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.owner-command-heading span{color:#f0d48c;font-size:10px;font-weight:900;letter-spacing:.2em}
+.owner-command-heading small{color:#9994ad;font-size:8px;letter-spacing:.12em}
+.owner-destination-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.owner-destination-card{min-width:0;min-height:112px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px 10px;border:1px solid rgba(223,183,108,.28);border-radius:14px;background:rgba(31,31,58,.72);color:#eee8d9;text-align:left}
+.owner-destination-card:disabled{opacity:.52;cursor:not-allowed}
+.owner-destination-icon{color:#f0d48c;font-size:22px;line-height:1}
+.owner-destination-card b{color:#f5dfaa;font-size:9px;letter-spacing:.1em}
+.owner-destination-card small{color:#aaa5bc;font-size:9px;line-height:1.4}
+.owner-command-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.owner-command-groups button{min-width:0;display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:2px 6px;padding:10px 8px;border:1px solid rgba(143,121,199,.25);border-radius:12px;background:rgba(10,13,29,.78);color:#eee8d9;text-align:left}
+.owner-command-groups button>span{grid-row:span 2;color:#d8b76e;font-size:17px;text-align:center}
+.owner-command-groups b{font-size:8px;letter-spacing:.06em}
+.owner-command-groups small{color:#9994ad;font-size:8px;line-height:1.35}
+.owner-module-panel{scroll-margin-top:18px}
+@media(max-width:520px){.owner-command-center{margin:14px -2px 18px;padding:11px;border-radius:16px}.owner-destination-grid{gap:6px}.owner-destination-card{min-height:104px;padding:9px 7px}.owner-destination-card b{font-size:8px;letter-spacing:.05em}.owner-destination-card small{font-size:8px}.owner-command-groups{gap:6px}.owner-command-groups button{grid-template-columns:1fr;gap:4px;padding:9px 6px}.owner-command-groups button>span{grid-row:auto;text-align:left}.owner-command-groups b,.owner-command-groups small{font-size:7px}}
