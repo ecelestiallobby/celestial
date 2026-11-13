@@ -762,7 +762,17 @@ export const Portal: React.FC<PortalProps> = ({
 
             {showOwnerAccessField && (
               <div className="portal-modal portal-panel mt-6 w-full max-w-sm p-4 text-left" role="dialog" aria-modal="true" aria-label="Owner access">
-                <small className="font-bold tracking-widest text-amber-300">RESTRICTED OWNER ACCESS</small>
+                <div className="flex items-center justify-between gap-3">
+                  <small className="font-bold tracking-widest text-amber-300">RESTRICTED OWNER ACCESS</small>
+                  <button
+                    type="button"
+                    className="secondary-action min-h-9 px-3"
+                    aria-label="Close Owner Access"
+                    onClick={() => { setShowOwnerAccessField(false); setOwnerAccessId(''); setOwnerAccessPhrase(''); setOwnerAccessMessage(''); }}
+                  >
+                    CLOSE / EXIT
+                  </button>
+                </div>
                 {ownerSessionUntil > Date.now() ? (
                   <>
                     <p className="section-copy mt-2">Your Owner session is remembered on this browser.</p>
