@@ -4,6 +4,7 @@ import hoenoPosterBase64 from '../assets/hoeno-3s.webp.b64?raw';
 import { ONBOARDING_STEPS } from '../catalog';
 import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
+import { OwnerMasterControl } from './OwnerMasterControl';
 
 interface PortalProps {
   initialView?: PortalView;
@@ -12,6 +13,8 @@ interface PortalProps {
   activeOrder: ActiveOrder;
   deliveryDetails?: DeliveryDetails;
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
+  onOpenOwnerNotepad?: () => void;
+  onOpenOwnerTools?: () => void;
 }
 
 type PortalView = 'landing' | 'environment-gate' | 'environment-route' | 'invitation-gate' | 'owner-preview' | 'army-home' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
@@ -25,10 +28,10 @@ const ACCESS_SESSION_KEY = 'CL_GATEWAY_SESSION_V1';
 const ACCESS_FAILURE_KEY = 'CL_GATEWAY_FAILURES_V1';
 const ACCESS_LOCK_MS = 60 * 60 * 1000;
 const DEMO_CREDENTIALS: Record<string, { apg: string; role: 'client' | 'emp01' | 'emp02' | 'owner' }> = {
-  'CLI-01': { apg: 'AGP-2026', role: 'client' },
-  'EMP-01': { apg: 'AGP-2026', role: 'emp01' },
-  'EMP-02': { apg: 'AGP-2026', role: 'emp02' },
-  'OWN-01': { apg: 'AGP-9999', role: 'owner' }
+  'CLI-01': { apg: 'CLNT2026', role: 'client' },
+  'EMP-01': { apg: 'CLNT2026', role: 'emp01' },
+  'EMP-02': { apg: 'CLNT2026', role: 'emp02' },
+  'OWN-01': { apg: 'OWNR2026', role: 'owner' }
 };
 type GatewaySession = { accessId: string; role: 'client' | 'emp01' | 'emp02' | 'owner'; startedAt: number };
 const OWNER_SESSION_MS = 24 * 60 * 60 * 1000;
@@ -51,7 +54,9 @@ export const Portal: React.FC<PortalProps> = ({
   onOwnerSessionChange,
   activeOrder,
   deliveryDetails,
-  onUpdateStatus
+  onUpdateStatus,
+  onOpenOwnerNotepad,
+  onOpenOwnerTools
 }) => {
   const initialRouteView = typeof window !== 'undefined' ? portalViewForPath(window.location.pathname) : null;
   const [view, setViewState] = useState<PortalView>(initialRouteView ?? initialView);
@@ -135,7 +140,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
   const [ownerActivationPhrase, setOwnerActivationPhrase] = useState('');
   const [ownerActivationPassed, setOwnerActivationPassed] = useState(false);
-  const [ownerSignInMethod, setOwnerSignInMethod] = useState<'password' | 'pattern' | 'pin' | 'google' | 'voice'>('password');
+  const [ownerSignInMethod, setOwnerSignInMethod] = useState<'password' | 'pattern' | 'pin' | 'google' | 'voice'>('pattern');
   const [ownerPattern, setOwnerPattern] = useState<number[]>([]);
   const [ownerPatternConfirm, setOwnerPatternConfirm] = useState<number[]>([]);
   const [ownerPatternSetupStep, setOwnerPatternSetupStep] = useState<0 | 1 | 2>(0);
@@ -153,7 +158,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [environmentMenuOpen, setEnvironmentMenuOpen] = useState(false);
   const [activeEnvironment, setActiveEnvironment] = useState<'guest' | 'regular'>(() => initialView === 'regular-home' || initialView === 'regular-gate' ? 'regular' : 'guest');
-  const navigateEnvironmentHome = () => { if (activeEnvironment === 'regular') { setView('regular-home'); } else { setGuestPage(null); setView('guest'); } window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const navigateEnvironmentHome = () => { if (ownerSessionUntil > Date.now()) { setView('owner-preview'); } else if (activeEnvironment === 'regular') { setView('regular-home'); } else { setGuestPage(null); setView('guest'); } window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const [threeSOpen, setThreeSOpen] = useState({ security: false, secrecy: false, safety: false });
   const allThreeSOpen = threeSOpen.security && threeSOpen.secrecy && threeSOpen.safety;
   const setAllThreeS = (open: boolean) => setThreeSOpen({ security: open, secrecy: open, safety: open });
@@ -188,6 +193,13 @@ export const Portal: React.FC<PortalProps> = ({
     } catch { return ''; }
   });
   const [ownerPrefixMessage, setOwnerPrefixMessage] = useState('');
+  const [accountEnvironment, setAccountEnvironment] = useState<'celestial-army' | 'regular-client' | 'beta-tester' | 'guest-visitor'>('regular-client');
+  const [accountAction, setAccountAction] = useState<'generate' | 'reset-code' | 'regenerate'>('generate');
+  const [accountIdLookup, setAccountIdLookup] = useState('');
+  const [accountCodeReset, setAccountCodeReset] = useState('');
+  const [accountMessage, setAccountMessage] = useState('');
+  const [ownerAccounts, setOwnerAccounts] = useState<Array<{ accessId: string; accessCode: string; environment: string; status: 'Active' | 'Suspended' | 'Revoked' | 'Expired'; createdAt: number }>>(() => { try { const value = JSON.parse(localStorage.getItem('CL_OWNER_ACCOUNT_REGISTRY_V1') || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } });
+  const [referenceNotes, setReferenceNotes] = useState(() => { try { return localStorage.getItem('CL_OWNER_REFERENCE_CENTER_V1') || ''; } catch { return ''; } });
 
 
   // Gateway credentials are deliberately hardcoded only for this controlled browser demo.
@@ -301,6 +313,10 @@ export const Portal: React.FC<PortalProps> = ({
     }
     setOwnerAccessId('');
     setOwnerAccessPhrase('');
+    setOwnerSignInMethod('pattern');
+    setOwnerPattern([]);
+    setOwnerPatternConfirm([]);
+    setOwnerPatternSetupStep(localStorage.getItem(OWNER_PATTERN_KEY) ? 2 : 0);
     // Five-tap Owner trigger opens the sign-in choices directly.
     // The five methods are alternatives; no extra activation phrase is required.
     setOwnerActivationPhrase('');
@@ -595,7 +611,7 @@ export const Portal: React.FC<PortalProps> = ({
     }
     const account = DEMO_CREDENTIALS[a];
     let savedApgOverrides: Record<string, string> = {};
-    try { savedApgOverrides = JSON.parse(localStorage.getItem('CL_EMPLOYEE_APG_OVERRIDES_V1') || '{}'); } catch { /* demo defaults */ }
+    try { savedApgOverrides = JSON.parse(localStorage.getItem('CL_EMPLOYEE_Access Code_OVERRIDES_V1') || '{}'); } catch { /* demo defaults */ }
     const expectedApg = account ? (savedApgOverrides[a] || account.apg) : '';
     if (!account || expectedApg !== p) {
       const count = Number(failureState.count || 0) + 1;
@@ -675,20 +691,20 @@ export const Portal: React.FC<PortalProps> = ({
       return;
     }
     setEmployeeRecoveryVerified(true);
-    setEmployeeRecoveryMessage(`IDENTITY CHECK PASSED IN DEMO. Confirmed Access ID: ${id}. Set a new demo AGP Code below.`);
+    setEmployeeRecoveryMessage(`IDENTITY CHECK PASSED IN DEMO. Confirmed Access ID: ${id}. Set a new demo Access Code below.`);
   };
   const handleEmployeeApgReset = () => {
     const id = employeeRecoveryId.trim().toUpperCase();
     const code = employeeNewApg.trim().toUpperCase();
     if (!employeeRecoveryVerified || !['EMP-01', 'EMP-02'].includes(id) || !/^[A-Z0-9]{8}$/.test(code)) {
-      setEmployeeRecoveryMessage('ENTER A NEW 8-CHARACTER LETTER/NUMBER AGP CODE.');
+      setEmployeeRecoveryMessage('ENTER A NEW 8-CHARACTER LETTER/NUMBER ACCESS CODE.');
       return;
     }
     try {
-      const saved = JSON.parse(localStorage.getItem('CL_EMPLOYEE_APG_OVERRIDES_V1') || '{}') as Record<string, string>;
+      const saved = JSON.parse(localStorage.getItem('CL_EMPLOYEE_Access Code_OVERRIDES_V1') || '{}') as Record<string, string>;
       saved[id] = code;
-      localStorage.setItem('CL_EMPLOYEE_APG_OVERRIDES_V1', JSON.stringify(saved));
-      setEmployeeRecoveryMessage(`DEMO AGP CODE RESET FOR ${id}. Use the confirmed Access ID and your new code. Owner oversight is still required for real access restoration.`);
+      localStorage.setItem('CL_EMPLOYEE_Access Code_OVERRIDES_V1', JSON.stringify(saved));
+      setEmployeeRecoveryMessage(`DEMO ACCESS CODE RESET FOR ${id}. Use the confirmed Access ID and your new code. Owner oversight is still required for real access restoration.`);
       setEmployeeRecoveryVerified(false);
       setEmployeeRecoveryAnswer('');
       setEmployeeNewApg('');
@@ -716,31 +732,37 @@ export const Portal: React.FC<PortalProps> = ({
   };
 
   return (
-    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (      <>
-      {/* Top Header */}
-      <header className="portal-header">
-        <button type="button" className="lobby-menu-trigger" aria-label="Open environment navigation" aria-expanded={environmentMenuOpen} onClick={() => setEnvironmentMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>
-        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigateEnvironmentHome(); } }}>
-          <div className="brand-name">CELESTIAL LOBBY</div>
+    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
+        <header className="portal-header"><div className="portal-header-inner">
+          <button type="button" className="portal-brand cursor-pointer" aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome}><span className="brand-name">CELESTIAL LOBBY</span></button>
+          <button type="button" className="lobby-menu-trigger" aria-label={menuOpen ? "Close site navigation" : "Open site navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">{menuOpen ? '×' : '☰'}</span></button>
         </div>
-        {ownerSessionUntil > Date.now() && view !== 'owner-preview' && !['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route', 'onboarding', 'onboarding-terms'].includes(view) && <button type="button" className="owner-return-dashboard" onClick={() => { setView('owner-preview'); setMenuOpen(false); setEnvironmentMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>← RETURN TO OWNER DASHBOARD</button>}
-        {view === 'owner-preview' && ownerSessionUntil > Date.now() && <button type="button" className="lobby-menu-trigger" aria-label="Open Owner navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>}
-        {environmentMenuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close environment navigation" onClick={() => setEnvironmentMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Environment navigation">
-          <p className="eyebrow">ENVIRONMENTS</p>
-          <button onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); setEnvironmentMenuOpen(false); }}>GUEST / VISITOR</button>
-          <button onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); setEnvironmentMenuOpen(false); }}>MEMBER / CLIENT</button>
-          <button onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); setEnvironmentMenuOpen(false); }}>CELESTIAL ARMY</button>
-        </nav></>}
-        {view === 'owner-preview' && ownerSessionUntil > Date.now() && menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close Owner navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Owner navigation">
-          <p className="eyebrow">OWNER CONTROLS</p>
-          <button onClick={() => { setView('owner-preview'); setMenuOpen(false); }}>OWNER HOMEPAGE</button>
-          <button onClick={() => { setShowOwnerTools(true); setMenuOpen(false); }}>OWNER TOOLS</button>
-          <button onClick={() => { exitOwnerOverride(); setMenuOpen(false); }}>LOCK / SWITCH ACCESS</button>
+        {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close site navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Site and Owner navigation">
+          <details className="owner-drawer-section" open><summary>Site Navigation</summary>
+            <button type="button" onClick={() => { navigateEnvironmentHome(); setMenuOpen(false); }}>Home</button>
+            <button type="button" onClick={() => { handleChromeNavigation('about'); setMenuOpen(false); }}>About</button>
+            <button type="button" onClick={() => { handleChromeNavigation('faqs'); setMenuOpen(false); }}>FAQs</button>
+            <button type="button" onClick={() => { setMenuOpen(false); onEnterStore(); }}>Store</button>
+            <button type="button" onClick={() => { setActiveHomePanel('tracker'); handleChromeNavigation('regular-home'); setMenuOpen(false); }}>Order Tracker</button>
+          </details>
+          {ownerSessionUntil > Date.now() && <details className="owner-drawer-section"><summary>Owner Controls</summary>
+            <button type="button" onClick={() => { onOpenOwnerNotepad?.(); setMenuOpen(false); }}>Owner Notepad</button>
+            <button type="button" onClick={() => { document.getElementById('owner-beta-invitations')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false); }}>Beta Invitation Codes</button>
+            <button type="button" onClick={() => { onOpenOwnerTools?.(); setMenuOpen(false); }}>Override Controls</button>
+            <button type="button" className="owner-drawer-exit" onClick={() => { exitOwnerOverride(); setMenuOpen(false); }}>Exit Owner Session</button>
+          </details>}
         </nav></>}
       </header>
-      </>
       )}
-
+      {ownerSessionUntil > Date.now() && !['landing', 'regular-gate', 'invitation-gate', 'environment-gate', 'environment-route', 'onboarding', 'onboarding-terms'].includes(view) && (
+        <nav className="owner-environment-switcher" aria-label="Owner environment preview switcher">
+          <button type="button" className={view === 'owner-preview' ? 'is-active' : ''} onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner</button>
+          <button type="button" className={view === 'guest' ? 'is-active' : ''} onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest</button>
+          <button type="button" className={view === 'regular-home' ? 'is-active' : ''} onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Member</button>
+          <button type="button" className={view === 'army-home' ? 'is-active' : ''} onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Army</button>
+          {view !== 'owner-preview' && <button type="button" className="owner-preview-exit" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Exit Preview</button>}
+        </nav>
+      )}
       {/* Main Views Container */}
       <main className="portal-main flex-grow">
         {/* OWNER OVERRIDE / BROWSER-LOCAL PREVIEW */}
@@ -753,91 +775,94 @@ export const Portal: React.FC<PortalProps> = ({
             <p className="eyebrow">AUTHORIZED BROWSER SESSION</p>
             <h2 className="section-title">Welcome, Commander.</h2>
             <p className="section-copy">Owner Preview is active in this browser. This workspace is reserved for previewing and testing the portal experience.</p>
-            <div className="owner-command-center" aria-label="Owner command center">
-              <div className="owner-command-heading"><span>COMMAND CENTER</span><small>OWNER WORKSPACE · DEMO</small></div>
-              <section className="owner-environment-control" aria-labelledby="owner-environment-control-title">
-                <div className="owner-group-heading"><b id="owner-environment-control-title">ENVIRONMENT CONTROL</b><small>OPEN ANOTHER ENVIRONMENT · RETURN HERE AT ANY TIME</small></div>
-                <div className="owner-environment-actions">
-                  <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>GUEST ENVIRONMENT</button>
-                  <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>REGULAR CLIENT ENVIRONMENT</button>
-                  <button type="button" onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>CELESTIAL ARMY ENVIRONMENT</button>
-                </div>
-              </section>
-              <div className="owner-group-heading owner-destinations-heading"><b>DESTINATIONS</b><small>GUEST CONTENT AREAS</small></div>
-              <div className="owner-destination-grid">
-                <button type="button" className="owner-destination-card" onClick={() => { setActiveEnvironment('guest'); setGuestPage('celestial-overview'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><span className="owner-destination-icon">✦</span><b>CELESTIALS</b><small>Explore the celestial environment</small></button>
-                <button type="button" className="owner-destination-card" onClick={() => { setActiveEnvironment('guest'); setGuestPage('founders'); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><span className="owner-destination-icon">✧</span><b>FOUNDERS</b><small>Open the Founders destination</small></button>
-                <button type="button" className="owner-destination-card" disabled title="Registry module is not connected yet"><span className="owner-destination-icon">⌘</span><b>ASCEND WITH US</b><small>Conversion registry · planned</small></button>
+            <div className="mb-3 flex items-center justify-between rounded-xl border border-emerald-400/25 bg-emerald-950/20 px-3 py-2">
+              <span className="text-xs font-bold tracking-widest text-emerald-200">OWNER SESSION: ACTIVE</span>
+              <span className="text-[10px] text-purple-200">LOCAL DEMO SESSION</span>
+            </div>
+            <details id="owner-destinations" className="portal-panel p-4 mt-4 owner-module-panel">
+              <summary className="owner-accordion-summary"><span>Destinations &amp; Content Areas</span><span className="owner-summary-badge">6 AREAS</span></summary>
+              <div className="owner-destination-grid mt-3">
+                <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage('celestial-overview'); setView('guest'); }}>Celestials</button>
+                <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage('founders'); setView('guest'); }}>Founders</button>
+                <button type="button" onClick={startOnboarding}>Ascend With Us</button>
+                <button type="button" onClick={() => { setActiveHomePanel('tracker'); setView('regular-home'); }}>Orders</button>
+                <button type="button" onClick={() => setView('info-sec')}>Access &amp; Security</button>
+                <button type="button" onClick={() => document.getElementById('owner-account-management')?.scrollIntoView({ behavior: 'smooth' })}>Workspace</button>
               </div>
-              <div className="owner-command-groups">
-                <button type="button" onClick={() => document.getElementById('owner-orders-module')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><span>◷</span><b>ORDERS</b><small>Queue and daily activity</small></button>
-                <button type="button" onClick={() => document.getElementById('owner-access-module')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><span>⌑</span><b>ACCESS &amp; SECURITY</b><small>Invitations and environment IDs</small></button>
-                <button type="button" onClick={() => document.getElementById('owner-workspace-module')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><span>▣</span><b>WORKSPACE</b><small>Previews, session and notes</small></button>
-              </div>
-            </div>
-            <div id="owner-orders-module" className="portal-panel p-4 mt-4">
-              <small className="text-amber-300 font-bold tracking-widest">CURRENT ORDER QUEUE</small>
-              <h3 className="section-title mt-2">Active Order</h3>
-              <p className="section-copy">Operational view. Orders are identified by order number, not Access ID.</p>
-              <div className="mt-3 rounded-xl border border-purple-400/20 bg-slate-950/60 p-3 space-y-2">
-                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">ORDER NUMBER</span><strong className="text-sm text-amber-200">{activeOrder?.orderId || 'No active order'}</strong></div>
-                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">ORDER DATE</span><strong className="text-xs text-white">{activeOrder?.submittedTime || 'Not recorded'}</strong></div>
-                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">PAYMENT SENT</span><strong className="text-xs text-white">{activeOrder?.paymentTime || 'Not recorded'}</strong></div>
-                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">PAYMENT AMOUNT</span><strong className="text-sm text-white">{typeof activeOrder?.totalPaid === 'number' ? '₱' + activeOrder.totalPaid.toLocaleString() : 'Not recorded'}</strong></div>
-                <div className="flex items-center justify-between gap-3"><span className="text-xs text-purple-200">STATUS</span><strong className="text-xs text-emerald-200">{activeOrder?.status?.replaceAll('_', ' ').toUpperCase() || 'NO STATUS'}</strong></div>
-              </div>
-              <p className="small-caveat mt-3">Current demo data exposes one active order only. A multi-order, oldest-first queue requires a shared order collection.</p>
-            </div>
-            <div className="portal-panel p-4 mt-4">
-              <small className="text-amber-300 font-bold tracking-widest">TODAY'S ORDERS</small>
-              <p className="section-copy mt-2">Today's totals will appear here when the order system stores a dated order history. No sample totals are displayed as real activity.</p>
-            </div>
-            <div id="owner-workspace-module" className="portal-panel p-4 mt-5">
-              <small className="text-amber-300 font-bold tracking-widest">SESSION STATUS</small>
-              <p className="expand-body mt-2">This browser remembers Owner access until:</p>
-              <p className="text-sm text-amber-200 font-semibold mt-2">{ownerSessionUntil ? new Date(ownerSessionUntil).toLocaleString() : 'No active session'}</p>
-              <p className="text-xs text-purple-200 mt-3">Access is stored locally in this browser for up to 24 hours. Another browser or device will not have this saved session. A network change will not automatically trigger re-login in this local-only setup.</p>
-            </div>
-            <div className="portal-panel p-4 mt-4">
-              <small className="text-amber-300 font-bold tracking-widest">PREVIEW WORKSPACE</small>
-              <h3 className="section-title mt-2">Simulation environment</h3>
-              <p className="section-copy">Inspect the pages and navigation currently implemented in this website. Business dashboards and live management controls are not yet connected. Preview-only changes must not be treated as live business records.</p>
-              <div className="flex flex-wrap gap-3 mt-4">
-                <button className="primary-action" onClick={() => { setActiveEnvironment('guest'); setView('guest'); setGuestPage(null); }}>Open Guest Environment</button>
-                <button className="secondary-action" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); }}>Regular Client Preview</button>
-                <button className="text-back" onClick={lockSwitchAccess}>Lock / Switch Access</button>
-              </div>
-            </div>
-            <div id="owner-access-module" className="portal-panel p-4 mt-4">
-              <small className="text-amber-300 font-bold tracking-widest">BETA INVITATION CODE MANAGER</small>
-              <h3 className="section-title mt-2">Screen 1 · 20 individual invitations</h3>
-              <p className="section-copy">Generate a separate batch of 20 invitation codes. Assign each slot to the matching beta user's Access ID. These invitation codes are not the user's Access Code or AGP Code.</p>
-              <button type="button" className="primary-action mt-3" onClick={generateInvitationBatch}>Generate 20 Invitation Codes</button>
-              {invitationMessage && <p className="form-message mt-3" role="status">{invitationMessage}</p>}
-              {invitationSlots.length > 0 && <div className="mt-4 space-y-2">{invitationSlots.map(slot => <div key={slot.slot} className="rounded-lg border border-purple-400/20 bg-slate-950/60 p-3"><div className="flex items-center justify-between gap-2"><b className="text-amber-200 text-xs">BETA USER {String(slot.slot).padStart(2,'0')}</b><code className="text-xs text-emerald-200">{slot.invitationCode}</code></div><label className="block mt-2 text-[10px] text-purple-200">ASSIGNED ACCESS ID<input className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-2 text-sm text-white" value={slot.accessId} onChange={event => updateInvitationAccessId(slot.slot,event.target.value)} placeholder="Assign this beta user's Access ID" /></label></div>)}</div>}
-              <p className="small-caveat mt-3">DEMO ONLY. Codes and assignments are stored in this browser's local storage. They are not centrally issued, secure, or available on another device. Generating a new batch replaces the previous local batch.</p>
-            </div>
-            <div className="portal-panel p-4 mt-4">
-              <small className="text-amber-300 font-bold tracking-widest">ENVIRONMENT PREFIX REGISTRY</small>
-              <h3 className="section-title mt-2">Owner environment · First entry</h3>
-              <p className="section-copy">Set the 2- or 3-character prefix that identifies Owner environment access codes at Screen 1. This prefix identifies the destination only. It does not authenticate an Owner or create a working access code.</p>
-              <label className="block mt-3 text-xs text-purple-200" htmlFor="owner-environment-prefix">OWNER PREFIX
-                <input id="owner-environment-prefix" className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-3 text-sm text-white uppercase" maxLength={3} value={ownerEnvironmentPrefix} onChange={event => { setOwnerEnvironmentPrefix(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0,3)); setOwnerPrefixMessage(''); }} placeholder="Enter 2 or 3 characters" autoComplete="off" />
+            </details>
+            <OwnerMasterControl activeOrder={activeOrder} onUpdateStatus={onUpdateStatus} />
+            <details id="owner-account-management" className="portal-panel p-4 mt-4 owner-module-panel">
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">ACCOUNT MANAGEMENT · UNIVERSAL ACCOUNT GENERATOR</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
+              <h3 className="section-title mt-3">Generate environment-restricted credentials</h3>
+              <p className="section-copy">Select the account environment first. Each generated record is tagged to that environment. This browser-only demonstration does not create secure or centrally valid credentials.</p>
+              <label className="block mt-3 text-xs text-purple-200">ACCOUNT ENVIRONMENT
+                <select className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-3 text-sm text-white" value={accountEnvironment} onChange={event => setAccountEnvironment(event.target.value as typeof accountEnvironment)}>
+                  <option value="celestial-army">Celestial Army</option><option value="regular-client">Regular Client / Member</option><option value="beta-tester">Beta Tester (external tester)</option><option value="guest-visitor">Guest / Visitor</option>
+                </select>
               </label>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <button type="button" className="primary-action" onClick={saveOwnerEnvironmentPrefix}>Save Owner Prefix</button>
-                <span className="text-xs text-amber-200">{ownerEnvironmentPrefix ? `Current prefix: ${ownerEnvironmentPrefix}` : 'No Owner prefix assigned yet'}</span>
+              <label className="block mt-3 text-xs text-purple-200">CREDENTIAL OPERATION
+                <select className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-3 text-sm text-white" value={accountAction} onChange={event => setAccountAction(event.target.value as typeof accountAction)}>
+                  <option value="generate">Generate new Access ID + Access Code</option><option value="reset-code">Reset Access Code</option><option value="regenerate">Regenerate Access ID + Access Code</option>
+                </select>
+              </label>
+              {accountAction !== 'generate' && <label className="block mt-3 text-xs text-purple-200">EXISTING ACCESS ID<input className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-3 text-sm text-white" value={accountIdLookup} onChange={event => setAccountIdLookup(event.target.value.toUpperCase())} placeholder="Enter Access ID" /></label>}
+              {accountAction === 'reset-code' && <label className="block mt-3 text-xs text-purple-200">NEW ACCESS CODE (OPTIONAL)<input className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-3 text-sm text-white uppercase" maxLength={8} value={accountCodeReset} onChange={event => setAccountCodeReset(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8))} placeholder="Leave blank to generate one" /></label>}
+              <button type="button" className="primary-action mt-3" onClick={() => {
+                const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                const makeCode = () => Array.from({length:8}, () => alphabet[crypto.getRandomValues(new Uint32Array(1))[0] % alphabet.length]).join('');
+                const prefixes = { 'celestial-army':'ARMY', 'regular-client':'CL', 'beta-tester':'BETA', 'guest-visitor':'GUEST' } as const;
+                const labels = { 'celestial-army':'Celestial Army', 'regular-client':'Regular Client / Member', 'beta-tester':'Beta Tester', 'guest-visitor':'Guest / Visitor' } as const;
+                const persist = (next: typeof ownerAccounts) => { setOwnerAccounts(next); try { localStorage.setItem('CL_OWNER_ACCOUNT_REGISTRY_V1', JSON.stringify(next)); } catch { setAccountMessage('Could not save this browser demo registry.'); } };
+                if (accountAction === 'generate') {
+                  const accessId = prefixes[accountEnvironment] + '-' + Date.now().toString(36).toUpperCase().slice(-6);
+                  const record = { accessId, accessCode: makeCode(), environment: labels[accountEnvironment], status: 'Active' as const, createdAt: Date.now() };
+                  persist([...ownerAccounts, record]); setAccountMessage('Generated demo credentials: ' + accessId + ' / ' + record.accessCode + '. Environment: ' + record.environment + '.');
+                } else {
+                  const index = ownerAccounts.findIndex(item => item.accessId === accountIdLookup.trim().toUpperCase());
+                  if (index < 0) { setAccountMessage('Access ID not found in this browser registry.'); return; }
+                  if (ownerAccounts[index].environment !== labels[accountEnvironment]) { setAccountMessage('Environment mismatch. Select the account\'s assigned environment.'); return; }
+                  const next = [...ownerAccounts];
+                  if (accountAction === 'reset-code') { if (accountCodeReset && !/^[A-Z0-9]{8}$/.test(accountCodeReset)) { setAccountMessage('Access Code must contain exactly 8 letters and/or numbers.'); return; } next[index] = { ...next[index], accessCode: accountCodeReset || makeCode() }; setAccountMessage('Access Code reset for ' + next[index].accessId + ': ' + next[index].accessCode); }
+                  else { const old = next[index]; next[index] = { ...old, accessId: prefixes[accountEnvironment] + '-' + Date.now().toString(36).toUpperCase().slice(-6), accessCode: makeCode() }; setAccountMessage('Credentials regenerated. New Access ID: ' + next[index].accessId + ' / Access Code: ' + next[index].accessCode); }
+                  persist(next);
+                }
+                setAccountIdLookup(''); setAccountCodeReset('');
+              }}> {accountAction === 'generate' ? 'GENERATE CREDENTIALS' : accountAction === 'reset-code' ? 'RESET ACCESS CODE' : 'REGENERATE CREDENTIALS'} </button>
+              {accountMessage && <p className="form-message mt-3 break-words" role="status">{accountMessage}</p>}
+              <div className="mt-4 rounded-lg border border-purple-400/20 p-3">
+                <b className="text-xs tracking-widest text-amber-200">ACCOUNT REGISTRY</b>
+                {ownerAccounts.length === 0 ? <p className="small-caveat mt-2">No accounts generated in this browser yet.</p> : ownerAccounts.map(account => <div key={account.accessId} className="mt-2 border-b border-purple-400/10 pb-2 text-xs"><div className="flex justify-between gap-2"><b>{account.accessId}</b><span>{account.status}</span></div><p className="text-purple-200">{account.environment}</p><div className="mt-2 flex flex-wrap gap-2">{(['Active','Suspended','Revoked','Expired'] as const).map(status => <button key={status} type="button" className="text-[10px] rounded border border-purple-300/20 px-2 py-1" onClick={() => { const next = ownerAccounts.map(item => item.accessId === account.accessId ? { ...item, status } : item); setOwnerAccounts(next); try { localStorage.setItem('CL_OWNER_ACCOUNT_REGISTRY_V1', JSON.stringify(next)); } catch { /* local demo */ } }}>{status}</button>)}</div></div>)}
               </div>
-              {ownerPrefixMessage && <p className="form-message mt-3" role="status">{ownerPrefixMessage}</p>}
-              <p className="small-caveat mt-3">DEMO ONLY · Saved in this browser. Prefixes for Celestial Army, Sales, Admin, and other environments will be added later. The production version must validate the complete code on a trusted backend, not by prefix alone.</p>
-            </div>
-            <div className="portal-panel p-4 mt-4">
-              <small className="text-amber-300 font-bold tracking-widest">OWNER NOTEPAD</small>
-              <h3 className="section-title mt-2">Private working notes</h3>
-              <p className="section-copy">Notes are saved in this browser only. Do not enter passwords, payment details, customer data, or other sensitive information.</p>
-              <textarea className="w-full mt-3 rounded-lg border border-purple-400/30 bg-slate-950/70 p-3 text-sm text-slate-100 min-h-40" rows={7} value={ownerNotepad} onChange={(event) => handleOwnerNotepadChange(event.target.value)} placeholder="Write development notes, page corrections, test ideas, and reminders..." aria-label="Owner notepad" />
-              <p className="small-caveat">Saved locally in this browser profile. Clearing browser data may erase these notes.</p>
-            </div>
+              <div className="mt-4 border-t border-purple-400/20 pt-3">
+                <b className="text-xs tracking-widest text-amber-200">ENVIRONMENT PREFIXES</b>
+                <p className="small-caveat mt-1">Existing saved prefix configuration is preserved. Prefixes are informational in this demo and do not authenticate accounts.</p>
+                <label className="block mt-2 text-xs text-purple-200">OWNER PREFIX<input className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-900 p-2 text-sm text-white uppercase" maxLength={3} value={ownerEnvironmentPrefix} onChange={event => { setOwnerEnvironmentPrefix(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3)); setOwnerPrefixMessage(''); }} /></label>
+                <button type="button" className="secondary-action mt-2" onClick={saveOwnerEnvironmentPrefix}>SAVE OWNER PREFIX</button>
+                {ownerPrefixMessage && <p className="form-message mt-2">{ownerPrefixMessage}</p>}
+              </div>
+              <p className="small-caveat mt-3">DEMO ONLY · Data stays in this browser. Production account issuance, reset, suspension and revocation require trusted backend validation and an audit log.</p>
+            </details>
+
+            <details id="owner-preview-workspace" className="portal-panel p-4 mt-4">
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">PREVIEW WORKSPACE</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
+              <h3 className="section-title mt-3">Environment simulation</h3>
+              <p className="section-copy">Inspect implemented pages and navigation. Preview activity is not a live business record.</p>
+              <div className="flex flex-wrap gap-2 mt-4"><button className="primary-action" onClick={() => { setActiveEnvironment('guest'); setView('guest'); setGuestPage(null); }}>Open Guest Environment</button><button className="secondary-action" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); }}>Regular Client Preview</button><button className="text-back" onClick={lockSwitchAccess}>Lock / Switch Access</button></div>
+            </details>
+
+            <details id="owner-reference-center" className="portal-panel p-4 mt-4">
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">OWNER REFERENCE CENTER</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
+              <h3 className="section-title mt-3">Operational references</h3>
+              <div className="mt-3 rounded-lg border border-purple-400/20 p-3 text-xs space-y-2"><p><b>ACCESS ID:</b> Identifies an individual member or employee.</p><p><b>ACCESS CODE:</b> Exactly 8 alphanumeric characters.</p><p><b>ENVIRONMENTS:</b> Celestial Army, Regular Client / Member, Beta Tester (external), Guest / Visitor.</p><p><b>BETA TESTERS:</b> External testers, not members, clients, or employees.</p><p><b>SECURITY:</b> Browser-local demo credentials are not secure authentication.</p><p><b>ACCOUNT STATUS:</b> Active, Suspended, Revoked, Expired.</p></div>
+              <label className="block mt-3 text-xs text-purple-200">OWNER NOTES<textarea className="w-full mt-1 rounded-lg border border-purple-400/30 bg-slate-950/70 p-3 text-sm text-slate-100 min-h-28" rows={5} value={referenceNotes} onChange={event => { setReferenceNotes(event.target.value); try { localStorage.setItem('CL_OWNER_REFERENCE_CENTER_V1', event.target.value); } catch { /* best effort */ } }} placeholder="Operational procedures, navigation references, and reminders..." /></label>
+              <p className="small-caveat mt-2">Saved locally in this browser. Do not store passwords, payment details, or customer data here.</p>
+            </details>
+
+            <details id="owner-preview-panel" className="portal-panel p-4 mt-4">
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">OWNER PREVIEW</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
+              <p className="section-copy mt-3">Preview the portal as a visitor or regular client without changing the account environment.</p>
+              <div className="grid grid-cols-2 gap-2 mt-3"><button className="primary-action" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); }}>Guest Preview</button><button className="secondary-action" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); }}>Regular Client Preview</button></div>
+            </details>
             <p className="text-xs text-amber-200/80 mt-4">LOCAL BROWSER ACCESS ONLY · Not server-verified authentication. Anyone with access to this browser profile can open this preview.</p>
           </section>
         )}
@@ -873,13 +898,13 @@ export const Portal: React.FC<PortalProps> = ({
                 />
               </label>
               <label htmlFor="gate-apg-code" className="block">
-                <span className="mb-2 block text-[10px] font-bold tracking-[0.2em] text-amber-200">AGP CODE</span>
+                <span className="mb-2 block text-[10px] font-bold tracking-[0.2em] text-amber-200">ACCESS CODE</span>
                 <input
                   id="gate-apg-code"
                   type="password"
                   value={apgInput}
                   onChange={(event) => setApgInput(event.target.value.toUpperCase())}
-                  placeholder="Enter your AGP Code"
+                  placeholder="Enter your Access Code"
                   autoComplete="off"
                   required
                 />
@@ -888,7 +913,7 @@ export const Portal: React.FC<PortalProps> = ({
               {gateMessage && <p className={`form-message ${gateMessage.success ? 'text-emerald-300' : 'text-amber-200'}`} role="status">{gateMessage.text}</p>}
               {Object.prototype.hasOwnProperty.call(DEMO_CREDENTIALS, accessIdInput.trim().toUpperCase()) && <button type="button" className="text-link w-full" onClick={() => { const demo = DEMO_CREDENTIALS[accessIdInput.trim().toUpperCase()]; setApgInput(demo.apg); setGateMessage({ text: 'DEMO QUICK-FILL populated the matching test credential.', success: true }); }}>DEMO QUICK-FILL · FILL TEST CODE</button>}
               <button type="button" className="text-link w-full" onClick={() => { setRecoveryOpen(v => !v); setRecoveryMessage(''); setRecoveryOrderFound(false); setEmployeeRecoveryMessage(''); }}>FORGOT YOUR ACCESS?</button>
-              {recoveryOpen && <div className="portal-panel p-3 space-y-3" role="region" aria-label="Access recovery"><div className="border-b border-purple-400/20 pb-3"><b className="text-amber-200 text-xs tracking-widest">CLIENT ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your order number. The demo checks the available browser record and one clearly labelled sample record from the last 90 days. No receipt copy is required.</p><label className="block text-xs mt-2">ORDER NUMBER<input className="mt-1 w-full" value={recoveryOrderNumber} onChange={e => { setRecoveryOrderNumber(e.target.value); setRecoveryOrderFound(false); }} placeholder="Enter order number" /></label><button type="button" className="secondary-action w-full mt-2" onClick={handleRecoveryOrderLookup}>LOOK UP ORDER</button>{recoveryOrderFound && <><label className="block text-xs mt-2">EXACT AMOUNT PAID<input className="mt-1 w-full" inputMode="decimal" value={recoveryAmount} onChange={e => setRecoveryAmount(e.target.value)} placeholder="0.00" /></label><label className="block text-xs mt-2">FIRST FOUR LETTERS OF PAYMENT SENDER<input className="mt-1 w-full" value={recoverySender} onChange={e => setRecoverySender(e.target.value.toUpperCase().slice(0,4))} maxLength={4} placeholder="ABCD" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleRecoveryVerification}>VERIFY DETAILS</button></>}{recoveryMessage && <p className="form-message mt-2" role="status">{recoveryMessage}</p>}<p className="small-caveat mt-2">DEMO SAMPLE ORDER: DEMO-CL-2026-001 · Amount: ₱1,250 · Sender: NOVA. Sample data only, not a customer order.</p></div><div className="pt-2"><b className="text-amber-200 text-xs tracking-widest">EMPLOYEE ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your Employee ID and answer its assigned demo security question. Three failed gateway sign-ins still trigger the standard one-hour lockout.</p><label className="block text-xs mt-2">EMPLOYEE ID<input className="mt-1 w-full" value={employeeRecoveryId} onChange={e => { setEmployeeRecoveryId(e.target.value.toUpperCase()); setEmployeeRecoveryVerified(false); setEmployeeRecoveryMessage(''); }} placeholder="EMP-01 or EMP-02" /></label>{(employeeRecoveryId.trim().toUpperCase() === 'EMP-01' || employeeRecoveryId.trim().toUpperCase() === 'EMP-02') && <><p className="text-xs text-purple-200 mt-2">{EMPLOYEE_RECOVERY[employeeRecoveryId.trim().toUpperCase() as keyof typeof EMPLOYEE_RECOVERY].question}</p><label className="block text-xs mt-2">SECURITY ANSWER<input className="mt-1 w-full" value={employeeRecoveryAnswer} onChange={e => setEmployeeRecoveryAnswer(e.target.value)} placeholder="Enter assigned answer" /></label></>}<button type="button" className="secondary-action w-full mt-2" onClick={handleEmployeeRecoveryVerify}>VERIFY EMPLOYEE</button>{employeeRecoveryVerified && <><p className="text-xs text-slate-300">New AGP Code must contain exactly 8 letters and/or numbers.</p><label className="block text-xs mt-2">NEW AGP CODE<input className="mt-1 w-full" type="password" maxLength={8} value={employeeNewApg} onChange={e => setEmployeeNewApg(e.target.value.toUpperCase())} placeholder="8 characters" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleEmployeeApgReset}>RESET DEMO AGP CODE</button></>}{employeeRecoveryMessage && <p className="form-message mt-2" role="status">{employeeRecoveryMessage}</p>}<p className="small-caveat mt-2">DEMO ONLY · Questions and reset values are stored in this browser. A real employee recovery requires manual Owner verification. Support: celestiallobby@gmail.com</p></div></div>}
+              {recoveryOpen && <div className="portal-panel p-3 space-y-3" role="region" aria-label="Access recovery"><div className="border-b border-purple-400/20 pb-3"><b className="text-amber-200 text-xs tracking-widest">CLIENT ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your order number. The demo checks the available browser record and one clearly labelled sample record from the last 90 days. No receipt copy is required.</p><label className="block text-xs mt-2">ORDER NUMBER<input className="mt-1 w-full" value={recoveryOrderNumber} onChange={e => { setRecoveryOrderNumber(e.target.value); setRecoveryOrderFound(false); }} placeholder="Enter order number" /></label><button type="button" className="secondary-action w-full mt-2" onClick={handleRecoveryOrderLookup}>LOOK UP ORDER</button>{recoveryOrderFound && <><label className="block text-xs mt-2">EXACT AMOUNT PAID<input className="mt-1 w-full" inputMode="decimal" value={recoveryAmount} onChange={e => setRecoveryAmount(e.target.value)} placeholder="0.00" /></label><label className="block text-xs mt-2">FIRST FOUR LETTERS OF PAYMENT SENDER<input className="mt-1 w-full" value={recoverySender} onChange={e => setRecoverySender(e.target.value.toUpperCase().slice(0,4))} maxLength={4} placeholder="ABCD" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleRecoveryVerification}>VERIFY DETAILS</button></>}{recoveryMessage && <p className="form-message mt-2" role="status">{recoveryMessage}</p>}<p className="small-caveat mt-2">DEMO SAMPLE ORDER: DEMO-CL-2026-001 · Amount: ₱1,250 · Sender: NOVA. Sample data only, not a customer order.</p></div><div className="pt-2"><b className="text-amber-200 text-xs tracking-widest">EMPLOYEE ACCESS RECOVERY</b><p className="text-xs text-slate-300 mt-2">Enter your Employee ID and answer its assigned demo security question. Three failed gateway sign-ins still trigger the standard one-hour lockout.</p><label className="block text-xs mt-2">EMPLOYEE ID<input className="mt-1 w-full" value={employeeRecoveryId} onChange={e => { setEmployeeRecoveryId(e.target.value.toUpperCase()); setEmployeeRecoveryVerified(false); setEmployeeRecoveryMessage(''); }} placeholder="EMP-01 or EMP-02" /></label>{(employeeRecoveryId.trim().toUpperCase() === 'EMP-01' || employeeRecoveryId.trim().toUpperCase() === 'EMP-02') && <><p className="text-xs text-purple-200 mt-2">{EMPLOYEE_RECOVERY[employeeRecoveryId.trim().toUpperCase() as keyof typeof EMPLOYEE_RECOVERY].question}</p><label className="block text-xs mt-2">SECURITY ANSWER<input className="mt-1 w-full" value={employeeRecoveryAnswer} onChange={e => setEmployeeRecoveryAnswer(e.target.value)} placeholder="Enter assigned answer" /></label></>}<button type="button" className="secondary-action w-full mt-2" onClick={handleEmployeeRecoveryVerify}>VERIFY EMPLOYEE</button>{employeeRecoveryVerified && <><p className="text-xs text-slate-300">New Access Code must contain exactly 8 letters and/or numbers.</p><label className="block text-xs mt-2">NEW ACCESS CODE<input className="mt-1 w-full" type="password" maxLength={8} value={employeeNewApg} onChange={e => setEmployeeNewApg(e.target.value.toUpperCase())} placeholder="8 characters" /></label><button type="button" className="primary-action w-full mt-2" onClick={handleEmployeeApgReset}>RESET DEMO ACCESS CODE</button></>}{employeeRecoveryMessage && <p className="form-message mt-2" role="status">{employeeRecoveryMessage}</p>}<p className="small-caveat mt-2">DEMO ONLY · Questions and reset values are stored in this browser. A real employee recovery requires manual Owner verification. Support: celestiallobby@gmail.com</p></div></div>}
               {gatewayLockUntil > Date.now() && <p className="small-caveat text-rose-300">LOCKED UNTIL {new Date(gatewayLockUntil).toLocaleTimeString()}</p>}
             </form>
 
@@ -925,11 +950,8 @@ export const Portal: React.FC<PortalProps> = ({
                 ) : (
                   <form className="gate-panel mt-3 p-0" onSubmit={handleOwnerAccessSubmit}>
                     <div className="grid grid-cols-2 gap-2 mb-3" role="group" aria-label="Owner sign-in methods">
-                      <button type="button" className={ownerSignInMethod === 'password' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('password'); setOwnerAccessMessage(''); }}>Access ID + Password</button>
                       <button type="button" className={ownerSignInMethod === 'pattern' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('pattern'); setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerPatternSetupStep(localStorage.getItem(OWNER_PATTERN_KEY) ? 2 : 0); setOwnerAccessMessage(''); }}>Pattern Unlock</button>
-                      <button type="button" className={ownerSignInMethod === 'pin' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('pin'); setOwnerPin(''); setOwnerPinConfirm(''); setOwnerPinSetupStep(localStorage.getItem(OWNER_PIN_KEY) ? 2 : 0); setOwnerAccessMessage(''); }}>6-Digit PIN</button>
-                      <button type="button" className={ownerSignInMethod === 'google' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('google'); setOwnerAccessMessage(''); setOwnerGoogleMessage(''); }}>Google Sign-In</button>
-                      <button type="button" className={ownerSignInMethod === 'voice' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('voice'); setOwnerVoicePhrase(''); setOwnerAccessMessage(''); }}>Voice Command</button>
+                      <button type="button" className={ownerSignInMethod === 'password' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('password'); setOwnerAccessMessage(''); }}>Access ID + Password</button>
                     </div>
                     {ownerSignInMethod === 'password' && <>
                     <label htmlFor="owner-access-id">OWNER ACCESS ID
@@ -944,7 +966,7 @@ export const Portal: React.FC<PortalProps> = ({
                     </>}
                     {ownerSignInMethod === 'pattern' && <div className="space-y-3">
                       <p className="section-copy">{ownerPatternSetupStep === 0 ? 'Create a pattern by connecting at least four dots.' : ownerPatternSetupStep === 1 ? 'Confirm your new pattern.' : 'Draw your saved Owner pattern.'}</p>
-                      <div className="grid grid-cols-3 gap-3 max-w-[230px] mx-auto py-3" aria-label="3 by 3 pattern grid">
+                      <div className="owner-pattern-grid grid grid-cols-3 gap-3 max-w-[230px] mx-auto py-3" aria-label="3 by 3 pattern grid">
                         {Array.from({ length: 9 }, (_, index) => <button key={index} type="button" aria-label={`Pattern dot ${index + 1}`} onClick={() => { const target = ownerPatternSetupStep === 1 ? setOwnerPatternConfirm : setOwnerPattern; target((previous) => previous.includes(index) ? previous : [...previous, index]); }} className={`aspect-square rounded-full border-2 ${ownerPattern.includes(index) || ownerPatternConfirm.includes(index) ? 'border-amber-200 bg-amber-300/30' : 'border-slate-400 bg-slate-900'}`}><span className="text-xs">{ownerPattern.includes(index) || ownerPatternConfirm.includes(index) ? '●' : '·'}</span></button>)}
                       </div>
                       <p className="text-center text-xs text-slate-300">{(ownerPatternSetupStep === 1 ? ownerPatternConfirm : ownerPattern).length} dots selected</p>
@@ -1311,7 +1333,7 @@ export const Portal: React.FC<PortalProps> = ({
               <div className="mt-5 rounded-xl border border-purple-500/20 bg-slate-950/50 p-4 space-y-2 text-xs leading-relaxed text-purple-100">
                 <p><strong className="text-amber-300">What happens now?</strong></p>
                 <p>1. Your onboarding flow is complete.</p>
-                <p>2. No Access ID or AGP code has been generated or saved.</p>
+                <p>2. No Access ID or Access Code has been generated or saved.</p>
                 <p>3. No Regular Client Dashboard account has been created or approved.</p>
                 <p>4. Account eligibility, restrictions, and access permissions will be configured later by the owner.</p>
                 <p>5. You can return to the Guest Environment to explore its public information.</p>
@@ -1357,7 +1379,7 @@ export const Portal: React.FC<PortalProps> = ({
             <div className="client-access-fields"><label>INVITATION CODE<input value={invitationInput} onChange={event => setInvitationInput(event.target.value.toUpperCase())} placeholder="Enter your invitation code" autoComplete="off" spellCheck={false} disabled={invitationAttempts >= 3} /></label></div>
             <button type="button" className="primary-action full client-access-verify" onClick={handleVerifyInvitation} disabled={invitationAttempts >= 3}>SUBMIT</button>
             {invitationMessage && <p className="form-message" role="alert">{invitationMessage}</p>}
-            <p className="small-caveat client-access-note">{invitationAttempts >= 3 ? 'This browser has been locked after three unsuccessful attempts.' : `${3-invitationAttempts} attempts available.`} Invitation verification is separate from your Access ID and Access Code or AGP Code.</p>
+            <p className="small-caveat client-access-note">{invitationAttempts >= 3 ? 'This browser has been locked after three unsuccessful attempts.' : `${3-invitationAttempts} attempts available.`} Invitation verification is separate from your Access ID and Access Code or Access Code.</p>
             <div className="client-access-guest"><button type="button" className="text-link" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); }}>Join In / Access</button><span>Continue directly to the Guest Environment.</span></div>
             <p className="small-caveat">DEMO ONLY · Browser-local validation · Not secure for real customer data.</p>
           </div></section>
@@ -1385,12 +1407,12 @@ export const Portal: React.FC<PortalProps> = ({
                   spellCheck="false"
                 />
 
-                <label className="sr-only" htmlFor="regular-client-agp-code">AGP Code</label>
+                <label className="sr-only" htmlFor="regular-client-agp-code">Access Code</label>
                 <input
                   id="regular-client-agp-code"
                   value={apgInput}
-                  onChange={(e) => setApgInput(e.target.value)}                  placeholder="Enter your AGP Code"
-                  aria-label="AGP Code"
+                  onChange={(e) => setApgInput(e.target.value)}                  placeholder="Enter your Access Code"
+                  aria-label="Access Code"
                   autoComplete="off"
                   spellCheck="false"
                 />
@@ -1824,25 +1846,12 @@ export const Portal: React.FC<PortalProps> = ({
 
       </main>
 
-      {ownerSessionUntil > Date.now() && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'onboarding' && view !== 'onboarding-terms' && (
-        <nav className="owner-preview-dock" aria-label="Persistent Owner Preview controls">
-          <span className="owner-preview-dock-label">OWNER PREVIEW</span>
-          <button type="button" onClick={() => { setView('owner-preview'); setMenuOpen(false); setEnvironmentMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Return to Owner Dashboard</button>
-          <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest View</button>
-          <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Regular Client Preview</button>
-          <button type="button" className="owner-preview-exit" onClick={exitOwnerOverride}>Exit Override</button>
-        </nav>
-      )}
-
       {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && (
       <>
       {/* Footer */}
-      <footer className="portal-footer" aria-label="Legal links">
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>TERMS</button>
-        <i aria-hidden="true">·</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>PRIVACY</button>
-        <i aria-hidden="true">·</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>INFO SEC</button>
+      <footer className="portal-footer" aria-label="Site navigation and legal links">
+        <div className="portal-footer-navigation"><button type="button" className="portal-footer-link" onClick={navigateEnvironmentHome}>HOME</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('about')}>ABOUT</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('faqs')}>FAQS</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={onEnterStore}>STORE</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => { setActiveHomePanel('tracker'); handleChromeNavigation('regular-home'); }}>ORDER TRACKER</button></div>
+        <div className="portal-footer-navigation"><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>TERMS</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>PRIVACY</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>INFO SEC</button></div>
       </footer>
       </>
       )}
