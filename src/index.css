@@ -2492,7 +2492,7 @@ body[data-cl-platform-state="lockdown"]:has(.owner-master-control) .portal-main>
 .owner-drawer-section:first-child>button i{width:24px;color:#e8cb91;font-size:17px;text-align:center}
 .owner-drawer-section:first-child>button span{flex:1;text-align:left}
 .portal-footer{padding-inline:12px}
-.portal-footer-navigation{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:7px}
+.portal-footer-navigation{display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:7px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}.portal-footer-navigation::-webkit-scrollbar{display:none}
 .portal-footer-navigation+.portal-footer-navigation{display:none}
 .portal-footer-link{font-size:8px;letter-spacing:.05em}
 .portal-footer-navigation>i{color:rgba(221,197,151,.5);font-style:normal;font-size:9px}
