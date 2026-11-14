@@ -66,7 +66,7 @@ export const OwnerMasterControl: React.FC<{
   useEffect(() => {
     visibilityTargets.forEach(target => {
       document.querySelectorAll<HTMLElement>(target.selector).forEach(element => {
-        element.dataset.ownerHidden = visibility[target.id] ? 'true' : 'false';
+        element.dataset.ownerHidden = visibility[previewTier + ':' + target.id] ? 'true' : 'false';
       });
     });
     return () => visibilityTargets.forEach(target => document.querySelectorAll<HTMLElement>(target.selector).forEach(element => delete element.dataset.ownerHidden));
@@ -92,7 +92,7 @@ export const OwnerMasterControl: React.FC<{
     const mapped = stages.find(item => item.id === next);
     if (mapped && activeOrder.orderId) onUpdateStatus?.(mapped.status);
   };
-  const toggleVisibility = (id: string) => setVisibility(current => ({ ...current, [id]: !current[id] }));
+  const toggleVisibility = (id: string) => { const key = previewTier + ':' + id; setVisibility(current => ({ ...current, [key]: !current[key] })); };
   const endLocalSessions = () => {
     try {
       sessionStorage.clear();
@@ -147,6 +147,8 @@ export const OwnerMasterControl: React.FC<{
       <summary>03 · ACCESS GATE &amp; BETA KEY COMMAND <span>{beta.length} KEYS</span></summary>
       <div className="owner-master-body">
         <p className="owner-master-hint">Beta invitation keys are separate from each tester’s individual Access ID and 8-character alphanumeric Access Code. Beta testers are external testers.</p>
+        <button type="button" className="owner-master-action" onClick={() => setQuickCopy('Welcome to the CELESTIAL LOBBY beta. Your invitation key is separate from your individual Access ID and Access Code. Use the credentials issued to you for the Beta Tester environment.')}>PREPARE BETA WELCOME MESSAGE</button>
+        <p className="owner-master-hint">The welcome message is loaded into Quick-Copy in the Session Vault below.</p>
         <button type="button" className="owner-master-action" onClick={generateBetaBatch}>GENERATE 20 INVITATION KEYS</button>
         <input className="owner-master-search" value={betaSearch} onChange={event => setBetaSearch(event.target.value)} placeholder="Search invitation code or Access ID" />
         <div className="owner-beta-table">{filteredBeta.map(entry => <div className="owner-beta-row" key={entry.slot}>
