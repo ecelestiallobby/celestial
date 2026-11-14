@@ -2417,7 +2417,7 @@ body[data-cl-platform-state="lockdown"]:has(.owner-master-control) .portal-main>
 .owner-session-status span{display:flex;align-items:center;gap:8px;color:#a7f3d0;font-size:9px;font-weight:900;letter-spacing:.12em}
 .owner-session-status span i{color:#8de5ca;font-size:12px}
 .owner-session-status small{color:#b6a9cf;font-size:8px;font-weight:800;letter-spacing:.1em}
-.owner-command-bar{position:sticky;top:calc(env(safe-area-inset-top) + 60px);z-index:42;display:flex;align-items:center;justify-content:space-around;gap:4px;width:100%;min-height:54px;margin:0 0 16px;padding:5px;border:1px solid rgba(207,180,123,.28);border-radius:13px;background:rgba(8,13,29,.95);box-shadow:0 9px 28px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.035);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.owner-command-bar{position:sticky;top:calc(env(safe-area-inset-top) + 116px);z-index:42;display:flex;align-items:center;justify-content:space-around;gap:4px;width:100%;min-height:54px;margin:0 0 16px;padding:5px;border:1px solid rgba(207,180,123,.28);border-radius:13px;background:rgba(8,13,29,.95);box-shadow:0 9px 28px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.035);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
 .owner-command-bar button{display:grid;place-items:center;flex:1 1 0;min-width:0;min-height:42px;border:1px solid transparent;border-radius:9px;background:transparent;color:#aeb4ca;font-size:17px;cursor:pointer;transition:color .18s ease,background .18s ease,border-color .18s ease,transform .18s ease}
 .owner-command-bar button:hover,.owner-command-bar button:focus-visible{border-color:rgba(222,194,137,.36);background:rgba(190,151,83,.12);color:#f2d99f;outline:none}
 .owner-command-bar button:active{transform:scale(.94)}
@@ -2452,7 +2452,7 @@ body[data-cl-platform-state="lockdown"]:has(.owner-master-control) .portal-main>
 .owner-homepage button:focus-visible{outline:2px solid rgba(231,202,147,.85);outline-offset:2px}
 @media(max-width:420px){
  .owner-homepage{padding-top:13px}
- .owner-command-bar{top:calc(env(safe-area-inset-top) + 56px);min-height:51px;margin-bottom:13px}
+ .owner-command-bar{top:calc(env(safe-area-inset-top) + 112px);min-height:51px;margin-bottom:13px}
  .owner-command-bar button{min-height:40px;font-size:16px}
  .owner-destination-stage{grid-template-rows:118px 118px;gap:8px}
  .owner-destination-tile{padding:11px}
