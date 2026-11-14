@@ -69,7 +69,6 @@ export const OwnerMasterControl: React.FC<{
         element.dataset.ownerHidden = visibility[previewTier + ':' + target.id] ? 'true' : 'false';
       });
     });
-    return () => visibilityTargets.forEach(target => document.querySelectorAll<HTMLElement>(target.selector).forEach(element => delete element.dataset.ownerHidden));
   }, [visibility, previewTier]);
 
   const filteredBeta = useMemo(() => beta.filter(entry => !betaSearch || entry.code.toLowerCase().includes(betaSearch.toLowerCase()) || entry.accessId.toLowerCase().includes(betaSearch.toLowerCase())), [beta, betaSearch]);
