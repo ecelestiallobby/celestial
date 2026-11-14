@@ -2485,3 +2485,14 @@ body[data-cl-platform-state="lockdown"]:has(.owner-master-control) .portal-main>
 .owner-tile-draconians{grid-area:draconians}
 .owner-homepage .owner-module-panel[open],.owner-homepage .owner-master-module[open]{scroll-margin-top:14px}
 @media(max-width:430px){.owner-homepage{padding-top:4px}.owner-command-bar{min-height:48px}.owner-destination-stage{grid-template-rows:120px 120px;gap:8px}.owner-destination-tile{padding:11px}.owner-tile-store{right:8px;bottom:8px;width:calc(50% - 12px);height:48px;min-height:48px}}
+
+
+.owner-destination-stage{position:relative}
+.owner-drawer-section:first-child>button{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:44px;margin:7px 0;padding:9px 10px;border:1px solid rgba(207,180,123,.2);border-radius:10px;background:rgba(24,28,53,.7);color:#e7d5b1;font-size:10px;animation:owner-nav-reveal .34s both;animation-delay:calc(var(--nav-index,0)*65ms)}
+.owner-drawer-section:first-child>button i{width:24px;color:#e8cb91;font-size:17px;text-align:center}
+.owner-drawer-section:first-child>button span{flex:1;text-align:left}
+.portal-footer{padding-inline:12px}
+.portal-footer-navigation{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:7px}
+.portal-footer-navigation+.portal-footer-navigation{display:none}
+.portal-footer-link{font-size:8px;letter-spacing:.05em}
+.portal-footer-navigation>i{color:rgba(221,197,151,.5);font-style:normal;font-size:9px}
