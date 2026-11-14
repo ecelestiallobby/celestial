@@ -808,6 +808,7 @@ export const Portal: React.FC<PortalProps> = ({
             <OwnerMasterControl activeOrder={activeOrder} onUpdateStatus={onUpdateStatus} />
             <details id="owner-account-management" className="portal-panel p-4 mt-4 owner-module-panel">
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">ACCOUNT MANAGEMENT · UNIVERSAL ACCOUNT GENERATOR</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
+              <button type="button" className="secondary-action mt-3" onClick={() => setView('info-sec')}>OPEN ACCESS &amp; SECURITY</button>
               <h3 className="section-title mt-3">Generate environment-restricted credentials</h3>
               <p className="section-copy">Select the account environment first. Each generated record is tagged to that environment. This browser-only demonstration does not create secure or centrally valid credentials.</p>
               <label className="block mt-3 text-xs text-purple-200">ACCOUNT ENVIRONMENT
