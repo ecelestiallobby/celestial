@@ -185,6 +185,8 @@ export const App: React.FC = () => {
             }));
           }}
           onOwnerSessionChange={setOwnerActive}
+          onOpenOwnerNotepad={() => setOwnerPanel('notepad')}
+          onOpenOwnerTools={() => setOwnerPanel('tools')}
           onEnterStore={() => {
             if (!canAccessStore()) {
               window.history.replaceState({ celestialRoute: true }, '', pathForPortalView('landing'));
@@ -240,33 +242,7 @@ export const App: React.FC = () => {
           {feedbackItems.map(x=><div key={x.id} className="mt-2 rounded border border-purple-400/20 p-2 text-[10px]"><b className="text-amber-200">{x.page}{x.element?' · '+x.element:''}</b><p>{x.issue}</p>{x.change&&<p className="text-emerald-200">Requested: {x.change}</p>}<button className="text-red-300 underline" onClick={()=>setFeedbackItems(v=>v.filter(y=>y.id!==x.id))}>Delete</button></div>)}
         </section>}
         {ownerPanel==='tools' && <section className="fixed bottom-24 right-3 z-[200] w-[min(20rem,calc(100vw-1.5rem))] max-h-[70vh] overflow-y-auto rounded-2xl border border-amber-300/40 bg-slate-950/95 p-4 text-slate-100 shadow-2xl"><div className="flex justify-between"><b className="text-amber-300 text-xs">OWNER OVERRIDE CONTROLS</b><button aria-label="Close owner override controls" onClick={()=>setOwnerPanel('none')}>×</button></div><div className="mt-3 grid gap-2"><button className="secondary-action" onClick={()=>{window.history.pushState({ celestialRoute: true }, '', pathForPortalView('owner-preview'));setPortalStartView('owner-preview');setPortalInstanceKey(k=>k+1);setMode('portal');setOwnerPanel('none');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>Return to Owner Workspace</button><button className="secondary-action" onClick={()=>{localStorage.removeItem('CL_GUEST_ONBOARDING_V1');sessionStorage.removeItem('CL_ONBOARDING_ACTIVE_SESSION');window.history.pushState({ celestialRoute: true }, '', pathForPortalView('guest'));setPortalStartView('guest');setPortalInstanceKey(k=>k+1);setMode('portal');setOwnerPanel('none');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>Reset Onboarding &amp; Open Guest Environment</button><button className="secondary-action" onClick={()=>{window.history.pushState({ celestialRoute: true }, '', pathForPortalView('guest'));setPortalStartView('guest');setPortalInstanceKey(k=>k+1);setMode('portal');setOwnerPanel('none');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>Open Guest Environment</button><button className="primary-action" onClick={()=>{localStorage.removeItem(OWNER_SESSION_KEY);setOwnerActive(false);setOwnerPanel('none');setOwnerMenuOpen(false);setPortalStartView('landing');setPortalInstanceKey(k=>k+1);setMode('portal');window.scrollTo(0,0);}}>End Owner Override Session</button></div><p className="mt-2 text-[10px] text-amber-100/70">Reset affects this browser's demo onboarding record only. Ending the session removes local Owner access on this browser.</p></section>}
-        <div className="owner-menu-anchor">
-          <button type="button" className="owner-menu-trigger" aria-label={ownerMenuOpen ? "Close Owner menu" : "Open Owner menu"} aria-expanded={ownerMenuOpen} onClick={()=>{setOwnerMenuOpen(v=>!v);setOwnerPanel('none');}}>
-            <span aria-hidden="true">{ownerMenuOpen ? '×' : '☰'}</span><small>OWNER MENU</small>
-          </button>
-          {ownerMenuOpen && <><button className="owner-menu-backdrop" aria-label="Close Owner menu" onClick={()=>setOwnerMenuOpen(false)} /><nav className="owner-menu-drawer" aria-label="Owner navigation menu">
-            <div className="owner-menu-heading"><div><b>OWNER CONTROL CENTER</b><small>Workspace · previews · tools</small></div><button type="button" aria-label="Close menu" onClick={()=>setOwnerMenuOpen(false)}>×</button></div>
-            <div className="owner-menu-group"><small>WORKSPACE</small>
-              <button onClick={()=>{setPortalStartView('owner-preview');setPortalInstanceKey(k=>k+1);setMode('portal');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>✦ Owner Workspace <span>Open</span></button>
-              <button onClick={()=>{if(canAccessStore()){window.history.pushState({ celestialRoute: true }, '', '/celestial/store');setMode('store');}else{setPortalStartView('landing');setPortalInstanceKey(k=>k+1);setMode('portal');}setOwnerMenuOpen(false);window.scrollTo(0,0);}}>◈ Store / Order Preview <span>Open</span></button>
-            </div>
-            <div className="owner-menu-group"><small>ENVIRONMENT PREVIEW</small>
-              <button onClick={()=>{window.history.pushState({ celestialRoute: true }, '', pathForPortalView('guest'));setPortalStartView('guest');setPortalInstanceKey(k=>k+1);setMode('portal');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>Guest Environment <span>Preview</span></button>
-              <button onClick={()=>{window.history.pushState({ celestialRoute: true }, '', pathForPortalView('regular-home'));setPortalStartView('regular-home');setPortalInstanceKey(k=>k+1);setMode('portal');setOwnerMenuOpen(false);window.scrollTo(0,0);}}>Regular Client Environment <span>Preview</span></button>
-            </div>
-            <div className="owner-menu-group"><small>ROLE DASHBOARDS</small>
-              <button className="owner-menu-unavailable" disabled>Sales Dashboard <span>Not connected</span></button>
-              <button className="owner-menu-unavailable" disabled>Admin Dashboard <span>Not connected</span></button>
-              <button className="owner-menu-unavailable" disabled>Owner Management Dashboard <span>Planned</span></button>
-              <p>These role dashboards are not yet connected in this demo. The Owner Workspace and Store Preview are available.</p>
-            </div>
-            <div className="owner-menu-group"><small>OWNER TOOLS</small>
-              <button onClick={()=>{setOwnerPanel('notepad');setOwnerMenuOpen(false);}}>✎ Owner Notepad &amp; Feedback <span>Open</span></button>
-              <button onClick={()=>{setOwnerPanel('tools');setOwnerMenuOpen(false);}}>⚙ Owner Override Controls <span>Open</span></button>
-            </div>
-            <button className="owner-menu-end" onClick={()=>{localStorage.removeItem(OWNER_SESSION_KEY);setOwnerActive(false);setOwnerPanel('none');setOwnerMenuOpen(false);setPortalStartView('landing');setPortalInstanceKey(k=>k+1);setMode('portal');window.scrollTo(0,0);}}>Exit Owner Session</button>
-          </nav></>}
-        </div>
+
       </>}
     </div>
   );
