@@ -61,7 +61,7 @@ export const OwnerMasterControl: React.FC<{
   useEffect(() => { try { localStorage.setItem(KEYS.notes, notes); } catch { /* local demo */ } }, [notes]);
   useEffect(() => {
     document.body.dataset.clPlatformState = platform;
-    return () => { delete document.body.dataset.clPlatformState; };
+    // Keep the browser-local platform preview active while switching environments.
   }, [platform]);
   useEffect(() => {
     visibilityTargets.forEach(target => {
@@ -100,7 +100,7 @@ export const OwnerMasterControl: React.FC<{
       localStorage.removeItem('CL_ACTIVE_CLIENT_SESSION_V1');
       localStorage.removeItem('CL_ACTIVE_INVITATION_V1');
       localStorage.removeItem('CL_OWNER_BROWSER_SESSION_V1');
-      setNotice('Browser-local sessions cleared. This does not terminate sessions on other devices or browsers.');
+      window.location.reload();
     } catch {
       setNotice('The browser blocked session cleanup. Please close this browser session manually.');
     }
@@ -175,7 +175,7 @@ export const OwnerMasterControl: React.FC<{
       <div className="owner-master-body">
         <label>OWNER NOTES &amp; SOP REFERENCES<textarea rows={5} value={notes} onChange={event => setNotes(event.target.value)} placeholder="Private operational notes, SOP reminders, testing checklist..." /></label>
         <label className="mt-3">QUICK-COPY SNIPPET<textarea rows={2} value={quickCopy} onChange={event => setQuickCopy(event.target.value)} /></label>
-        <button type="button" className="owner-master-action" onClick={() => { void navigator.clipboard?.writeText(quickCopy).then(() => setNotice('Snippet copied.')).catch(() => setNotice('Clipboard access was unavailable.')); }}>COPY SNIPPET</button>
+        <button type="button" className="owner-master-action" onClick={() => { if (!navigator.clipboard) { setNotice('Clipboard access was unavailable.'); return; } void navigator.clipboard.writeText(quickCopy).then(() => setNotice('Snippet copied.')).catch(() => setNotice('Clipboard access was unavailable.')); }}>COPY SNIPPET</button>
         <button type="button" className="owner-master-danger" onClick={endLocalSessions}>END ALL BROWSER-LOCAL SESSIONS</button>
         <p className="owner-master-hint">Owner pattern/PIN/password controls remain in the existing Restricted Owner Access screen. Session termination here clears only this browser’s local session records.</p>
         {notice && <p className="owner-master-notice" role="status">{notice}</p>}
