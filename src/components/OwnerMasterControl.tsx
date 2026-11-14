@@ -11,7 +11,8 @@ const KEYS = {
   beta: 'CL_OWNER_BETA_KEYS_V1',
   gate: 'CL_OWNER_GATE_THRESHOLDS_V1',
   lore: 'CL_OWNER_DWELLER_CMS_V1',
-  notes: 'CL_OWNER_VAULT_NOTES_V1'
+  notes: 'CL_OWNER_VAULT_NOTES_V1',
+  announcement: 'CL_OWNER_ANNOUNCEMENT_DRAFT_V1'
 };
 const defaultDwellers: Dweller[] = [
   'Aelunari','Kaelthari','Vaelith','Seraphim','Nhyxari','Xyrem','Veyrath','The Dragornborns'
@@ -47,8 +48,8 @@ export const OwnerMasterControl: React.FC<{
   const [betaSearch, setBetaSearch] = useState('');
   const [gate, setGate] = useState(() => readJson(KEYS.gate, { warningAttempts: 2, lockoutMinutes: 60 }));
   const [dwellers, setDwellers] = useState<Dweller[]>(() => readJson(KEYS.lore, defaultDwellers));
-  const [banner, setBanner] = useState('');
-  const [bannerTier, setBannerTier] = useState('Guest');
+  const [banner, setBanner] = useState(() => readJson(KEYS.announcement, { text: '', tier: 'Guest' }).text);
+  const [bannerTier, setBannerTier] = useState(() => readJson(KEYS.announcement, { text: '', tier: 'Guest' }).tier);
   const [notes, setNotes] = useState(() => { try { return localStorage.getItem(KEYS.notes) || ''; } catch { return ''; } });
   const [quickCopy, setQuickCopy] = useState('CELESTIAL LOBBY · OWNER OPERATIONS');
   const [notice, setNotice] = useState('');
@@ -59,6 +60,7 @@ export const OwnerMasterControl: React.FC<{
   useEffect(() => { try { localStorage.setItem(KEYS.gate, JSON.stringify(gate)); } catch { /* local demo */ } }, [gate]);
   useEffect(() => { try { localStorage.setItem(KEYS.lore, JSON.stringify(dwellers)); } catch { /* local demo */ } }, [dwellers]);
   useEffect(() => { try { localStorage.setItem(KEYS.notes, notes); } catch { /* local demo */ } }, [notes]);
+  useEffect(() => { try { localStorage.setItem(KEYS.announcement, JSON.stringify({ text: banner, tier: bannerTier })); } catch { /* local demo */ } }, [banner, bannerTier]);
   useEffect(() => {
     document.body.dataset.clPlatformState = platform;
     // Keep the browser-local platform preview active while switching environments.
@@ -126,6 +128,7 @@ export const OwnerMasterControl: React.FC<{
         {editMode && <div className="owner-visibility-list">{visibilityTargets.map(target => <label key={target.id}><span>{target.label}</span><input type="checkbox" checked={!!visibility[target.id]} onChange={() => toggleVisibility(target.id)} /> <small>{visibility[target.id] ? 'Hidden' : 'Visible'}</small></label>)}</div>}
         <label className="mt-3">TIER-TARGETED ANNOUNCEMENT</label>
         <div className="owner-inline-fields"><select value={bannerTier} onChange={event => setBannerTier(event.target.value)}><option>Guest</option><option>Member</option><option>Army</option></select><input value={banner} onChange={event => setBanner(event.target.value)} placeholder="Announcement text" /></div>
+        {banner.trim() && <div className="owner-master-alert"><b>LOCAL BANNER PREVIEW · {bannerTier.toUpperCase()}</b><p>{banner}</p></div>}
         <p className="owner-master-hint">Preview target: {previewTier}. Announcement targeting is stored as a draft here; publishing requires a shared content service.</p>
       </div>
     </details>
