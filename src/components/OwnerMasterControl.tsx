@@ -114,7 +114,7 @@ export const OwnerMasterControl: React.FC<{
     </div>
     <p className="owner-master-warning">Controls in this build affect this browser only. Global lockdown, cross-device updates, account revocation and synchronized sessions require the shared Cloudflare backend.</p>
 
-    <details className="owner-master-module" open>
+    <details id="owner-master-system" className="owner-master-module" open>
       <summary>01 · GLOBAL COMMAND STRIP <span>{platform.toUpperCase()}</span></summary>
       <div className="owner-master-body">
         <label>LIVE VIEW SIMULATOR</label>
@@ -133,7 +133,7 @@ export const OwnerMasterControl: React.FC<{
       </div>
     </details>
 
-    <details className="owner-master-module" open>
+    <details id="owner-master-operations" className="owner-master-module" open>
       <summary>02 · LIVE OPERATIONS &amp; ORDER PIPELINE <span>{activeOrder.orderId ? '1 ORDER' : 'NO ORDER'}</span></summary>
       <div className="owner-master-body">
         {activeOrder.orderId ? <><div className="owner-order-card"><b>{activeOrder.orderId}</b><span>{String(activeOrder.status).replace(/_/g, ' ').toUpperCase()}</span></div>
@@ -145,7 +145,7 @@ export const OwnerMasterControl: React.FC<{
       </div>
     </details>
 
-    <details className="owner-master-module">
+    <details id="owner-beta-invitations" className="owner-master-module">
       <summary>03 · ACCESS GATE &amp; BETA KEY COMMAND <span>{beta.length} KEYS</span></summary>
       <div className="owner-master-body">
         <p className="owner-master-hint">Beta invitation keys are separate from each tester’s individual Access ID and 8-character alphanumeric Access Code. Beta testers are external testers.</p>
@@ -163,7 +163,7 @@ export const OwnerMasterControl: React.FC<{
       </div>
     </details>
 
-    <details className="owner-master-module">
+    <details id="owner-master-content" className="owner-master-module">
       <summary>04 · DYNAMIC CONTENT &amp; LORE CMS <span>{dwellers.length} DWELLERS</span></summary>
       <div className="owner-master-body">
         {dwellers.map((dweller, index) => <div className="owner-lore-row" key={dweller.name}>
@@ -174,7 +174,7 @@ export const OwnerMasterControl: React.FC<{
       </div>
     </details>
 
-    <details className="owner-master-module">
+    <details id="owner-master-vault" className="owner-master-module">
       <summary>05 · SYSTEM &amp; SESSION VAULT <span>PRIVATE</span></summary>
       <div className="owner-master-body">
         <label>OWNER NOTES &amp; SOP REFERENCES<textarea rows={5} value={notes} onChange={event => setNotes(event.target.value)} placeholder="Private operational notes, SOP reminders, testing checklist..." /></label>
