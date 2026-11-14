@@ -157,6 +157,10 @@ export const Portal: React.FC<PortalProps> = ({
   const [guestPage, setGuestPage] = useState<GuestPage | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [environmentMenuOpen, setEnvironmentMenuOpen] = useState(false);
+  const [ownerWelcomeOpen, setOwnerWelcomeOpen] = useState(false);
+  useEffect(() => {
+    if (view === 'owner-preview' && ownerSessionUntil > Date.now() && sessionStorage.getItem('CL_OWNER_WELCOME_SEEN_V1') !== '1') setOwnerWelcomeOpen(true);
+  }, [view, ownerSessionUntil]);
   const toggleOwnerModule = (id: string) => {
     const target = document.getElementById(id);
     if (!(target instanceof HTMLDetailsElement)) return;
@@ -778,8 +782,15 @@ export const Portal: React.FC<PortalProps> = ({
         {/* OWNER OVERRIDE / BROWSER-LOCAL PREVIEW */}
         {view === 'owner-preview' && ownerSessionUntil > Date.now() && (
           <section className="guest-content-page animate-fadeIn owner-homepage">
+            {ownerWelcomeOpen && <div className="owner-welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="owner-welcome-title">
+              <div className="owner-welcome-dialog">
+                <span className="owner-welcome-emblem" aria-hidden="true">✦</span>
+                <h2 id="owner-welcome-title">Welcome, Commander.</h2>
+                <button type="button" onClick={() => { setOwnerWelcomeOpen(false); try { sessionStorage.setItem('CL_OWNER_WELCOME_SEEN_V1', '1'); } catch { /* session storage optional */ } }}>ENTER OWNER HOMEPAGE</button>
+              </div>
+            </div>}
             <nav className="owner-command-bar" aria-label="Owner command bar">
-              <button type="button" aria-label="Environment" title="Environment" onClick={() => toggleOwnerModule('owner-preview-workspace')}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Environment" title="Environment" onClick={() => toggleOwnerModule('owner-master-system')}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
               <button type="button" aria-label="Operations" title="Operations" onClick={() => toggleOwnerModule('owner-master-operations')}><i className="fa-solid fa-clipboard-list" aria-hidden="true"></i></button>
               <button type="button" aria-label="Accounts & Access" title="Accounts & Access" onClick={() => toggleOwnerModule('owner-account-management')}><i className="fa-solid fa-users" aria-hidden="true"></i></button>
               <button type="button" aria-label="Content Studio" title="Content Studio" onClick={() => toggleOwnerModule('owner-master-content')}><i className="fa-solid fa-file-pen" aria-hidden="true"></i></button>
