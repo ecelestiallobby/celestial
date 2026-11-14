@@ -2391,3 +2391,16 @@ body[data-cl-platform-state="maintenance"] .portal-main:before,
 body[data-cl-platform-state="lockdown"] .portal-main:before{content:attr(data-cl-platform-state);display:block;margin:10px 12px;padding:14px;border:1px solid rgba(245,158,11,.35);border-radius:12px;background:rgba(120,75,20,.18);color:#f5d59c;text-align:center;font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
 [data-owner-hidden="true"]{display:none!important}
 @media(max-width:420px){.owner-master-heading h3{font-size:13px}.owner-master-body{padding-inline:10px}.owner-beta-row{grid-template-columns:1fr}.owner-lore-row{grid-template-columns:minmax(0,1fr) 100px}}
+
+
+/* Local command-state previews remain active when Owner switches environments. */
+body[data-cl-platform-state="maintenance"]:not(:has(.owner-master-control)) .portal-main:before{
+  content:"MAINTENANCE MODE · THIS BROWSER PREVIEW";
+  display:block;margin:12px;padding:14px;border:1px solid rgba(245,158,11,.35);border-radius:12px;background:rgba(120,75,20,.2);color:#f5d59c;text-align:center;font-size:10px;font-weight:900;letter-spacing:.12em
+}
+body[data-cl-platform-state="lockdown"]:not(:has(.owner-master-control)) .portal-main>*{display:none!important}
+body[data-cl-platform-state="lockdown"]:not(:has(.owner-master-control)) .portal-main:before{
+  content:"GATE CLOSED · PLATFORM LOCKDOWN PREVIEW";
+  display:block;margin:12px;padding:24px 14px;border:1px solid rgba(248,113,113,.42);border-radius:14px;background:rgba(75,15,25,.55);color:#fecaca;text-align:center;font-size:12px;font-weight:950;letter-spacing:.14em
+}
+body[data-cl-platform-state="lockdown"]:has(.owner-master-control) .portal-main>*{display:block}
