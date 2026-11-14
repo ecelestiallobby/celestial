@@ -767,32 +767,48 @@ export const Portal: React.FC<PortalProps> = ({
       <main className="portal-main flex-grow">
         {/* OWNER OVERRIDE / BROWSER-LOCAL PREVIEW */}
         {view === 'owner-preview' && ownerSessionUntil > Date.now() && (
-          <section className="guest-content-page animate-fadeIn">
-            <div className="portal-topline">
+          <section className="guest-content-page animate-fadeIn owner-homepage">
+            <div className="portal-topline owner-home-topline">
               <button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button>
-              <span>OWNER HOMEPAGE · PRIVATE WORKSPACE</span>
+              <span>OWNER COMMAND · PRIVATE WORKSPACE</span>
             </div>
             <p className="eyebrow">AUTHORIZED BROWSER SESSION</p>
             <h2 className="section-title">Welcome, Commander.</h2>
             <p className="section-copy">Owner Preview is active in this browser. This workspace is reserved for previewing and testing the portal experience.</p>
-            <div className="mb-3 flex items-center justify-between rounded-xl border border-emerald-400/25 bg-emerald-950/20 px-3 py-2">
-              <span className="text-xs font-bold tracking-widest text-emerald-200">OWNER SESSION: ACTIVE</span>
-              <span className="text-[10px] text-purple-200">LOCAL DEMO SESSION</span>
+            <div className="owner-session-status">
+              <span><i aria-hidden="true" className="fa-solid fa-shield-check"></i> OWNER SESSION: ACTIVE</span>
+              <small>LOCAL DEMO SESSION</small>
             </div>
-            <details id="owner-destinations" className="portal-panel p-4 mt-4 owner-module-panel">
-              <summary className="owner-accordion-summary"><span>Destinations &amp; Content Areas</span><span className="owner-summary-badge">6 AREAS</span></summary>
-              <div className="owner-destination-grid mt-3">
-                <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage('celestial-overview'); setView('guest'); }}>Celestials</button>
-                <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage('founders'); setView('guest'); }}>Founders</button>
-                <button type="button" onClick={startOnboarding}>Ascend With Us</button>
-                <button type="button" onClick={() => { setActiveHomePanel('tracker'); setView('regular-home'); }}>Orders</button>
-                <button type="button" onClick={() => setView('info-sec')}>Access &amp; Security</button>
-                <button type="button" onClick={() => document.getElementById('owner-account-management')?.scrollIntoView({ behavior: 'smooth' })}>Workspace</button>
-              </div>
-            </details>
+            <nav className="owner-command-bar" aria-label="Owner command bar">
+              <button type="button" aria-label="Environment" title="Environment" onClick={() => { const target = document.getElementById('owner-preview-workspace'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Operations" title="Operations" onClick={() => { const target = document.getElementById('owner-master-operations'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-clipboard-list" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Accounts and Access" title="Accounts &amp; Access" onClick={() => { const target = document.getElementById('owner-account-management'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-users" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Content Studio" title="Content Studio" onClick={() => { const target = document.getElementById('owner-master-content'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-file-pen" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Vault" title="Vault" onClick={() => { const target = document.getElementById('owner-master-vault'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-folder-closed" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Store" title="Store" onClick={onEnterStore}><i className="fa-solid fa-store" aria-hidden="true"></i></button>
+              <button type="button" aria-label="System" title="System" onClick={() => { const target = document.getElementById('owner-master-system'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-gear" aria-hidden="true"></i></button>
+            </nav>
+            <section id="owner-destinations" className="owner-destination-stage" aria-label="Owner destinations">
+              <button type="button" className="owner-destination-tile owner-tile-celestials" onClick={() => { setActiveEnvironment('guest'); setGuestPage('celestial-overview'); setView('guest'); }}>
+                <span className="owner-tile-icon"><i className="fa-solid fa-star" aria-hidden="true"></i></span><b>CELESTIALS</b><small>Explore the celestial realms</small>
+              </button>
+              <button type="button" className="owner-destination-tile owner-tile-founders" onClick={() => { setActiveEnvironment('guest'); setGuestPage('founders'); setView('guest'); }}>
+                <span className="owner-tile-icon"><i className="fa-solid fa-crown" aria-hidden="true"></i></span><b>FOUNDERS</b><small>The founding circle</small>
+              </button>
+              <button type="button" className="owner-destination-tile owner-tile-draconians" onClick={() => { const target = document.getElementById('owner-master-content'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+                <span className="owner-tile-icon"><i className="fa-solid fa-dragon" aria-hidden="true"></i></span><b>DRACONIANS</b><small>Open Content Studio</small>
+              </button>
+              <button type="button" className="owner-destination-tile owner-tile-store" onClick={onEnterStore}>
+                <i className="fa-solid fa-store" aria-hidden="true"></i><b>STORE</b>
+              </button>
+            </section>
+            <button type="button" className="owner-onboarding-strip" onClick={startOnboarding}>
+              <span><i className="fa-solid fa-compass" aria-hidden="true"></i> ONBOARDING SESSION</span><i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </button>
             <OwnerMasterControl activeOrder={activeOrder} onUpdateStatus={onUpdateStatus} />
             <details id="owner-account-management" className="portal-panel p-4 mt-4 owner-module-panel">
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">ACCOUNT MANAGEMENT · UNIVERSAL ACCOUNT GENERATOR</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
+              <button type="button" className="secondary-action mt-3" onClick={() => setView('info-sec')}>OPEN ACCESS &amp; SECURITY</button>
               <h3 className="section-title mt-3">Generate environment-restricted credentials</h3>
               <p className="section-copy">Select the account environment first. Each generated record is tagged to that environment. This browser-only demonstration does not create secure or centrally valid credentials.</p>
               <label className="block mt-3 text-xs text-purple-200">ACCOUNT ENVIRONMENT
