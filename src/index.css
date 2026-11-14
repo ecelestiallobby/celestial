@@ -2464,3 +2464,24 @@ body[data-cl-platform-state="lockdown"]:has(.owner-master-control) .portal-main>
  .owner-session-status small{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.owner-destination-tile,.owner-command-bar button{transition:none}}
+
+
+/* Approved Owner homepage geometry and navigation */
+.celestial-logo-trigger{border:0;background:transparent;cursor:pointer}
+.celestial-logo-trigger .celestial-logo-mark{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(222,194,137,.52);border-radius:50%;color:#efd49a;font-size:20px;background:radial-gradient(circle,rgba(115,87,157,.42),rgba(9,15,31,.95));box-shadow:0 0 18px rgba(126,93,181,.18)}
+.celestial-logo-trigger .brand-name{font-family:Cinzel,serif;letter-spacing:.17em}
+.celestial-logo-trigger:focus-visible{outline:2px solid #e8cb91;outline-offset:4px}
+.owner-drawer-section:first-child>div{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px 6px}
+.owner-drawer-section:first-child>div button{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:62px;padding:9px 3px;border:1px solid rgba(207,180,123,.2);border-radius:10px;background:rgba(24,28,53,.7);color:#e7d5b1;font-size:10px;animation:owner-nav-reveal .34s both;animation-delay:calc(var(--nav-index,0)*65ms)}
+.owner-drawer-section:first-child>div button i{font-size:18px;color:#e8cb91}
+.owner-drawer-section:first-child>div button span{font-size:9px}
+@keyframes owner-nav-reveal{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.owner-homepage{padding-top:8px}
+.owner-homepage>.portal-topline,.owner-homepage>.eyebrow,.owner-homepage>.section-title,.owner-homepage>.section-copy,.owner-homepage>.owner-session-status{display:none}
+.owner-command-bar{position:relative;top:auto;min-height:50px;margin:0 0 12px}
+.owner-destination-stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:125px 125px;grid-template-areas:"celestials founders" "draconians founders";gap:9px;margin:0 0 10px}
+.owner-tile-founders{grid-area:founders;justify-content:center;min-height:100%;padding-bottom:62px}
+.owner-tile-store{position:absolute;right:10px;bottom:10px;width:calc(50% - 14px);height:50px;min-height:50px;z-index:2}
+.owner-tile-draconians{grid-area:draconians}
+.owner-homepage .owner-module-panel[open],.owner-homepage .owner-master-module[open]{scroll-margin-top:14px}
+@media(max-width:430px){.owner-homepage{padding-top:4px}.owner-command-bar{min-height:48px}.owner-destination-stage{grid-template-rows:120px 120px;gap:8px}.owner-destination-tile{padding:11px}.owner-tile-store{right:8px;bottom:8px;width:calc(50% - 12px);height:48px;min-height:48px}}
