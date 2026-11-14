@@ -795,8 +795,8 @@ export const Portal: React.FC<PortalProps> = ({
               <button type="button" className="owner-destination-tile owner-tile-founders" onClick={() => { setActiveEnvironment('guest'); setGuestPage('founders'); setView('guest'); }}>
                 <span className="owner-tile-icon"><i className="fa-solid fa-crown" aria-hidden="true"></i></span><b>FOUNDERS</b><small>The founding circle</small>
               </button>
-              <button type="button" className="owner-destination-tile owner-tile-draconians" onClick={() => { setActiveEnvironment('guest'); setGuestPage('draconian-overview'); setView('guest'); }}>
-                <span className="owner-tile-icon"><i className="fa-solid fa-dragon" aria-hidden="true"></i></span><b>DRACONIANS</b><small>Owner destination</small>
+              <button type="button" className="owner-destination-tile owner-tile-draconians" onClick={() => { const target = document.getElementById('owner-master-content'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+                <span className="owner-tile-icon"><i className="fa-solid fa-dragon" aria-hidden="true"></i></span><b>DRACONIANS</b><small>Open Content Studio</small>
               </button>
               <button type="button" className="owner-destination-tile owner-tile-store" onClick={onEnterStore}>
                 <i className="fa-solid fa-store" aria-hidden="true"></i><b>STORE</b>
