@@ -12,6 +12,8 @@ interface PortalProps {
   activeOrder: ActiveOrder;
   deliveryDetails?: DeliveryDetails;
   onUpdateStatus?: (newStatus: ActiveOrder['status']) => void;
+  onOpenOwnerNotepad?: () => void;
+  onOpenOwnerTools?: () => void;
 }
 
 type PortalView = 'landing' | 'environment-gate' | 'environment-route' | 'invitation-gate' | 'owner-preview' | 'army-home' | 'guest' | 'onboarding' | 'onboarding-terms' | 'restriction' | 'store-locked' | 'onboarding-submitted' | 'regular-gate' | 'regular-home' | 'about' | 'no-nos' | 'faqs' | 'terms' | 'privacy' | 'info-sec' | 'three-s' | 'contact';
@@ -51,7 +53,9 @@ export const Portal: React.FC<PortalProps> = ({
   onOwnerSessionChange,
   activeOrder,
   deliveryDetails,
-  onUpdateStatus
+  onUpdateStatus,
+  onOpenOwnerNotepad,
+  onOpenOwnerTools
 }) => {
   const initialRouteView = typeof window !== 'undefined' ? portalViewForPath(window.location.pathname) : null;
   const [view, setViewState] = useState<PortalView>(initialRouteView ?? initialView);
@@ -135,7 +139,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [ownerAccessPhrase, setOwnerAccessPhrase] = useState('');
   const [ownerActivationPhrase, setOwnerActivationPhrase] = useState('');
   const [ownerActivationPassed, setOwnerActivationPassed] = useState(false);
-  const [ownerSignInMethod, setOwnerSignInMethod] = useState<'password' | 'pattern' | 'pin' | 'google' | 'voice'>('password');
+  const [ownerSignInMethod, setOwnerSignInMethod] = useState<'password' | 'pattern' | 'pin' | 'google' | 'voice'>('pattern');
   const [ownerPattern, setOwnerPattern] = useState<number[]>([]);
   const [ownerPatternConfirm, setOwnerPatternConfirm] = useState<number[]>([]);
   const [ownerPatternSetupStep, setOwnerPatternSetupStep] = useState<0 | 1 | 2>(0);
@@ -153,7 +157,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [environmentMenuOpen, setEnvironmentMenuOpen] = useState(false);
   const [activeEnvironment, setActiveEnvironment] = useState<'guest' | 'regular'>(() => initialView === 'regular-home' || initialView === 'regular-gate' ? 'regular' : 'guest');
-  const navigateEnvironmentHome = () => { if (activeEnvironment === 'regular') { setView('regular-home'); } else { setGuestPage(null); setView('guest'); } window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const navigateEnvironmentHome = () => { if (ownerSessionUntil > Date.now()) { setView('owner-preview'); } else if (activeEnvironment === 'regular') { setView('regular-home'); } else { setGuestPage(null); setView('guest'); } window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const [threeSOpen, setThreeSOpen] = useState({ security: false, secrecy: false, safety: false });
   const allThreeSOpen = threeSOpen.security && threeSOpen.secrecy && threeSOpen.safety;
   const setAllThreeS = (open: boolean) => setThreeSOpen({ security: open, secrecy: open, safety: open });
@@ -308,6 +312,10 @@ export const Portal: React.FC<PortalProps> = ({
     }
     setOwnerAccessId('');
     setOwnerAccessPhrase('');
+    setOwnerSignInMethod('pattern');
+    setOwnerPattern([]);
+    setOwnerPatternConfirm([]);
+    setOwnerPatternSetupStep(localStorage.getItem(OWNER_PATTERN_KEY) ? 2 : 0);
     // Five-tap Owner trigger opens the sign-in choices directly.
     // The five methods are alternatives; no extra activation phrase is required.
     setOwnerActivationPhrase('');
@@ -723,31 +731,37 @@ export const Portal: React.FC<PortalProps> = ({
   };
 
   return (
-    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (      <>
-      {/* Top Header */}
-      <header className="portal-header">
-        <button type="button" className="lobby-menu-trigger" aria-label="Open environment navigation" aria-expanded={environmentMenuOpen} onClick={() => setEnvironmentMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>
-        <div className="portal-brand cursor-pointer" role="button" tabIndex={0} aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); navigateEnvironmentHome(); } }}>
-          <div className="brand-name">CELESTIAL LOBBY</div>
+    <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
+        <header className="portal-header"><div className="portal-header-inner">
+          <button type="button" className="portal-brand cursor-pointer" aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome}><span className="brand-name">CELESTIAL LOBBY</span></button>
+          <button type="button" className="lobby-menu-trigger" aria-label={menuOpen ? "Close site navigation" : "Open site navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">{menuOpen ? '×' : '☰'}</span></button>
         </div>
-        {ownerSessionUntil > Date.now() && view !== 'owner-preview' && !['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route', 'onboarding', 'onboarding-terms'].includes(view) && <button type="button" className="owner-return-dashboard" onClick={() => { setView('owner-preview'); setMenuOpen(false); setEnvironmentMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>← RETURN TO OWNER DASHBOARD</button>}
-        {view === 'owner-preview' && ownerSessionUntil > Date.now() && <button type="button" className="lobby-menu-trigger" aria-label="Open Owner navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">☰</span></button>}
-        {environmentMenuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close environment navigation" onClick={() => setEnvironmentMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Environment navigation">
-          <p className="eyebrow">ENVIRONMENTS</p>
-          <button onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); setEnvironmentMenuOpen(false); }}>GUEST / VISITOR</button>
-          <button onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); setEnvironmentMenuOpen(false); }}>MEMBER / CLIENT</button>
-          <button onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); setEnvironmentMenuOpen(false); }}>CELESTIAL ARMY</button>
-        </nav></>}
-        {view === 'owner-preview' && ownerSessionUntil > Date.now() && menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close Owner navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Owner navigation">
-          <p className="eyebrow">OWNER CONTROLS</p>
-          <button onClick={() => { setView('owner-preview'); setMenuOpen(false); }}>OWNER HOMEPAGE</button>
-          <button onClick={() => { setShowOwnerTools(true); setMenuOpen(false); }}>OWNER TOOLS</button>
-          <button onClick={() => { exitOwnerOverride(); setMenuOpen(false); }}>LOCK / SWITCH ACCESS</button>
+        {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close site navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Site and Owner navigation">
+          <details className="owner-drawer-section" open><summary>Site Navigation</summary>
+            <button type="button" onClick={() => { navigateEnvironmentHome(); setMenuOpen(false); }}>Home</button>
+            <button type="button" onClick={() => { handleChromeNavigation('about'); setMenuOpen(false); }}>About</button>
+            <button type="button" onClick={() => { handleChromeNavigation('faqs'); setMenuOpen(false); }}>FAQs</button>
+            <button type="button" onClick={() => { setMenuOpen(false); onEnterStore(); }}>Store</button>
+            <button type="button" onClick={() => { setActiveHomePanel('tracker'); handleChromeNavigation('regular-home'); setMenuOpen(false); }}>Order Tracker</button>
+          </details>
+          {ownerSessionUntil > Date.now() && <details className="owner-drawer-section"><summary>Owner Controls</summary>
+            <button type="button" onClick={() => { onOpenOwnerNotepad?.(); setMenuOpen(false); }}>Owner Notepad</button>
+            <button type="button" onClick={() => { document.getElementById('owner-beta-invitations')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false); }}>Beta Invitation Codes</button>
+            <button type="button" onClick={() => { onOpenOwnerTools?.(); setMenuOpen(false); }}>Override Controls</button>
+            <button type="button" className="owner-drawer-exit" onClick={() => { exitOwnerOverride(); setMenuOpen(false); }}>Exit Owner Session</button>
+          </details>}
         </nav></>}
       </header>
-      </>
       )}
-
+      {ownerSessionUntil > Date.now() && !['landing', 'regular-gate', 'invitation-gate', 'environment-gate', 'environment-route', 'onboarding', 'onboarding-terms'].includes(view) && (
+        <nav className="owner-environment-switcher" aria-label="Owner environment preview switcher">
+          <button type="button" className={view === 'owner-preview' ? 'is-active' : ''} onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner</button>
+          <button type="button" className={view === 'guest' ? 'is-active' : ''} onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest</button>
+          <button type="button" className={view === 'regular-home' ? 'is-active' : ''} onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Member</button>
+          <button type="button" className={view === 'army-home' ? 'is-active' : ''} onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Army</button>
+          {view !== 'owner-preview' && <button type="button" className="owner-preview-exit" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Exit Preview</button>}
+        </nav>
+      )}
       {/* Main Views Container */}
       <main className="portal-main flex-grow">
         {/* OWNER OVERRIDE / BROWSER-LOCAL PREVIEW */}
@@ -764,25 +778,46 @@ export const Portal: React.FC<PortalProps> = ({
               <span className="text-xs font-bold tracking-widest text-emerald-200">OWNER SESSION: ACTIVE</span>
               <span className="text-[10px] text-purple-200">LOCAL DEMO SESSION</span>
             </div>
-            <div className="owner-command-center" aria-label="Owner command center">
-              <div className="owner-command-heading"><span>COMMAND CENTER</span><small>OWNER CONTROL HUB · DEMO</small></div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3">
-                <button type="button" className="owner-destination-card" onClick={() => document.getElementById('owner-account-management')?.scrollIntoView({ behavior: 'smooth' })}><b>ACCOUNT MANAGEMENT</b><small>Generate and manage credentials</small></button>
-                <button type="button" className="owner-destination-card" onClick={() => document.getElementById('owner-preview-workspace')?.scrollIntoView({ behavior: 'smooth' })}><b>PREVIEW WORKSPACE</b><small>Inspect portal environments</small></button>
-                <button type="button" className="owner-destination-card" onClick={() => document.getElementById('owner-reference-center')?.scrollIntoView({ behavior: 'smooth' })}><b>REFERENCE CENTER</b><small>Owner procedures and notes</small></button>
-                <button type="button" className="owner-destination-card" onClick={() => document.getElementById('owner-preview-panel')?.scrollIntoView({ behavior: 'smooth' })}><b>OWNER PREVIEW</b><small>Preview available destinations</small></button>
+            <details id="owner-destinations" className="portal-panel p-4 mt-4 owner-module-panel">
+              <summary className="owner-accordion-summary"><span>Destinations &amp; Content Areas</span><span className="owner-summary-badge">6 AREAS</span></summary>
+              <div className="owner-destination-grid mt-3">
+                <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage('celestial-overview'); setView('guest'); }}>Celestials</button>
+                <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage('founders'); setView('guest'); }}>Founders</button>
+                <button type="button" onClick={startOnboarding}>Ascend With Us</button>
+                <button type="button" onClick={() => { setActiveHomePanel('tracker'); setView('regular-home'); }}>Orders</button>
+                <button type="button" onClick={() => setView('info-sec')}>Access &amp; Security</button>
+                <button type="button" onClick={() => document.getElementById('owner-account-management')?.scrollIntoView({ behavior: 'smooth' })}>Workspace</button>
               </div>
-              <section className="owner-environment-control" aria-labelledby="owner-environment-control-title">
-                <div className="owner-group-heading"><b id="owner-environment-control-title">ENVIRONMENT CONTROL</b><small>OPEN AN ENVIRONMENT · RETURN TO OWNER HOMEPAGE</small></div>
-                <div className="owner-environment-actions">
-                  <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>GUEST ENVIRONMENT</button>
-                  <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>REGULAR CLIENT ENVIRONMENT</button>
-                  <button type="button" onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>CELESTIAL ARMY ENVIRONMENT</button>
-                </div>
-              </section>
-            </div>
-
-            <details id="owner-account-management" className="portal-panel p-4 mt-4" open>
+            </details>
+            <details id="owner-order-queue" className="portal-panel p-4 mt-3 owner-module-panel">
+              <summary className="owner-accordion-summary"><span>Current Order Queue</span><span className="owner-summary-badge">{activeOrder?.orderId ? '1 ACTIVE · ' + activeOrder.orderId : '0 ACTIVE'}</span></summary>
+              <div className="mt-3 grid gap-3">
+                <section className="rounded-xl border border-purple-300/20 bg-slate-950/35 p-3"><div className="flex items-center justify-between gap-2"><b className="text-xs tracking-widest text-amber-200">ACTIVE ORDER</b><span className="text-[10px] text-emerald-200">{activeOrder?.orderId ? String(activeOrder.status || 'Submitted').replace(/_/g, ' ').toUpperCase() : 'NO ACTIVE ORDER'}</span></div>
+                  {activeOrder?.orderId ? <><p className="mt-2 text-sm font-bold">{activeOrder.orderId}</p><p className="mt-1 text-xs text-slate-300">Started: {activeOrder.startTime ? new Date(activeOrder.startTime).toLocaleString() : 'Time not recorded'}</p></> : <p className="mt-2 text-xs text-slate-400">There are no active orders in the current browser record.</p>}
+                </section>
+                <section className="rounded-xl border border-purple-300/20 bg-slate-950/35 p-3"><b className="text-xs tracking-widest text-amber-200">TODAY'S ORDERS</b>
+                  {activeOrder?.orderId && activeOrder.startTime && new Date(activeOrder.startTime).toDateString() === new Date().toDateString() ? <p className="mt-2 text-xs">{activeOrder.orderId} · {String(activeOrder.status || 'Submitted').replace(/_/g, ' ')}</p> : <p className="mt-2 text-xs text-slate-400">No additional order records are available for today.</p>}
+                </section>
+              </div>
+            </details>
+            <details id="owner-beta-invitations" className="portal-panel p-4 mt-3 owner-module-panel">
+              <summary className="owner-accordion-summary"><span>Beta Invitation Code Manager</span><span className="owner-summary-badge">20 CODES</span></summary>
+              <p className="section-copy mt-3">Generate a fresh set of 20 invitation codes and assign each slot to an external beta tester's Access ID.</p>
+              <button type="button" className="primary-action mt-3" onClick={generateInvitationBatch}>GENERATE 20 INVITATION CODES</button>
+              {invitationMessage && <p className="form-message mt-2" role="status">{invitationMessage}</p>}
+              <div className="mt-3 grid gap-2">{invitationSlots.length === 0 ? <p className="small-caveat">No invitation batch has been generated yet.</p> : invitationSlots.map(slot => <div key={slot.slot} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 rounded-lg border border-purple-300/15 bg-slate-950/30 p-2">
+                <div><b className="text-[10px] text-amber-100">BETA USER {String(slot.slot).padStart(2,'0')}</b><p className="mt-1 break-all text-[10px] text-purple-100">{slot.invitationCode}</p></div>
+                <label className="text-[9px] text-purple-200">ASSIGNED ACCESS ID<input className="mt-1 w-full min-w-0 rounded border border-purple-300/20 bg-slate-900 p-2 text-[10px] text-white" value={slot.accessId} onChange={event => updateInvitationAccessId(slot.slot,event.target.value)} placeholder="Access ID" /></label>
+              </div>)}</div>
+            </details>
+            <details id="owner-notepad-session" className="portal-panel p-4 mt-3 owner-module-panel">
+              <summary className="owner-accordion-summary"><span>Owner Notepad &amp; Session Info</span><span className="owner-summary-badge">PRIVATE</span></summary>
+              <label className="mt-3 block text-xs text-purple-200">PRIVATE WORKING NOTES<textarea className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-950/70 p-3 text-sm text-slate-100" rows={5} value={ownerNotepad} onChange={event => { setOwnerNotepad(event.target.value); try { localStorage.setItem('CL_OWNER_NOTEPAD_V1', event.target.value); } catch { /* best effort */ } }} placeholder="Private operational notes and testing references..." /></label>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-emerald-400/20 bg-emerald-950/15 p-3"><span className="text-xs font-bold tracking-widest text-emerald-200">BROWSER SESSION</span><span className="text-[10px] text-emerald-100">{ownerSessionUntil > Date.now() ? 'OWNER SESSION ACTIVE' : 'INACTIVE'}</span></div>
+              <p className="small-caveat mt-2">Session expiry: {ownerSessionUntil > Date.now() ? new Date(ownerSessionUntil).toLocaleString() : 'Not active'} · Notes are stored in this browser.</p>
+              <button type="button" className="secondary-action mt-3" onClick={() => onOpenOwnerNotepad?.()}>Open Notepad &amp; Feedback Workspace</button>
+            </details>
+            <details id="owner-account-management" className="portal-panel p-4 mt-4 owner-module-panel">
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">ACCOUNT MANAGEMENT · UNIVERSAL ACCOUNT GENERATOR</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
               <h3 className="section-title mt-3">Generate environment-restricted credentials</h3>
               <p className="section-copy">Select the account environment first. Each generated record is tagged to that environment. This browser-only demonstration does not create secure or centrally valid credentials.</p>
@@ -941,11 +976,8 @@ export const Portal: React.FC<PortalProps> = ({
                 ) : (
                   <form className="gate-panel mt-3 p-0" onSubmit={handleOwnerAccessSubmit}>
                     <div className="grid grid-cols-2 gap-2 mb-3" role="group" aria-label="Owner sign-in methods">
-                      <button type="button" className={ownerSignInMethod === 'password' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('password'); setOwnerAccessMessage(''); }}>Access ID + Password</button>
                       <button type="button" className={ownerSignInMethod === 'pattern' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('pattern'); setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerPatternSetupStep(localStorage.getItem(OWNER_PATTERN_KEY) ? 2 : 0); setOwnerAccessMessage(''); }}>Pattern Unlock</button>
-                      <button type="button" className={ownerSignInMethod === 'pin' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('pin'); setOwnerPin(''); setOwnerPinConfirm(''); setOwnerPinSetupStep(localStorage.getItem(OWNER_PIN_KEY) ? 2 : 0); setOwnerAccessMessage(''); }}>6-Digit PIN</button>
-                      <button type="button" className={ownerSignInMethod === 'google' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('google'); setOwnerAccessMessage(''); setOwnerGoogleMessage(''); }}>Google Sign-In</button>
-                      <button type="button" className={ownerSignInMethod === 'voice' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('voice'); setOwnerVoicePhrase(''); setOwnerAccessMessage(''); }}>Voice Command</button>
+                      <button type="button" className={ownerSignInMethod === 'password' ? 'primary-action' : 'secondary-action'} onClick={() => { setOwnerSignInMethod('password'); setOwnerAccessMessage(''); }}>Access ID + Password</button>
                     </div>
                     {ownerSignInMethod === 'password' && <>
                     <label htmlFor="owner-access-id">OWNER ACCESS ID
@@ -960,7 +992,7 @@ export const Portal: React.FC<PortalProps> = ({
                     </>}
                     {ownerSignInMethod === 'pattern' && <div className="space-y-3">
                       <p className="section-copy">{ownerPatternSetupStep === 0 ? 'Create a pattern by connecting at least four dots.' : ownerPatternSetupStep === 1 ? 'Confirm your new pattern.' : 'Draw your saved Owner pattern.'}</p>
-                      <div className="grid grid-cols-3 gap-3 max-w-[230px] mx-auto py-3" aria-label="3 by 3 pattern grid">
+                      <div className="owner-pattern-grid grid grid-cols-3 gap-3 max-w-[230px] mx-auto py-3" aria-label="3 by 3 pattern grid">
                         {Array.from({ length: 9 }, (_, index) => <button key={index} type="button" aria-label={`Pattern dot ${index + 1}`} onClick={() => { const target = ownerPatternSetupStep === 1 ? setOwnerPatternConfirm : setOwnerPattern; target((previous) => previous.includes(index) ? previous : [...previous, index]); }} className={`aspect-square rounded-full border-2 ${ownerPattern.includes(index) || ownerPatternConfirm.includes(index) ? 'border-amber-200 bg-amber-300/30' : 'border-slate-400 bg-slate-900'}`}><span className="text-xs">{ownerPattern.includes(index) || ownerPatternConfirm.includes(index) ? '●' : '·'}</span></button>)}
                       </div>
                       <p className="text-center text-xs text-slate-300">{(ownerPatternSetupStep === 1 ? ownerPatternConfirm : ownerPattern).length} dots selected</p>
@@ -1840,25 +1872,12 @@ export const Portal: React.FC<PortalProps> = ({
 
       </main>
 
-      {ownerSessionUntil > Date.now() && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'onboarding' && view !== 'onboarding-terms' && (
-        <nav className="owner-preview-dock" aria-label="Persistent Owner Preview controls">
-          <span className="owner-preview-dock-label">OWNER PREVIEW</span>
-          <button type="button" onClick={() => { setView('owner-preview'); setMenuOpen(false); setEnvironmentMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Return to Owner Dashboard</button>
-          <button type="button" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest View</button>
-          <button type="button" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Regular Client Preview</button>
-          <button type="button" className="owner-preview-exit" onClick={exitOwnerOverride}>Exit Override</button>
-        </nav>
-      )}
-
       {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && (
       <>
       {/* Footer */}
-      <footer className="portal-footer" aria-label="Legal links">
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>TERMS</button>
-        <i aria-hidden="true">·</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>PRIVACY</button>
-        <i aria-hidden="true">·</i>
-        <button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>INFO SEC</button>
+      <footer className="portal-footer" aria-label="Site navigation and legal links">
+        <div className="portal-footer-navigation"><button type="button" className="portal-footer-link" onClick={navigateEnvironmentHome}>HOME</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('about')}>ABOUT</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('faqs')}>FAQS</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={onEnterStore}>STORE</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => { setActiveHomePanel('tracker'); handleChromeNavigation('regular-home'); }}>ORDER TRACKER</button></div>
+        <div className="portal-footer-navigation"><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>TERMS</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>PRIVACY</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>INFO SEC</button></div>
       </footer>
       </>
       )}
