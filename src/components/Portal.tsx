@@ -157,6 +157,20 @@ export const Portal: React.FC<PortalProps> = ({
   const [guestPage, setGuestPage] = useState<GuestPage | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [environmentMenuOpen, setEnvironmentMenuOpen] = useState(false);
+  const [ownerWelcomeOpen, setOwnerWelcomeOpen] = useState(false);
+  useEffect(() => {
+    if (view === 'owner-preview' && ownerSessionUntil > Date.now() && sessionStorage.getItem('CL_OWNER_WELCOME_SEEN_V1') !== '1') setOwnerWelcomeOpen(true);
+  }, [view, ownerSessionUntil]);
+  const toggleOwnerModule = (id: string) => {
+    const target = document.getElementById(id);
+    if (!(target instanceof HTMLDetailsElement)) return;
+    const willOpen = !target.open;
+    document.querySelectorAll('.owner-homepage .owner-module-panel, .owner-homepage .owner-master-module').forEach(node => {
+      if (node instanceof HTMLDetailsElement) node.open = false;
+    });
+    target.open = willOpen;
+    if (willOpen) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
   const [activeEnvironment, setActiveEnvironment] = useState<'guest' | 'regular'>(() => initialView === 'regular-home' || initialView === 'regular-gate' ? 'regular' : 'guest');
   const navigateEnvironmentHome = () => { if (ownerSessionUntil > Date.now()) { setView('owner-preview'); } else if (activeEnvironment === 'regular') { setView('regular-home'); } else { setGuestPage(null); setView('guest'); } window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const [threeSOpen, setThreeSOpen] = useState({ security: false, secrecy: false, safety: false });
@@ -734,16 +748,16 @@ export const Portal: React.FC<PortalProps> = ({
   return (
     <div className={`portal-shell min-h-screen flex flex-col justify-between ${(['regular-gate', 'invitation-gate', 'environment-gate', 'environment-route'].includes(view)) ? 'client-access-gate' : ''}`} data-page={view}>      {view !== 'landing' && view !== 'regular-gate' && view !== 'invitation-gate' && view !== 'environment-gate' && view !== 'environment-route' && (
         <header className="portal-header"><div className="portal-header-inner">
-          <button type="button" className="portal-brand cursor-pointer" aria-label="CELESTIAL LOBBY home" onClick={navigateEnvironmentHome}><span className="brand-name">CELESTIAL LOBBY</span></button>
-          <button type="button" className="lobby-menu-trigger" aria-label={menuOpen ? "Close site navigation" : "Open site navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span aria-hidden="true">{menuOpen ? '×' : '☰'}</span></button>
+          <button type="button" className={`portal-brand celestial-logo-trigger cursor-pointer ${menuOpen ? 'is-open' : ''}`} aria-label={menuOpen ? "Close CELESTIAL LOBBY navigation" : "Open CELESTIAL LOBBY navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span className="celestial-logo-mark" aria-hidden="true">✦</span><span className="brand-name">CELESTIAL LOBBY</span></button>
         </div>
         {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close site navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Site and Owner navigation">
           <details className="owner-drawer-section" open><summary>Site Navigation</summary>
-            <button type="button" onClick={() => { navigateEnvironmentHome(); setMenuOpen(false); }}>Home</button>
-            <button type="button" onClick={() => { handleChromeNavigation('about'); setMenuOpen(false); }}>About</button>
-            <button type="button" onClick={() => { handleChromeNavigation('faqs'); setMenuOpen(false); }}>FAQs</button>
-            <button type="button" onClick={() => { setMenuOpen(false); onEnterStore(); }}>Store</button>
-            <button type="button" onClick={() => { setActiveHomePanel('tracker'); handleChromeNavigation('regular-home'); setMenuOpen(false); }}>Order Tracker</button>
+            <button type="button" style={{'--nav-index':0} as React.CSSProperties} onClick={() => { navigateEnvironmentHome(); setMenuOpen(false); }}><i className="fa-solid fa-house" aria-hidden="true"></i><span>Home</span></button>
+            <button type="button" style={{'--nav-index':1} as React.CSSProperties} onClick={() => { handleChromeNavigation('about'); setMenuOpen(false); }}><i className="fa-solid fa-circle-info" aria-hidden="true"></i><span>About</span></button>
+            <button type="button" style={{'--nav-index':2} as React.CSSProperties} onClick={() => { handleChromeNavigation('no-nos'); setMenuOpen(false); }}><i className="fa-solid fa-shield-halved" aria-hidden="true"></i><span>3S</span></button>
+            <button type="button" style={{'--nav-index':3} as React.CSSProperties} onClick={() => { handleChromeNavigation('faqs'); setMenuOpen(false); }}><i className="fa-solid fa-circle-question" aria-hidden="true"></i><span>FAQs</span></button>
+            <button type="button" style={{'--nav-index':4} as React.CSSProperties} onClick={() => { setMenuOpen(false); onEnterStore(); }}><i className="fa-solid fa-store" aria-hidden="true"></i><span>Store</span></button>
+            <button type="button" style={{'--nav-index':5} as React.CSSProperties} onClick={() => { setActiveHomePanel('tracker'); handleChromeNavigation('regular-home'); setMenuOpen(false); }}><i className="fa-solid fa-box" aria-hidden="true"></i><span>Order Tracker</span></button>
           </details>
           {ownerSessionUntil > Date.now() && <details className="owner-drawer-section"><summary>Owner Controls</summary>
             <button type="button" onClick={() => { onOpenOwnerNotepad?.(); setMenuOpen(false); }}>Owner Notepad</button>
@@ -768,25 +782,21 @@ export const Portal: React.FC<PortalProps> = ({
         {/* OWNER OVERRIDE / BROWSER-LOCAL PREVIEW */}
         {view === 'owner-preview' && ownerSessionUntil > Date.now() && (
           <section className="guest-content-page animate-fadeIn owner-homepage">
-            <div className="portal-topline owner-home-topline">
-              <button className="text-back" onClick={lockSwitchAccess}>← Lock / Switch Access</button>
-              <span>OWNER COMMAND · PRIVATE WORKSPACE</span>
-            </div>
-            <p className="eyebrow">AUTHORIZED BROWSER SESSION</p>
-            <h2 className="section-title">Welcome, Commander.</h2>
-            <p className="section-copy">Owner Preview is active in this browser. This workspace is reserved for previewing and testing the portal experience.</p>
-            <div className="owner-session-status">
-              <span><i aria-hidden="true" className="fa-solid fa-shield-check"></i> OWNER SESSION: ACTIVE</span>
-              <small>LOCAL DEMO SESSION</small>
-            </div>
+            {ownerWelcomeOpen && <div className="owner-welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="owner-welcome-title">
+              <div className="owner-welcome-dialog">
+                <span className="owner-welcome-emblem" aria-hidden="true">✦</span>
+                <h2 id="owner-welcome-title">Welcome, Commander.</h2>
+                <button type="button" onClick={() => { setOwnerWelcomeOpen(false); try { sessionStorage.setItem('CL_OWNER_WELCOME_SEEN_V1', '1'); } catch { /* session storage optional */ } }}>ENTER OWNER HOMEPAGE</button>
+              </div>
+            </div>}
             <nav className="owner-command-bar" aria-label="Owner command bar">
-              <button type="button" aria-label="Environment" title="Environment" onClick={() => { const target = document.getElementById('owner-preview-workspace'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
-              <button type="button" aria-label="Operations" title="Operations" onClick={() => { const target = document.getElementById('owner-master-operations'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-clipboard-list" aria-hidden="true"></i></button>
-              <button type="button" aria-label="Accounts and Access" title="Accounts &amp; Access" onClick={() => { const target = document.getElementById('owner-account-management'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-users" aria-hidden="true"></i></button>
-              <button type="button" aria-label="Content Studio" title="Content Studio" onClick={() => { const target = document.getElementById('owner-master-content'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-file-pen" aria-hidden="true"></i></button>
-              <button type="button" aria-label="Vault" title="Vault" onClick={() => { const target = document.getElementById('owner-master-vault'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-folder-closed" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Environment" title="Environment" onClick={() => document.querySelector('.owner-environment-switcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Operations" title="Operations" onClick={() => toggleOwnerModule('owner-master-operations')}><i className="fa-solid fa-clipboard-list" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Accounts & Access" title="Accounts & Access" onClick={() => toggleOwnerModule('owner-account-management')}><i className="fa-solid fa-users" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Content Studio" title="Content Studio" onClick={() => toggleOwnerModule('owner-master-content')}><i className="fa-solid fa-file-pen" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Vault" title="Vault" onClick={() => toggleOwnerModule('owner-master-vault')}><i className="fa-solid fa-folder-closed" aria-hidden="true"></i></button>
               <button type="button" aria-label="Store" title="Store" onClick={onEnterStore}><i className="fa-solid fa-store" aria-hidden="true"></i></button>
-              <button type="button" aria-label="System" title="System" onClick={() => { const target = document.getElementById('owner-master-system'); if (target instanceof HTMLDetailsElement) target.open = true; target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><i className="fa-solid fa-gear" aria-hidden="true"></i></button>
+              <button type="button" aria-label="System" title="System" onClick={() => toggleOwnerModule('owner-master-system')}><i className="fa-solid fa-gear" aria-hidden="true"></i></button>
             </nav>
             <section id="owner-destinations" className="owner-destination-stage" aria-label="Owner destinations">
               <button type="button" className="owner-destination-tile owner-tile-celestials" onClick={() => { setActiveEnvironment('guest'); setGuestPage('celestial-overview'); setView('guest'); }}>
@@ -1866,8 +1876,7 @@ export const Portal: React.FC<PortalProps> = ({
       <>
       {/* Footer */}
       <footer className="portal-footer" aria-label="Site navigation and legal links">
-        <div className="portal-footer-navigation"><button type="button" className="portal-footer-link" onClick={navigateEnvironmentHome}>HOME</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('about')}>ABOUT</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('faqs')}>FAQS</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={onEnterStore}>STORE</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => { setActiveHomePanel('tracker'); handleChromeNavigation('regular-home'); }}>ORDER TRACKER</button></div>
-        <div className="portal-footer-navigation"><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>TERMS</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>PRIVACY</button><i aria-hidden="true">·</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('info-sec')}>INFO SEC</button></div>
+        <div className="portal-footer-navigation"><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('about')}>ABOUT US</button><i aria-hidden="true">|</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('faqs')}>FAQS</button><i aria-hidden="true">|</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('contact')}>CONTACT</button><i aria-hidden="true">|</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('privacy')}>PRIVACY POLICY</button><i aria-hidden="true">|</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('terms')}>TERMS &amp; CONDITIONS</button><i aria-hidden="true">|</i><button type="button" className="portal-footer-link" onClick={() => handleChromeNavigation('contact')}>CUSTOMER SUPPORT</button></div>
       </footer>
       </>
       )}
