@@ -4,6 +4,7 @@ import hoenoPosterBase64 from '../assets/hoeno-3s.webp.b64?raw';
 import { ONBOARDING_STEPS } from '../catalog';
 import { ActiveOrder, DeliveryDetails, DemoAccessCredentials } from '../types';
 import { OrderTimeline } from './OrderTimeline';
+import { OwnerMasterControl } from './OwnerMasterControl';
 
 interface PortalProps {
   initialView?: PortalView;
@@ -789,35 +790,7 @@ export const Portal: React.FC<PortalProps> = ({
                 <button type="button" onClick={() => document.getElementById('owner-account-management')?.scrollIntoView({ behavior: 'smooth' })}>Workspace</button>
               </div>
             </details>
-            <details id="owner-order-queue" className="portal-panel p-4 mt-3 owner-module-panel">
-              <summary className="owner-accordion-summary"><span>Current Order Queue</span><span className="owner-summary-badge">{activeOrder?.orderId ? '1 ACTIVE · ' + activeOrder.orderId : '0 ACTIVE'}</span></summary>
-              <div className="mt-3 grid gap-3">
-                <section className="rounded-xl border border-purple-300/20 bg-slate-950/35 p-3"><div className="flex items-center justify-between gap-2"><b className="text-xs tracking-widest text-amber-200">ACTIVE ORDER</b><span className="text-[10px] text-emerald-200">{activeOrder?.orderId ? String(activeOrder.status || 'Submitted').replace(/_/g, ' ').toUpperCase() : 'NO ACTIVE ORDER'}</span></div>
-                  {activeOrder?.orderId ? <><p className="mt-2 text-sm font-bold">{activeOrder.orderId}</p><p className="mt-1 text-xs text-slate-300">Started: {activeOrder.startTime ? new Date(activeOrder.startTime).toLocaleString() : 'Time not recorded'}</p></> : <p className="mt-2 text-xs text-slate-400">There are no active orders in the current browser record.</p>}
-                </section>
-                <section className="rounded-xl border border-purple-300/20 bg-slate-950/35 p-3"><b className="text-xs tracking-widest text-amber-200">TODAY'S ORDERS</b>
-                  {activeOrder?.orderId && activeOrder.startTime && new Date(activeOrder.startTime).toDateString() === new Date().toDateString() ? <p className="mt-2 text-xs">{activeOrder.orderId} · {String(activeOrder.status || 'Submitted').replace(/_/g, ' ')}</p> : <p className="mt-2 text-xs text-slate-400">No additional order records are available for today.</p>}
-                </section>
-              </div>
-            </details>
-            <details id="owner-beta-invitations" className="portal-panel p-4 mt-3 owner-module-panel">
-              <summary className="owner-accordion-summary"><span>Beta Invitation Code Manager</span><span className="owner-summary-badge">20 CODES</span></summary>
-              <p className="section-copy mt-3">Generate a fresh set of 20 invitation codes and assign each slot to an external beta tester's Access ID.</p>
-              <button type="button" className="primary-action mt-3" onClick={generateInvitationBatch}>GENERATE 20 INVITATION CODES</button>
-              {invitationMessage && <p className="form-message mt-2" role="status">{invitationMessage}</p>}
-              <div className="mt-3 grid gap-2">{Array.from({ length: 20 }, (_, index) => invitationSlots.find(slot => slot.slot === index + 1) || null).map((slot, index) => <div key={index + 1} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 rounded-lg border border-purple-300/15 bg-slate-950/30 p-2">
-                <div><b className="text-[10px] text-amber-100">BETA USER {String(index + 1).padStart(2,'0')}</b><p className="mt-1 break-all text-[10px] text-purple-100">{slot?.invitationCode || 'CODE NOT GENERATED'}</p></div>
-                <label className="text-[9px] text-purple-200">ASSIGNED ACCESS ID<input className="mt-1 w-full min-w-0 rounded border border-purple-300/20 bg-slate-900 p-2 text-[10px] text-white" value={slot?.accessId || ''} disabled={!slot} onChange={event => updateInvitationAccessId(index + 1,event.target.value)} placeholder="Access ID" /></label>
-              </div>)}</div>
-            </details>
-            <details id="owner-notepad-session" className="portal-panel p-4 mt-3 owner-module-panel">
-              <summary className="owner-accordion-summary"><span>Owner Notepad &amp; Session Info</span><span className="owner-summary-badge">PRIVATE</span></summary>
-              <label className="mt-3 block text-xs text-purple-200">PRIVATE WORKING NOTES<textarea className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-950/70 p-3 text-sm text-slate-100" rows={4} value={ownerNotepad} onChange={event => { setOwnerNotepad(event.target.value); try { localStorage.setItem('CL_OWNER_NOTEPAD_V1', event.target.value); } catch { /* best effort */ } }} placeholder="Private operational notes..." /></label>
-              <label className="mt-3 block text-xs text-purple-200">TESTING REFERENCES &amp; CHECKLISTS<textarea className="mt-1 w-full rounded-lg border border-purple-400/30 bg-slate-950/70 p-3 text-sm text-slate-100" rows={4} value={referenceNotes} onChange={event => { setReferenceNotes(event.target.value); try { localStorage.setItem('CL_OWNER_REFERENCE_CENTER_V1', event.target.value); } catch { /* best effort */ } }} placeholder="Page routes, test scenarios, and operational references..." /></label>
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-emerald-400/20 bg-emerald-950/15 p-3"><span className="text-xs font-bold tracking-widest text-emerald-200">BROWSER SESSION</span><span className="text-[10px] text-emerald-100">{ownerSessionUntil > Date.now() ? 'OWNER SESSION ACTIVE' : 'INACTIVE'}</span></div>
-              <p className="small-caveat mt-2">Session expiry: {ownerSessionUntil > Date.now() ? new Date(ownerSessionUntil).toLocaleString() : 'Not active'} · Notes are stored in this browser.</p>
-              <button type="button" className="secondary-action mt-3" onClick={() => onOpenOwnerNotepad?.()}>Open Notepad &amp; Feedback Workspace</button>
-            </details>
+            <OwnerMasterControl activeOrder={activeOrder} onUpdateStatus={onUpdateStatus} />
             <details id="owner-account-management" className="portal-panel p-4 mt-4 owner-module-panel">
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">ACCOUNT MANAGEMENT · UNIVERSAL ACCOUNT GENERATOR</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
               <h3 className="section-title mt-3">Generate environment-restricted credentials</h3>
