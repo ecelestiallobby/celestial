@@ -2309,3 +2309,34 @@ body:has(.owner-menu-anchor) .portal-header .lobby-menu-drawer {
   .owner-environment-actions { grid-template-columns: 1fr; }
   .owner-environment-actions button { min-height: 2.8rem; text-align: left; }
 }
+
+
+/* Owner Dashboard: unified header, compact environment switcher and accordions. */
+.portal-header{position:sticky;top:0;z-index:90;padding:max(9px,env(safe-area-inset-top)) 14px 9px;background:rgba(7,12,27,.94);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.portal-header-inner{width:min(100%,920px);min-height:46px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.portal-header .portal-brand{padding:0;border:0;background:transparent;text-align:left}
+.portal-header .portal-brand .brand-name{font-size:clamp(11px,3vw,15px);letter-spacing:.13em}
+.portal-header .lobby-menu-trigger{flex:0 0 42px;width:42px;height:42px;border-radius:12px}
+.lobby-menu-drawer{top:max(64px,calc(env(safe-area-inset-top) + 58px));max-height:calc(100dvh - max(76px,calc(env(safe-area-inset-top) + 70px)));overflow-y:auto}
+.owner-drawer-section{display:grid;gap:7px;padding-bottom:10px;border-bottom:1px solid rgba(220,190,132,.18)}
+.owner-drawer-section summary{padding:9px 3px;color:#e8ce98;font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.owner-drawer-section summary::marker{color:#c9a968}
+.owner-drawer-section button{min-height:40px}
+.owner-drawer-exit{border-color:rgba(248,113,113,.38)!important;color:#fecaca!important}
+.owner-environment-switcher{position:sticky;top:64px;z-index:45;display:flex;align-items:center;gap:5px;width:min(calc(100% - 24px),620px);margin:0 auto 14px;padding:6px;overflow-x:auto;border:1px solid rgba(220,190,132,.25);border-radius:999px;background:rgba(8,14,29,.94);box-shadow:0 8px 24px rgba(0,0,0,.22);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);scrollbar-width:none}
+.owner-environment-switcher::-webkit-scrollbar{display:none}
+.owner-environment-switcher button{flex:1 0 auto;min-height:34px;padding:7px 13px;border:1px solid transparent;border-radius:999px;background:transparent;color:#c6c2d3;font-size:10px;font-weight:850;letter-spacing:.08em;white-space:nowrap}
+.owner-environment-switcher button.is-active{border-color:rgba(232,211,154,.55);background:linear-gradient(135deg,rgba(228,201,142,.2),rgba(130,103,177,.2));color:#f5dda7}
+.owner-environment-switcher .owner-preview-exit{border-color:rgba(248,113,113,.32);color:#fecaca}
+.owner-accordion-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:28px;color:#f0d7a2;font-size:11px;font-weight:850;letter-spacing:.07em;cursor:pointer;list-style:none}
+.owner-accordion-summary::-webkit-details-marker{display:none}
+.owner-accordion-summary::after{content:'+';order:2;color:#cbb17b;font-size:17px}
+details[open]>.owner-accordion-summary::after{content:'−'}
+.owner-summary-badge{margin-left:auto;padding:4px 8px;border:1px solid rgba(220,190,132,.25);border-radius:999px;background:rgba(8,14,29,.55);color:#d9c69c;font-size:8px;font-weight:800;letter-spacing:.08em;white-space:nowrap}
+.owner-destination-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.owner-destination-grid button{min-height:58px;padding:11px;border:1px solid rgba(220,190,132,.22);border-radius:12px;background:rgba(9,15,32,.56);color:#e9dfc9;font-size:10px;font-weight:800;text-align:left}
+.owner-module-panel{scroll-margin-top:126px}
+.owner-pattern-grid{touch-action:none;overscroll-behavior:contain;user-select:none;-webkit-user-select:none}
+.portal-footer-navigation{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin:5px 0}
+.portal-footer{display:grid;gap:4px;padding-bottom:max(18px,env(safe-area-inset-bottom))}
+@media(max-width:420px){.owner-environment-switcher{top:60px;width:calc(100% - 18px)}.owner-environment-switcher button{padding-inline:10px;font-size:9px}.owner-accordion-summary{font-size:10px}}
