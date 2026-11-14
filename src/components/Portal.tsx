@@ -790,7 +790,7 @@ export const Portal: React.FC<PortalProps> = ({
               </div>
             </div>}
             <nav className="owner-command-bar" aria-label="Owner command bar">
-              <button type="button" aria-label="Environment" title="Environment" onClick={() => toggleOwnerModule('owner-master-system')}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
+              <button type="button" aria-label="Environment" title="Environment" onClick={() => document.querySelector('.owner-environment-switcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
               <button type="button" aria-label="Operations" title="Operations" onClick={() => toggleOwnerModule('owner-master-operations')}><i className="fa-solid fa-clipboard-list" aria-hidden="true"></i></button>
               <button type="button" aria-label="Accounts & Access" title="Accounts & Access" onClick={() => toggleOwnerModule('owner-account-management')}><i className="fa-solid fa-users" aria-hidden="true"></i></button>
               <button type="button" aria-label="Content Studio" title="Content Studio" onClick={() => toggleOwnerModule('owner-master-content')}><i className="fa-solid fa-file-pen" aria-hidden="true"></i></button>
