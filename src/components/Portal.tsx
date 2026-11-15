@@ -802,6 +802,7 @@ export const Portal: React.FC<PortalProps> = ({
             <button type="button" onClick={() => { onOpenOwnerNotepad?.(); setMenuOpen(false); }}>Owner Notepad</button>
             <button type="button" onClick={() => { document.getElementById('owner-beta-invitations')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false); }}>Beta Invitation Codes</button>
             <button type="button" onClick={() => { onOpenOwnerTools?.(); setMenuOpen(false); }}>Override Controls</button>
+            {view !== 'owner-preview' && <button type="button" onClick={() => { setView('owner-preview'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Exit Preview</button>}
             <button type="button" className="owner-drawer-exit" onClick={() => { exitOwnerOverride(); setMenuOpen(false); }}>Exit Owner Session</button>
           </details>}
         </nav></>}
