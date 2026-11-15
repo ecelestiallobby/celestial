@@ -56,7 +56,7 @@ export const OwnerMasterControl: React.FC<{
   const handleModuleToggle = (event: React.SyntheticEvent<HTMLDetailsElement>) => {
     const current = event.currentTarget;
     if (!current.open) return;
-    document.querySelectorAll('.owner-homepage .owner-master-module[open]').forEach(node => {
+    document.querySelectorAll('.owner-homepage details[open]').forEach(node => {
       if (node !== current && node instanceof HTMLDetailsElement) node.open = false;
     });
   };
