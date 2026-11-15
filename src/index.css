@@ -2503,3 +2503,20 @@ body[data-cl-platform-state="lockdown"]:has(.owner-master-control) .portal-main>
 .owner-welcome-emblem{display:grid;place-items:center;width:54px;height:54px;border:1px solid rgba(222,194,137,.5);border-radius:50%;color:#efd49a;font-size:29px}
 .owner-welcome-dialog h2{margin:0;color:#f1e4c7;font-family:Cinzel,serif;font-size:23px}
 .owner-welcome-dialog button{min-height:42px;padding:0 18px;border:1px solid rgba(222,194,137,.42);border-radius:9px;background:rgba(170,130,66,.16);color:#efd49a;font-size:9px;font-weight:900;letter-spacing:.12em}
+
+
+/* Owner control drawer: compact, single-panel accordion */
+.owner-homepage .owner-master-control{gap:9px;margin:14px 0 20px}
+.owner-homepage .owner-master-heading{padding:13px 14px}
+.owner-homepage .owner-master-warning{font-size:10px;line-height:1.5}
+.owner-homepage .owner-master-module,.owner-homepage details.portal-panel{scroll-margin-top:16px}
+.owner-homepage .owner-master-module>summary,.owner-homepage details.portal-panel>summary{min-height:54px;gap:9px;padding:12px 14px;cursor:pointer;list-style:none}
+.owner-homepage .owner-master-module>summary::-webkit-details-marker,.owner-homepage details.portal-panel>summary::-webkit-details-marker{display:none}
+.owner-homepage .owner-master-module>summary:after,.owner-homepage details.portal-panel>summary:after{content:'+';flex:0 0 auto;color:#d8bd83;font-size:18px;font-weight:400}
+.owner-homepage .owner-master-module[open]>summary:after,.owner-homepage details.portal-panel[open]>summary:after{content:'−'}
+.owner-homepage .owner-master-module>summary span{margin-left:auto}
+.owner-homepage .owner-master-module[open],.owner-homepage details.portal-panel[open]{border-color:rgba(220,190,132,.48);box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.owner-homepage .owner-master-body{padding:2px 13px 15px}
+.owner-homepage details.portal-panel>summary span:last-child{white-space:nowrap;font-size:9px}
+.owner-homepage .owner-master-module>summary:focus-visible,.owner-homepage details.portal-panel>summary:focus-visible{outline:2px solid rgba(231,202,147,.8);outline-offset:-3px;border-radius:12px}
+@media(max-width:430px){.owner-homepage .owner-master-module>summary,.owner-homepage details.portal-panel>summary{min-height:52px;padding:11px 12px;font-size:9px}.owner-homepage .owner-master-module>summary span{font-size:7px}}
