@@ -784,6 +784,12 @@ export const Portal: React.FC<PortalProps> = ({
           <button type="button" className={`portal-brand celestial-logo-trigger cursor-pointer ${menuOpen ? 'is-open' : ''}`} aria-label={menuOpen ? "Close CELESTIAL LOBBY navigation" : "Open CELESTIAL LOBBY navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span className="celestial-logo-mark" aria-hidden="true">✦</span><span className="brand-name">CELESTIAL LOBBY</span></button>
         </div>
         {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close site navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Site and Owner navigation">
+          {ownerSessionUntil > Date.now() && <div className="owner-environment-switcher owner-drawer-environment-switcher" role="group" aria-label="Owner environment preview">
+            <button type="button" className={view === 'owner-preview' ? 'is-active' : ''} aria-pressed={view === 'owner-preview'} onClick={() => { setView('owner-preview'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner</button>
+            <button type="button" className={view === 'guest' ? 'is-active' : ''} aria-pressed={view === 'guest'} onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest</button>
+            <button type="button" className={view === 'regular-home' ? 'is-active' : ''} aria-pressed={view === 'regular-home'} onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Member</button>
+            <button type="button" className={view === 'army-home' ? 'is-active' : ''} aria-pressed={view === 'army-home'} onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Army</button>
+          </div>}
           <details className="owner-drawer-section" open><summary>Site Navigation</summary>
             <button type="button" style={{'--nav-index':0} as React.CSSProperties} onClick={() => { navigateEnvironmentHome(); setMenuOpen(false); }}><i className="fa-solid fa-house" aria-hidden="true"></i><span>Home</span></button>
             <button type="button" style={{'--nav-index':1} as React.CSSProperties} onClick={() => { handleChromeNavigation('about'); setMenuOpen(false); }}><i className="fa-solid fa-circle-info" aria-hidden="true"></i><span>About</span></button>
@@ -800,15 +806,6 @@ export const Portal: React.FC<PortalProps> = ({
           </details>}
         </nav></>}
       </header>
-      )}
-      {ownerSessionUntil > Date.now() && !['landing', 'regular-gate', 'invitation-gate', 'environment-gate', 'environment-route', 'onboarding', 'onboarding-terms'].includes(view) && (
-        <nav className="owner-environment-switcher" aria-label="Owner environment preview switcher">
-          <button type="button" className={view === 'owner-preview' ? 'is-active' : ''} onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner</button>
-          <button type="button" className={view === 'guest' ? 'is-active' : ''} onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Guest</button>
-          <button type="button" className={view === 'regular-home' ? 'is-active' : ''} onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Member</button>
-          <button type="button" className={view === 'army-home' ? 'is-active' : ''} onClick={() => { setActiveArmyPanel('emp01'); setView('army-home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Army</button>
-          {view !== 'owner-preview' && <button type="button" className="owner-preview-exit" onClick={() => { setView('owner-preview'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Exit Preview</button>}
-        </nav>
       )}
       {/* Main Views Container */}
       <main className="portal-main flex-grow">
