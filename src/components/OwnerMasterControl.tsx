@@ -53,6 +53,13 @@ export const OwnerMasterControl: React.FC<{
   const [notes, setNotes] = useState(() => { try { return localStorage.getItem(KEYS.notes) || ''; } catch { return ''; } });
   const [quickCopy, setQuickCopy] = useState('CELESTIAL LOBBY · OWNER OPERATIONS');
   const [notice, setNotice] = useState('');
+  const handleModuleToggle = (event: React.SyntheticEvent<HTMLDetailsElement>) => {
+    const current = event.currentTarget;
+    if (!current.open) return;
+    document.querySelectorAll('.owner-homepage details[open]').forEach(node => {
+      if (node !== current && node instanceof HTMLDetailsElement) node.open = false;
+    });
+  };
 
   useEffect(() => { try { localStorage.setItem(KEYS.platform, JSON.stringify(platform)); } catch { /* local demo */ } }, [platform]);
   useEffect(() => { try { localStorage.setItem(KEYS.visibility, JSON.stringify(visibility)); } catch { /* local demo */ } }, [visibility]);
@@ -114,7 +121,7 @@ export const OwnerMasterControl: React.FC<{
     </div>
     <p className="owner-master-warning">Controls in this build affect this browser only. Global lockdown, cross-device updates, account revocation and synchronized sessions require the shared Cloudflare backend.</p>
 
-    <details id="owner-master-system" className="owner-master-module" open>
+    <details id="owner-master-system" className="owner-master-module" onToggle={handleModuleToggle}>
       <summary>01 · GLOBAL COMMAND STRIP <span>{platform.toUpperCase()}</span></summary>
       <div className="owner-master-body">
         <label>LIVE VIEW SIMULATOR</label>
@@ -125,7 +132,7 @@ export const OwnerMasterControl: React.FC<{
         </div>
         {platform !== 'live' && <p className="owner-master-alert">{platform === 'maintenance' ? 'Maintenance preview is active in this browser.' : 'Lockdown preview is active in this browser.'} Public visitors on other devices are not affected.</p>}
         <div className="owner-master-row"><div><b>EDIT UI / VISIBILITY MODE</b><small>Toggle selected interface areas in the current browser preview.</small></div><button type="button" className={editMode ? 'active' : ''} onClick={() => setEditMode(value => !value)}>{editMode ? 'EDIT MODE ON' : 'EDIT MODE OFF'}</button></div>
-        {editMode && <div className="owner-visibility-list">{visibilityTargets.map(target => <label key={target.id}><span>{target.label}</span><input type="checkbox" checked={!!visibility[target.id]} onChange={() => toggleVisibility(target.id)} /> <small>{visibility[target.id] ? 'Hidden' : 'Visible'}</small></label>)}</div>}
+        {editMode && <div className="owner-visibility-list">{visibilityTargets.map(target => <label key={target.id}><span>{target.label}</span><input type="checkbox" checked={!!visibility[previewTier + ':' + target.id]} onChange={() => toggleVisibility(target.id)} /> <small>{visibility[previewTier + ':' + target.id] ? 'Hidden' : 'Visible'}</small></label>)}</div>}
         <label className="mt-3">TIER-TARGETED ANNOUNCEMENT</label>
         <div className="owner-inline-fields"><select value={bannerTier} onChange={event => setBannerTier(event.target.value)}><option>Guest</option><option>Member</option><option>Army</option></select><input value={banner} onChange={event => setBanner(event.target.value)} placeholder="Announcement text" /></div>
         {banner.trim() && <div className="owner-master-alert"><b>LOCAL BANNER PREVIEW · {bannerTier.toUpperCase()}</b><p>{banner}</p></div>}
@@ -145,7 +152,7 @@ export const OwnerMasterControl: React.FC<{
       </div>
     </details>
 
-    <details id="owner-beta-invitations" className="owner-master-module">
+    <details id="owner-beta-invitations" className="owner-master-module" onToggle={handleModuleToggle}>
       <summary>03 · ACCESS GATE &amp; BETA KEY COMMAND <span>{beta.length} KEYS</span></summary>
       <div className="owner-master-body">
         <p className="owner-master-hint">Beta invitation keys are separate from each tester’s individual Access ID and 8-character alphanumeric Access Code. Beta testers are external testers.</p>
@@ -163,7 +170,7 @@ export const OwnerMasterControl: React.FC<{
       </div>
     </details>
 
-    <details id="owner-master-content" className="owner-master-module">
+    <details id="owner-master-content" className="owner-master-module" onToggle={handleModuleToggle}>
       <summary>04 · DYNAMIC CONTENT &amp; LORE CMS <span>{dwellers.length} DWELLERS</span></summary>
       <div className="owner-master-body">
         {dwellers.map((dweller, index) => <div className="owner-lore-row" key={dweller.name}>
@@ -174,7 +181,7 @@ export const OwnerMasterControl: React.FC<{
       </div>
     </details>
 
-    <details id="owner-master-vault" className="owner-master-module">
+    <details id="owner-master-vault" className="owner-master-module" onToggle={handleModuleToggle}>
       <summary>05 · SYSTEM &amp; SESSION VAULT <span>PRIVATE</span></summary>
       <div className="owner-master-body">
         <label>OWNER NOTES &amp; SOP REFERENCES<textarea rows={5} value={notes} onChange={event => setNotes(event.target.value)} placeholder="Private operational notes, SOP reminders, testing checklist..." /></label>
