@@ -144,6 +144,7 @@ export const Portal: React.FC<PortalProps> = ({
   const [ownerPattern, setOwnerPattern] = useState<number[]>([]);
   const [ownerPatternConfirm, setOwnerPatternConfirm] = useState<number[]>([]);
   const [ownerPatternSetupStep, setOwnerPatternSetupStep] = useState<0 | 1 | 2>(0);
+  const ownerPatternDrawingRef = useRef(false);
   const [ownerPin, setOwnerPin] = useState('');
   const [ownerPinConfirm, setOwnerPinConfirm] = useState('');
   const [ownerPinSetupStep, setOwnerPinSetupStep] = useState<0 | 1 | 2>(0);
@@ -343,6 +344,31 @@ export const Portal: React.FC<PortalProps> = ({
     const bytes = new TextEncoder().encode(value);
     const digest = await crypto.subtle.digest('SHA-256', bytes);
     return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+  };
+
+  const addOwnerPatternDot = (index: number) => {
+    const updatePattern = ownerPatternSetupStep === 1 ? setOwnerPatternConfirm : setOwnerPattern;
+    updatePattern((previous) => previous.includes(index) ? previous : [...previous, index]);
+  };
+
+  const handleOwnerPatternPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    const dot = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-pattern-dot]');
+    if (!dot) return;
+    event.preventDefault();
+    ownerPatternDrawingRef.current = true;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    addOwnerPatternDot(Number(dot.dataset.patternDot));
+  };
+
+  const handleOwnerPatternPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!ownerPatternDrawingRef.current) return;
+    const dot = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLButtonElement>('[data-pattern-dot]');
+    if (dot) addOwnerPatternDot(Number(dot.dataset.patternDot));
+  };
+
+  const handleOwnerPatternPointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
+    ownerPatternDrawingRef.current = false;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
   const handleOwnerPatternSubmit = async () => {
@@ -992,12 +1018,31 @@ export const Portal: React.FC<PortalProps> = ({
                     </>}
                     {ownerSignInMethod === 'pattern' && <div className="space-y-3">
                       <p className="section-copy">{ownerPatternSetupStep === 0 ? 'Create a pattern by connecting at least four dots.' : ownerPatternSetupStep === 1 ? 'Confirm your new pattern.' : 'Draw your saved Owner pattern.'}</p>
-                      <div className="owner-pattern-grid grid grid-cols-3 gap-3 max-w-[230px] mx-auto py-3" aria-label="3 by 3 pattern grid">
-                        {Array.from({ length: 9 }, (_, index) => <button key={index} type="button" aria-label={`Pattern dot ${index + 1}`} onClick={() => { const target = ownerPatternSetupStep === 1 ? setOwnerPatternConfirm : setOwnerPattern; target((previous) => previous.includes(index) ? previous : [...previous, index]); }} className={`aspect-square rounded-full border-2 ${ownerPattern.includes(index) || ownerPatternConfirm.includes(index) ? 'border-amber-200 bg-amber-300/30' : 'border-slate-400 bg-slate-900'}`}><span className="text-xs">{ownerPattern.includes(index) || ownerPatternConfirm.includes(index) ? '●' : '·'}</span></button>)}
+                      <div
+                        className="owner-pattern-grid grid grid-cols-3 gap-3 max-w-[230px] mx-auto py-3"
+                        aria-label="3 by 3 pattern grid"
+                        onPointerDown={handleOwnerPatternPointerDown}
+                        onPointerMove={handleOwnerPatternPointerMove}
+                        onPointerUp={handleOwnerPatternPointerEnd}
+                        onPointerCancel={handleOwnerPatternPointerEnd}
+                      >
+                        <svg className="owner-pattern-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                          <polyline
+                            points={(ownerPatternSetupStep === 1 ? ownerPatternConfirm : ownerPattern).map((index) => `${15 + (index % 3) * 35},${15 + Math.floor(index / 3) * 35}`).join(' ')}
+                          />
+                        </svg>
+                        {Array.from({ length: 9 }, (_, index) => <button
+                          key={index}
+                          type="button"
+                          data-pattern-dot={index}
+                          aria-label={`Pattern dot ${index + 1}`}
+                          onClick={() => addOwnerPatternDot(index)}
+                          className={`aspect-square rounded-full border-2 ${(ownerPatternSetupStep === 1 ? ownerPatternConfirm : ownerPattern).includes(index) ? 'border-amber-200 bg-amber-300/30' : 'border-slate-400 bg-slate-900'}`}
+                        ><span className="text-xs">{(ownerPatternSetupStep === 1 ? ownerPatternConfirm : ownerPattern).includes(index) ? '●' : '·'}</span></button>)}
                       </div>
                       <p className="text-center text-xs text-slate-300">{(ownerPatternSetupStep === 1 ? ownerPatternConfirm : ownerPattern).length} dots selected</p>
                       <button type="button" className="primary-action" onClick={handleOwnerPatternSubmit}>{ownerPatternSetupStep === 0 ? 'Continue Pattern Setup' : ownerPatternSetupStep === 1 ? 'Confirm Pattern' : 'Unlock with Pattern'}</button>
-                      <button type="button" className="secondary-action w-full" onClick={() => { setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerAccessMessage('Pattern cleared.'); }}>Clear Pattern</button>
+                      <button type="button" className="secondary-action w-full" onClick={() => { ownerPatternDrawingRef.current = false; setOwnerPattern([]); setOwnerPatternConfirm([]); setOwnerAccessMessage('Pattern cleared.'); }}>Clear Pattern</button>
                     </div>}
                     {ownerSignInMethod === 'pin' && <div className="space-y-3">
                       <p className="section-copy">{ownerPinSetupStep === 0 ? 'Create a six-digit Owner PIN.' : ownerPinSetupStep === 1 ? 'Confirm your six-digit PIN.' : 'Enter your saved six-digit PIN.'}</p>
