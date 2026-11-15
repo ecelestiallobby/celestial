@@ -2525,3 +2525,19 @@ body[data-cl-platform-state="lockdown"]:has(.owner-master-control) .portal-main>
 /* Environment preview selector lives inside the hamburger drawer */
 .lobby-menu-drawer .owner-drawer-environment-switcher{position:relative;top:auto;z-index:auto;width:100%;max-width:none;margin:0 0 14px;padding:5px;gap:4px;box-shadow:none;flex-shrink:0}
 .lobby-menu-drawer .owner-drawer-environment-switcher button{flex:1 1 0;min-width:0;min-height:36px;padding:7px 4px;font-size:10px;letter-spacing:.03em}
+
+
+/* Responsive Owner command bar placement: desktop header, existing mobile row */
+.owner-header-command-bar{display:none}
+@media (min-width: 768px){
+  .portal-header{display:flex;align-items:center;justify-content:flex-start;gap:clamp(22px,4vw,54px);flex-wrap:nowrap;padding-top:14px;padding-bottom:14px}
+  .portal-header-inner{display:flex;align-items:center;flex:0 0 auto;min-width:0}
+  .portal-header .owner-command-bar-desktop{display:flex;flex:1 1 auto;width:auto;max-width:680px;min-width:320px;min-height:48px;margin:0 0 0 auto;padding:4px 8px;gap:8px}
+  .portal-header .owner-command-bar-desktop button{min-height:38px;font-size:17px}
+  .owner-homepage>.owner-command-bar-mobile{display:none}
+  .owner-homepage{padding-top:12px}
+}
+@media (max-width: 767px){
+  .portal-header .owner-command-bar-desktop{display:none}
+  .owner-homepage>.owner-command-bar-mobile{display:flex}
+}

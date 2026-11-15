@@ -783,6 +783,15 @@ export const Portal: React.FC<PortalProps> = ({
         <header className="portal-header"><div className="portal-header-inner">
           <button type="button" className={`portal-brand celestial-logo-trigger cursor-pointer ${menuOpen ? 'is-open' : ''}`} aria-label={menuOpen ? "Close CELESTIAL LOBBY navigation" : "Open CELESTIAL LOBBY navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><span className="celestial-logo-mark" aria-hidden="true">✦</span><span className="brand-name">CELESTIAL LOBBY</span></button>
         </div>
+        {view === 'owner-preview' && ownerSessionUntil > Date.now() && <nav className="owner-command-bar owner-command-bar-desktop" aria-label="Owner command bar">
+          <button type="button" aria-label="Environment" title="Environment" onClick={() => document.querySelector('.owner-environment-switcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Operations" title="Operations" onClick={() => toggleOwnerModule('owner-master-operations')}><i className="fa-solid fa-clipboard-list" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Accounts & Access" title="Accounts & Access" onClick={() => toggleOwnerModule('owner-account-management')}><i className="fa-solid fa-users" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Content Studio" title="Content Studio" onClick={() => toggleOwnerModule('owner-master-content')}><i className="fa-solid fa-file-pen" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Vault" title="Vault" onClick={() => toggleOwnerModule('owner-master-vault')}><i className="fa-solid fa-folder-closed" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Store" title="Store" onClick={onEnterStore}><i className="fa-solid fa-store" aria-hidden="true"></i></button>
+          <button type="button" aria-label="System" title="System" onClick={() => toggleOwnerModule('owner-master-system')}><i className="fa-solid fa-gear" aria-hidden="true"></i></button>
+        </nav>
         {menuOpen && <><button type="button" className="lobby-menu-backdrop" aria-label="Close site navigation" onClick={() => setMenuOpen(false)} /><nav className="lobby-menu-drawer" aria-label="Site and Owner navigation">
           {ownerSessionUntil > Date.now() && <div className="owner-environment-switcher owner-drawer-environment-switcher" role="group" aria-label="Owner environment preview">
             <button type="button" className={view === 'owner-preview' ? 'is-active' : ''} aria-pressed={view === 'owner-preview'} onClick={() => { setView('owner-preview'); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Owner</button>
@@ -820,7 +829,7 @@ export const Portal: React.FC<PortalProps> = ({
                 <button type="button" onClick={() => { setOwnerWelcomeOpen(false); try { sessionStorage.setItem('CL_OWNER_WELCOME_SEEN_V1', '1'); } catch { /* session storage optional */ } }}>ENTER OWNER HOMEPAGE</button>
               </div>
             </div>}
-            <nav className="owner-command-bar" aria-label="Owner command bar">
+            <nav className="owner-command-bar owner-command-bar-mobile" aria-label="Owner command bar">
               <button type="button" aria-label="Environment" title="Environment" onClick={() => document.querySelector('.owner-environment-switcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><i className="fa-solid fa-globe" aria-hidden="true"></i></button>
               <button type="button" aria-label="Operations" title="Operations" onClick={() => toggleOwnerModule('owner-master-operations')}><i className="fa-solid fa-clipboard-list" aria-hidden="true"></i></button>
               <button type="button" aria-label="Accounts & Access" title="Accounts & Access" onClick={() => toggleOwnerModule('owner-account-management')}><i className="fa-solid fa-users" aria-hidden="true"></i></button>
