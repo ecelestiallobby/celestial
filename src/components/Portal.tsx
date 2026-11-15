@@ -162,6 +162,13 @@ export const Portal: React.FC<PortalProps> = ({
   useEffect(() => {
     if (view === 'owner-preview' && ownerSessionUntil > Date.now() && sessionStorage.getItem('CL_OWNER_WELCOME_SEEN_V1') !== '1') setOwnerWelcomeOpen(true);
   }, [view, ownerSessionUntil]);
+  const handleOwnerDrawerToggle = (event: React.SyntheticEvent<HTMLDetailsElement>) => {
+    const current = event.currentTarget;
+    if (!current.open) return;
+    document.querySelectorAll('.owner-homepage details[open]').forEach(node => {
+      if (node !== current && node instanceof HTMLDetailsElement) node.open = false;
+    });
+  };
   const toggleOwnerModule = (id: string) => {
     const target = document.getElementById(id);
     if (!(target instanceof HTMLDetailsElement)) return;
@@ -842,7 +849,7 @@ export const Portal: React.FC<PortalProps> = ({
               <span><i className="fa-solid fa-compass" aria-hidden="true"></i> ONBOARDING SESSION</span><i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
             </button>
             <OwnerMasterControl activeOrder={activeOrder} onUpdateStatus={onUpdateStatus} />
-            <details id="owner-account-management" className="portal-panel p-4 mt-4 owner-module-panel">
+            <details id="owner-account-management" className="portal-panel p-4 mt-4 owner-module-panel" onToggle={handleOwnerDrawerToggle}>
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">ACCOUNT MANAGEMENT · UNIVERSAL ACCOUNT GENERATOR</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
               <button type="button" className="secondary-action mt-3" onClick={() => setView('info-sec')}>OPEN ACCESS &amp; SECURITY</button>
               <h3 className="section-title mt-3">Generate environment-restricted credentials</h3>
@@ -895,14 +902,14 @@ export const Portal: React.FC<PortalProps> = ({
               <p className="small-caveat mt-3">DEMO ONLY · Data stays in this browser. Production account issuance, reset, suspension and revocation require trusted backend validation and an audit log.</p>
             </details>
 
-            <details id="owner-preview-workspace" className="portal-panel p-4 mt-4">
+            <details id="owner-preview-workspace" className="portal-panel p-4 mt-4" onToggle={handleOwnerDrawerToggle}>
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">PREVIEW WORKSPACE</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
               <h3 className="section-title mt-3">Environment simulation</h3>
               <p className="section-copy">Inspect implemented pages and navigation. Preview activity is not a live business record.</p>
               <div className="flex flex-wrap gap-2 mt-4"><button className="primary-action" onClick={() => { setActiveEnvironment('guest'); setView('guest'); setGuestPage(null); }}>Open Guest Environment</button><button className="secondary-action" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); }}>Regular Client Preview</button><button className="text-back" onClick={lockSwitchAccess}>Lock / Switch Access</button></div>
             </details>
 
-            <details id="owner-reference-center" className="portal-panel p-4 mt-4">
+            <details id="owner-reference-center" className="portal-panel p-4 mt-4" onToggle={handleOwnerDrawerToggle}>
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">OWNER REFERENCE CENTER</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
               <h3 className="section-title mt-3">Operational references</h3>
               <div className="mt-3 rounded-lg border border-purple-400/20 p-3 text-xs space-y-2"><p><b>ACCESS ID:</b> Identifies an individual member or employee.</p><p><b>ACCESS CODE:</b> Exactly 8 alphanumeric characters.</p><p><b>ENVIRONMENTS:</b> Celestial Army, Regular Client / Member, Beta Tester (external), Guest / Visitor.</p><p><b>BETA TESTERS:</b> External testers, not members, clients, or employees.</p><p><b>SECURITY:</b> Browser-local demo credentials are not secure authentication.</p><p><b>ACCOUNT STATUS:</b> Active, Suspended, Revoked, Expired.</p></div>
@@ -910,7 +917,7 @@ export const Portal: React.FC<PortalProps> = ({
               <p className="small-caveat mt-2">Saved locally in this browser. Do not store passwords, payment details, or customer data here.</p>
             </details>
 
-            <details id="owner-preview-panel" className="portal-panel p-4 mt-4">
+            <details id="owner-preview-panel" className="portal-panel p-4 mt-4" onToggle={handleOwnerDrawerToggle}>
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3"><span className="text-amber-300 font-bold tracking-widest text-xs">OWNER PREVIEW</span><span className="text-purple-200 text-xs">EXPAND / COLLAPSE</span></summary>
               <p className="section-copy mt-3">Preview the portal as a visitor or regular client without changing the account environment.</p>
               <div className="grid grid-cols-2 gap-2 mt-3"><button className="primary-action" onClick={() => { setActiveEnvironment('guest'); setGuestPage(null); setView('guest'); }}>Guest Preview</button><button className="secondary-action" onClick={() => { setActiveEnvironment('regular'); setView('regular-home'); }}>Regular Client Preview</button></div>
